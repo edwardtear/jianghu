@@ -1,14 +1,11 @@
-/* 江湖一生 · Firebase settings.
-   Paste the config object from Firebase console → Project settings → Your apps → Web app here.
-   Leave it as null to run the game without accounts or feedback (progress then stays in each player's browser). */
-window.FIREBASE_CONFIG = null;
-/* example:
+/* 江湖一生 · Firebase settings (public by design; the data is protected by firestore.rules).
+   Set to null to run the game without accounts or feedback. */
 window.FIREBASE_CONFIG = {
-  apiKey: "...",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "...",
-  appId: "..."
+  apiKey: "AIzaSyBrFM6a6GOzHOT4vC7xwzWsjY0cceBV2h0",
+  authDomain: "jianghu-45c2d.firebaseapp.com",
+  projectId: "jianghu-45c2d",
+  storageBucket: "jianghu-45c2d.firebasestorage.app",
+  messagingSenderId: "704611443729",
+  appId: "1:704611443729:web:dbf5e96c9bf85aa01ffdb0",
+  measurementId: "G-LV45K6HJEV"
 };
-*/
