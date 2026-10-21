@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // each player can read and write only their own save
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    // anyone may send feedback; nobody can read it from the game (read it in the Firebase console)
+    match /feedback/{id} {
+      allow create: if request.resource.data.text is string
+                    && request.resource.data.text.size() > 2
+                    && request.resource.data.text.size() <= 4000
+                    && request.resource.data.keys().hasOnly(['type','text','contact','life','lang','uid','ua','at']);
+      allow read, update, delete: if false;
+    }
+  }
+}
