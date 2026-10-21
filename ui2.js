@@ -87,3 +87,9 @@ function memFor(s,p){return(s.mem||[]).filter(r=>r.pid===p.id||(!r.pid&&r.who&&r
   if(!ks.length)return h;ks.sort((a,b)=>(b===s.sect)-(a===s.sect)||sst(s,b)-sst(s,a));ks=ks.slice(0,12);
   const row=k=>{const v=sst(s,k),r=s.sect&&k!==s.sect?sectRel(s.sect,k):null;return`<div class="rowb" style="cursor:default"><span class="main"><b>${Z?SECTS[k].cn:SECTS[k].en}${k===s.sect?(Z?'（本门）':' (yours)'):''}</b><span>${tr(SSTN(v))} · ${v>0?'+':''}${v}</span>${r!=null?`<span>${Z?'与本门':'With your sect'}：${tr(RELNAME[r])}</span>`:''}</span></div>`};
   return h+`<div class="grp"><h4>${Z?'各派对你的态度':'How the sects see you'}</h4><div class="rows">${ks.map(row).join('')}</div></div>`}})();
+/* on the tombstone: go on living as one of your children */
+(()=>{const ep=epitaph;epitaph=function(s){const h=ep(s);if(typeof heirs!=='function')return h;const hs=heirs(s);if(!hs.length)return h;const Z=zh();
+  const box=`<div class="grp" style="margin:12px 0"><h4>${Z?'传承：以子女的身份活下去':'Carry on as your child'}</h4><div class="rows">${hs.map(k=>`<button class="rowb" data-heir="${k.id}"><span class="main"><b>${Z?k.n.cn:esc(k.n.py)}</b><span>${tr(relLabel(s,k))} · ${Z?cnNum(k.age)+'岁':k.age} · ${Z?'功力':'power'} ${k.lv}</span></span></button>`).join('')}</div></div>`;
+  const i=h.indexOf('<button class="btn main" id="b-again">');return i<0?h+box:h.slice(0,i)+box+h.slice(i)}})();
+document.addEventListener('click',e=>{const t=e.target.closest('[data-heir]');if(!t||!S||S.alive)return;const n=heirLife(S,+t.dataset.heir);if(!n)return;
+  closeSheet();S=n;lastLen=0;SHOW.length=0;update(false);window.scrollTo({top:0})});
