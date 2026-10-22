@@ -1,3 +1,12 @@
+<!doctype html>
+<html lang="zh">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#E5E9E0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101514" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="江湖一生">
+<meta name="format-detection" content="telephone=no">
 <title>江湖一生 · One Life in the Jianghu</title>
 <meta name="description" content="一款中英双语的武侠人生模拟器：生在何处由天不由你，练功、比武、恋爱、闯荡，一年一年地活。A bilingual wuxia life simulator.">
 <meta property="og:title" content="江湖一生 · One Life in the Jianghu">
@@ -154,6 +163,32 @@ body.zh .yl p{max-width:42em}
 .hall li{display:flex;gap:10px;justify-content:space-between;font-size:14.5px;border-bottom:1px dotted var(--line);padding-bottom:3px;flex-wrap:wrap}
 .hall li span:last-child{color:var(--ink-2)}
 
+
+/* phones */
+#ministat{display:none}
+.mini{display:flex;flex-direction:column;gap:5px;width:100%;text-align:left;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);padding:7px 10px;cursor:pointer;color:var(--ink);font:inherit}
+.mtop{display:flex;align-items:baseline;gap:8px;font-size:14px;white-space:nowrap;overflow:hidden}.mtop b{font-size:16px;font-weight:600}
+.mrealm{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis}.mmoney{font-variant-numeric:tabular-nums}.mq{color:var(--seal);font-size:12.5px}.mmore{margin-left:auto;color:var(--ink-2);font-size:12.5px}
+.mbars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.mb{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-2)}.ml{flex:none}
+.mt{flex:1;height:5px;background:var(--paper-3);border-radius:3px;overflow:hidden}.mt i{display:block;height:100%}
+.sidesheet .who{margin-top:2px}
+@media (max-width:620px){
+ #side{display:none}
+ #ministat{display:block;position:sticky;top:0;z-index:15;background:var(--paper);padding:6px 0 8px;margin:0 0 4px}
+ .wrap{padding-inline:max(12px,env(safe-area-inset-left,0px))}
+ main{gap:6px;padding-top:6px}
+ body.jh-play .head{padding-block:44px 6px;gap:6px}
+ body.jh-play .brand{font-size:30px}
+ body.jh-play .tag{display:none}
+ .topbar .chip{padding:4px 9px;font-size:13px}
+ .choices{padding:12px}
+ .choice{padding:10px 12px}
+ .yl p{font-size:15.5px;line-height:1.65}
+ .focusbar{padding:8px 10px;gap:4px}.focusbar .fchips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.focusbar .fchips::-webkit-scrollbar{display:none}.focusbar .fchips .chip{flex:none}
+ .dock .age{width:74px;height:74px;margin-top:-24px}
+ .dock .age #d-ap{font-size:12px;letter-spacing:0}
+ .dock .tab{font-size:12px}.dock .tab .ico{width:32px;height:32px;font-size:20px}
+}
 /* dock */
 .dock{position:sticky;bottom:0;z-index:20;background:var(--paper);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .dock .wrap{display:grid;grid-template-columns:1fr 1fr auto 1fr 1fr;gap:6px;align-items:center;padding-block:8px;max-width:720px}
@@ -430,3 +465,4 @@ table.ladder tr.me td{color:var(--seal);font-weight:600}
 <script src="ui2.js"></script>
 <script src="firebase-config.js"></script>
 <script src="cloud.js"></script>
+<script src="mobile.js"></script>
