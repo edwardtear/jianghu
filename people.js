@@ -21,10 +21,14 @@ function topicLabel(t){if(t.lb)return t.lb;for(const[re,l]of TOPIC_LB)if(re.test
 /* three more things you can bring up */
 function extraTopics(s,p){const L=[],tr=tkTrait(p),stronger=p.lv>power(s)+10,occ=PE_OCC(p);
   L.push({w:1.6,lb:T('Ask their advice','向对方讨教'),me:T(`You ask ${p.n.py} for advice.`,`你向${p.n.cn}讨教。`),
-   q:stronger?T('Your weight is on your heels. Fix that first; everything else follows.','你的分量压在脚后跟上。先改这个，别的都跟着顺了。'):occ==='trade'?T('Never buy what everyone is buying. By the time you hear about it, it is too late.','别人都在买的东西，你别买。等你听说，已经晚了。'):['father','mother'].includes(p.rel)?T('Eat properly, sleep early, and do not lend money to anyone who calls you brother.','好好吃饭，早点睡，管你叫兄弟的人借钱，一概别借。'):T('Do the thing you are afraid of first. The rest of the day is easier.','先做你最怕的那件事，一天剩下的就好过了。'),
+   q:stronger?[T('Your weight is on your heels. Fix that first; everything else follows.','你的分量压在脚后跟上。先改这个，别的都跟着顺了。'),T('You attack like someone who wants it over with. Learn to enjoy being patient.','你出手像是急着收场。学着享受耐心。'),T('Stop watching the blade. Watch the shoulder.','别盯着刀，盯着肩膀。'),T('You breathe in when you strike. Breathe out.','你出招时在吸气。该呼气。')]
+    :occ==='trade'?[T('Never buy what everyone is buying. By the time you hear about it, it is too late.','别人都在买的东西，你别买。等你听说，已经晚了。'),T('Always know who pays the boatman.','永远弄清楚船钱是谁付的。'),T('A small profit every year beats a big one once.','年年小赚，强过一回大赚。')]
+    :['father','mother','grandparent'].includes(p.rel)?[T('Eat properly, sleep early, and do not lend money to anyone who calls you brother.','好好吃饭，早点睡，管你叫兄弟的人借钱，一概别借。'),T('Choose friends who tell you when you are wrong.','交那种你错了会直说的朋友。'),T('Whatever you are carrying, put it down for one night and see if you still want it in the morning.','不管心里压着什么，先放下睡一晚，看看天亮了还想不想要。')]
+    :p.rel==='master'?[T('You are trying to be clever. Be correct first.','你想耍聪明。先把对的练会。'),T('A hundred more repetitions. Then ask me again.','再练一百遍。然后再来问我。')]
+    :[T('Do the thing you are afraid of first. The rest of the day is easier.','先做你最怕的那件事，一天剩下的就好过了。'),T('If you cannot decide, it does not matter much. Pick one.','拿不定主意，说明哪个都差不多。挑一个就是。'),T('Ask someone older. Then ignore half of it.','去问年纪大的人。然后忘掉一半。'),T('Nobody is watching you as closely as you think.','没人像你以为的那样盯着你。')],
    fit:{arrogant:.8,upright:.5,gentle:.4,cold:-.5,timid:-.3},good:stronger?T('You try it that evening. They are right.','当晚你就试了。对方说得对。'):T('It is good advice. You may even take it.','是句好话。说不定你真会照做。'),fx:stronger?{skill:[1,2]}:{smarts:1}});
   if(p.age>=16)L.push({w:1.2,lb:T('Talk about the future','聊聊将来的打算'),me:T(`You and ${p.n.py} talk about what comes next.`,`你和${p.n.cn}聊起往后的打算。`),
-   q:pick([T('I want a small house with a big tree in the yard. That is all. Is that too much?','我就想要个小院子，院里有棵大树。就这些。算多吗？'),T('One day I will see the sea. You will come with me.','总有一天我要去看海。到时候你得陪我去。'),T('I do not think about the future. It has never once listened to me.','我不想将来的事。将来从来没听过我一回。'),T('I want to be remembered for something. I do not know what yet.','我想让人记住我点什么。还不知道是什么。')]),
+   q:[T('I want a small house with a big tree in the yard. That is all. Is that too much?','我就想要个小院子，院里有棵大树。就这些。算多吗？'),T('One day I will see the sea. You will come with me.','总有一天我要去看海。到时候你得陪我去。'),T('I do not think about the future. It has never once listened to me.','我不想将来的事。将来从来没听过我一回。'),T('I want to be remembered for something. I do not know what yet.','我想让人记住我点什么。还不知道是什么。'),T('I want to open a noodle shop. A good one. Do not laugh.','我想开家面馆。好面馆。不许笑。'),T('Honestly? I would like one quiet year. Just one.','说实话？我就想过一年安生日子。一年就行。'),T('I am going to learn to read properly before I die.','我死之前，一定要把字认全。')],
    fit:{devoted:.7,cheerful:.4,bold:.4,cold:-.6,eccentric:.3},good:T(`You make a promise, half joking, that you both mean.`,`你们半开玩笑地许了个约，其实都当了真。`)});
   L.push({w:1,lb:T('Pay them a compliment','夸对方几句'),me:T(`You tell ${p.n.py} something you admire about ${PRON[p.sex].him}.`,`你说起佩服${p.n.cn}的地方。`),
    q:{arrogant:T('Finally, someone notices.','总算有人看出来了。'),upright:T('Flattery does not suit you. But thank you.','恭维话不像你说的。不过，谢谢。'),cold:T('…Hm.','……嗯。'),timid:T('Me? Really? You are just being kind.','我？真的吗？你就是客气。'),greedy:T('Kind words are cheap. I like them anyway.','好话不值钱，不过我爱听。')}[tr]||T('You are going to make me blush.','你这么说，我都不好意思了。'),
@@ -34,7 +38,7 @@ function extraTopics(s,p){const L=[],tr=tkTrait(p),stronger=p.lv>power(s)+10,occ
 I({id:'pk_chat',only:1,noRipple:1,noThread:1,tags:['rel'],
  text:c=>T(`You sit down with ${c.npc.en}. What do you talk about?`,`你和${c.npc.zh}坐下来说话。聊点什么？`),
  opts:[0,1,2].map(i=>({l:c=>topicLabel(c.tp[i]),if:(s,c)=>!!c.tp[i],out:[{t:T('',''),fx:{f:(s,c)=>talkDo(s,c.p,c.tp[i])}}]})).concat([
-  {l:T('Just chat, and see where it goes','随便聊聊，聊到哪儿算哪儿'),out:[{t:T('',''),fx:{f:(s,c)=>{if(c.p)talkDo(s,c.p,pick(c.all))}}}]}])});
+  {l:T('Just chat, and see where it goes','随便聊聊，聊到哪儿算哪儿'),out:[{t:T('',''),fx:{f:(s,c)=>{if(!c.p)return;const used=s.tkYr===s.age?(s.tkUsed||[]):[];const fr=c.all.filter(t=>!used.includes(t.lb.zh));talkDo(s,c.p,pick(fr.length?fr:c.all))}}}]}])});
 /* say() ignores empty lines so the hidden outcome text above prints nothing */
 (()=>{const s0=say;say=function(s,en,zh){if(en===''&&zh==='')return;return s0.apply(this,arguments)}})();
 function talkTopics(s,p){const T0=[];const news=newsOf(s,p);T0.push({w:2.5,news:1,me:T(`You ask ${p.n.py} how things are.`,`你问起${p.n.cn}的近况。`),q:tkPick(s,p,'n'+p.rel,news),fit:{}});
@@ -188,3 +192,43 @@ I({id:'pk_ask',only:1,noRipple:1,noThread:1,tags:['rel'],
 PACTS.push({id:'ask',n:T('Ask a favour','请托'),ap:0,if:(s,p)=>s.age>=12&&p.age>=14&&p.alive&&!hostile(p),ok:(s,p)=>p.askedAt===s.age?T('Already asked this year','今年已经求过了'):true,
  run(s,p){p.askedAt=s.age;const c=scene();c.pid=p.id;c.p=p;c.npc=peNpc(s,p);runIncident(s,INC_BY.pk_ask,c)}});
 PACT_BY.ask=PACTS[PACTS.length-1];
+
+/* ---------- talking about someone you both know ----------
+   What they say depends on who that person is to you, what that person is like, how they get on with you, and who is
+   doing the talking. A line used with one person is not reused with another for a while. */
+const GOS_TRAIT={bold:[T('Loud, that one. But when it matters, first through the door.','嗓门大，可到了要紧时候，第一个冲上去的就是他。')],
+ scheming:[T('Watch what they do, not what they say. That is all I will say.','看那人做什么，别听那人说什么。我就说这么多。'),T('Clever. Maybe too clever.','聪明。也许太聪明了点。')],
+ gentle:[T('I have never once heard them raise their voice.','我就没听那人大声说过一句话。')],greedy:[T('Easy to borrow from? No. Easy to lend to? Very.','找那人借钱？难。借钱给那人？容易得很。'),T('Counts the change twice. Every time.','找零都要数两遍。回回如此。')],
+ devoted:[T('Once they care about you, that is it. For life.','那人一旦认准了你，就是一辈子。')],'a heavy drinker':[T('Good company until the third jar. After that, a different person.','头两坛还是个好伴，第三坛下去，就换了个人。')],
+ eccentric:[T('Odd. Wonderful, but odd. Did you know they talk to their chickens?','古怪。好人，可是古怪。你知道那人跟鸡说话吗？')],upright:[T('Straight as a ruler. Exhausting, sometimes.','直得跟尺子似的。有时候挺累人。')],
+ timid:[T('Jumps at shadows, that one. Kind, though.','那人见了影子都要吓一跳。心倒是好的。')],arrogant:[T('Thinks rather well of themselves, does that one.','那人可是挺把自己当回事的。')],
+ cheerful:[T('Never a dull hour with that one around.','有那人在，就没有冷场的时候。')],cold:[T('Cold as well water. Reliable as well water, too.','冷得跟井水似的。不过，也跟井水一样靠得住。')]};
+function gosLines(s,p,o){const ozh=o.n.cn,oen=o.n.py,L=[],r=o.rel,famP=['father','mother','sibling','spouse','child','grandparent'].includes(p.rel);
+  if(['father','mother'].includes(r)){const ma=r==='mother';
+    if(['sibling'].includes(p.rel))L.push(T(`${ma?'Mother':'Father'} asks about you every time I visit. Every single time.`,`我每回回去，${ma?'娘':'爹'}都要问起你。回回都问。`),T(`${ma?'Mother':'Father'} is getting older. Have you noticed? I have.`,`${ma?'娘':'爹'}老了。你看出来没有？我看出来了。`));
+    else if(p.rel==='spouse')L.push(T(`Your ${ma?'mother':'father'} and I had a long talk. About you, mostly.`,`我跟你${ma?'娘':'爹'}聊了好久。聊的多半是你。`));
+    else L.push(T(`I saw your ${ma?'mother':'father'} at the market. Spent half an hour boasting about you.`,`我在集上碰见你${ma?'娘':'爹'}了，夸你夸了足足半个时辰。`),T(`Is your ${ma?'mother':'father'} still as strict as people say?`,`你${ma?'娘':'爹'}还像大家说的那么严吗？`))}
+  else if(r==='sibling'){const elder=o.age>s.age,f=o.sex==='f';const zhw=f?(elder?'姐姐':'妹妹'):(elder?'哥哥':'弟弟'),enw=f?'sister':'brother';
+    L.push(famP?T(`Your ${enw} is up to something again. I will let ${f?'her':'him'} tell you.`,`你${zhw}又在捣鼓什么了。让${f?'她':'他'}自己跟你说吧。`):T(`Your ${enw} ${oen}? You two are nothing alike. Or exactly alike.`,`你${zhw}${ozh}？你们俩一点也不像。又或者一模一样。`),T(`${oen} was asking about you. ${f?'She':'He'} worries, you know.`,`${ozh}前两天还问起你。${f?'她':'他'}是惦记你的。`))}
+  else if(r==='spouse')L.push(T(`How does ${oen} put up with you? Tell me the secret.`,`${ozh}怎么受得了你的？教教我。`),T(`${oen} came by the other day. You married well. Better than you deserve.`,`${ozh}前几天来过。你娶得好（嫁得好），比你配得上的还好。`.replace('娶得好（嫁得好）',s.gender==='m'?'娶得好':'嫁得好')));
+  else if(r==='child')L.push(T(`${oen} is the image of you. Heaven help everyone.`,`${ozh}跟你一个模子刻出来的。老天保佑大伙儿吧。`),T(`${oen} told me what ${o.sex==='f'?'she':'he'} wants to be. You should ask.`,`${ozh}跟我说了将来想干什么。你该去问问。`));
+  else if(r==='master')L.push(T(`Your master ${oen}? People lower their voices when they say that name.`,`你师父${ozh}？大家提这个名字都压低了声音。`),T(`Does ${oen} ever smile? Has anyone seen it?`,`${ozh}笑过没有？有人见过吗？`));
+  else if(r==='disciple')L.push(T(`That student of yours, ${oen}, practises at dawn outside my window. Every day.`,`你那个徒弟${ozh}，天天天不亮就在我窗外练功。`));
+  else if(['rival','enemy'].includes(r))L.push(T(`${oen} has been saying things about you. I did not believe a word.`,`${ozh}在外头说你坏话。我一个字都没信。`),T(`I heard ${oen} lost a fight last month. I am not saying I was pleased.`,`听说${ozh}上个月输了一场。我可没说我高兴。`));
+  else if(['lover'].includes(r))L.push(T(`So. ${oen}. When were you going to tell me?`,`所以，${ozh}。你打算什么时候告诉我？`));
+  L.push(...(GOS_TRAIT[(TRAITS[o.trait]||TRAITS[0])[0]]||[]));
+  if(o.bond<30)L.push(T(`Have you two fallen out? ${oen} goes quiet when your name comes up.`,`你们俩闹别扭了？一提起你，${ozh}就不吭声。`));
+  return L}
+gossip=function(s,p){const others=near(s).filter(o=>o.id!==p.id&&o.age>=12);if(!others.length)return[];
+  const o=wpick(others,o=>1+(s.tkGos&&s.tkGos.includes(o.id)?0:2)),rl=relLabel(s,o);
+  return[{w:1.4,gos:o.id,me:T(`Talk turns to ${o.n.py}, your ${rl.en.toLowerCase()}.`,`话题转到了你的${rl.zh}${o.n.cn}身上。`),q:tkLife(s,'g'+o.id+':',gosLines(s,p,o)),
+   fit:{scheming:.6,cheerful:.3,upright:-.5},bad:T(`${p.n.py} does not like talking about people behind their backs, and says so.`,`${p.n.cn}不爱在背后议论人，直说了。`)}]};
+/* pick a line nobody has said to you lately, whoever said it */
+function tkLife(s,key,list){s.tkLife=s.tkLife||[];const fresh=list.filter(x=>!s.tkLife.includes(x.zh));const o=pick(fresh.length?fresh:list);s.tkLife.push(o.zh);if(s.tkLife.length>40)s.tkLife.shift();return o}
+(()=>{const tp=tkPick;tkPick=function(s,p,key,list){s.tkLife=s.tkLife||[];const fresh=list.filter(x=>!s.tkLife.includes(x.zh));const o=tp(s,p,key,fresh.length?fresh:list);s.tkLife.push(o.zh);if(s.tkLife.length>40)s.tkLife.shift();return o}})();
+/* the same kind of topic does not come up with everyone in one year */
+(()=>{const td=talkDo;talkDo=function(s,p,topic){if(topic){if(s.tkYr!==s.age){s.tkYr=s.age;s.tkUsed=[]}s.tkUsed.push(topic.lb.zh);if(topic.gos){s.tkGos=(s.tkGos||[]).concat(topic.gos).slice(-6)}}return td.apply(this,arguments)}})();
+(()=>{const tr0=talkRun;talkRun=function(s,p){if(s.age<13&&p.age<16||(p.rel==='child'&&p.age<10))return false;
+  const used=s.tkYr===s.age?(s.tkUsed||[]):[];const all=talkTopics(s,p),last=p.tkLast,tp=[];const pool=all.slice();
+  while(tp.length<3&&pool.length){const t=wpick(pool,t=>t.w*(last&&t.me.zh===last?.2:1)*(used.includes(t.lb.zh)?.2:1));pool.splice(pool.indexOf(t),1);if(!tp.some(x=>x.lb.zh===t.lb.zh))tp.push(t)}
+  const c=scene();c.pid=p.id;c.p=p;c.npc=peNpc(s,p);c.tp=tp;c.all=all;runIncident(s,INC_BY.pk_chat,c);return true}})();
