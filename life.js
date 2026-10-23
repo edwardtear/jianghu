@@ -111,7 +111,7 @@ const pn=p=>T(p.n.py,p.n.cn);
 const STAKES={spar:10,light:20,injury:36,death:60};
 function fightLife(s,foe,o){
   o=o||{};const stakes=o.stakes||'injury';
-  const me=youFighter(s),start=me.hp;
+  const me=effFighter(youFighter(s)),start=me.hp;
   const allies=(o.allies||[]).map(a=>npcFighter(a.name,a.lv,a));
   const them=[npcFighter(foe.name,Math.max(1,Math.round(foe.lv)),foe)].concat((foe.extra||[]).map(a=>npcFighter(a.name,a.lv,a)));
   const r=runBattle([[me].concat(allies),them],{open:o.open,stakes});
@@ -119,7 +119,7 @@ function fightLife(s,foe,o){
   const keys=Object.keys(BATTLES);if(keys.length>40)delete BATTLES[keys[0]];
   const win=r.winner===0,end=Math.max(0,Math.round(r.final[0].hp));
   /* what the fight took is what you lose; bruises from a friendly bout mostly heal by evening */
-  let dmg=Math.round((start-end)*(stakes==='spar'?.4:stakes==='light'?.7:1)),leftForDead=false;
+  let dmg=Math.round((start-end)/(me.k||1)*(stakes==='spar'?.4:stakes==='light'?.7:1)),leftForDead=false;
   if(stakes==='death'&&end<=0){if(chance(.45+s.t.luck*.03)){leftForDead=true;dmg=s.health-rint(2,6)}else dmg=s.health}
   dmg=clamp(dmg,0,Math.max(0,s.health));s.health-=dmg;
   if(dmg>0)s.cause=T(o.cause?o.cause.en:'wounds from a fight','死于'+(o.cause?o.cause.zh:'一场恶斗留下的伤'));

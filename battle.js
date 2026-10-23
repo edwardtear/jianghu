@@ -95,6 +95,9 @@ function youFighter(s){
   f.you=1;return f;
 }
 
+/* in a fight your health is shown on the same scale as everyone else's: real health × toughness. The fight is the
+   same either way; afterwards fightLife converts what you lost back into real health */
+function effFighter(f){const k=f.tough||1;f.k=k;f.maxHp=Math.round(f.maxHp*k);f.hp=Math.max(1,Math.round(f.hp*k));f.tough=1;return f}
 /* ---------- the fight ---------- */
 function runBattle(teams,opts){
   opts=opts||{};
@@ -208,7 +211,7 @@ function runBattle(teams,opts){
     line('Both sides are spent. The judges call it.','双方力竭，由旁人判定胜负。','muted')}
   const wn=alive(winner).filter(f=>!f.clone)[0]||F.find(f=>f.team===winner);
   line(`${nm(wn)}${teams[winner].length>1?'’s side':''} wins.`,`${nm(wn)}${teams[winner].length>1?'一方':''}获胜。`,'gold');
-  return{winner,frames,fighters:F.map(f=>({name:f.name,team:f.team,maxHp:f.maxHp,mpMax:f.mpMax||0,conds:f.conds||[],you:f.you,clone:f.clone,skills:f.skills.map(x=>({label:x.label,id:x.id,lv:x.lv,innate:x.innate})),lv:f.lv,st:START[f.idx]||fstats(f)})),
+  return{winner,frames,fighters:F.map(f=>({name:f.name,team:f.team,maxHp:f.maxHp,k:f.k,mpMax:f.mpMax||0,conds:f.conds||[],you:f.you,clone:f.clone,skills:f.skills.map(x=>({label:x.label,id:x.id,lv:x.lv,innate:x.innate})),lv:f.lv,st:START[f.idx]||fstats(f)})),
     names,final:F.map(f=>({hp:Math.max(0,f.hp),maxHp:f.maxHp,you:f.you}))};
 }
 

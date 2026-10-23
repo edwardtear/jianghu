@@ -184,7 +184,7 @@ const GUIDE={
    ['Arts (武学)','Each art you learn becomes a technique in battle, and its tier sets the technique level (Lv1–Lv4).'],
    ['Natural knack','Your name gives you one technique, as in Name Arena. It only appears once you reach Third-rate.']]],
   fig:['Fighting stats (used in every fight)',[
-   ['HP','Fights use your real health. The ×number is your toughness: damage you take is divided by it, and it grows with martial power, Constitution and armour. A friendly bout ends when someone yields; a dangerous fight can kill.'],
+   ['HP','Your health. In a fight it is shown multiplied by your toughness (the ×number), so that it is on the same scale as your opponent’s: 86 health with toughness ×1.8 shows as 155. Toughness grows with martial power, Constitution and armour. Whatever share you lose in the fight comes off your real health afterwards. A friendly bout ends when someone yields; a dangerous fight can kill.'],
    ['Attack','Damage of strikes. Mostly from Strength, plus your weapon.'],['Defence','Reduces damage from strikes. Mostly from Constitution, plus armour.'],
    ['Critical','Chance of a critical hit (1.6× damage). From Strength.'],['Dodge','Chance to slip a blow entirely. From Agility; a quick opponent lowers it a little.'],
    ['Speed (in Agility)','How often you act. Not shown separately: it comes from Agility.'],['True qi','Every technique costs true qi (more for higher-level techniques). It refills a little each turn; how much depends on Inner force. Run dry and you can only strike plainly.'],
@@ -222,7 +222,7 @@ const GUIDE={
    ['武学','每学会一门武功，战斗中就多一招，品阶决定招式等级（Lv1–Lv4）。'],
    ['天赋招式','你的名字会给你一招，和名字论剑一样。要到三流好手才会显现。']]],
   fig:['战斗属性（每场战斗都用到）',[
-   ['气血','战斗用的就是你的气血。后面的×数字是「抗打」：所受伤害要除以它，它随功力、根骨和护甲增长。切磋点到为止，有人认输就停；凶险的打斗可能送命。'],
+   ['气血','你的气血。打起来时，会乘上「抗打」（后面的×数字），换算成和对手同一个尺度显示：气血86、抗打×1.8，战斗里就显示155。抗打随功力、根骨和护甲增长。战斗中掉了几成，事后就从真实气血里扣几成。切磋点到为止，有人认输就停；凶险的打斗可能送命。'],
    ['攻击','普通招式的伤害。主要来自力道，再加兵器。'],['防御','减少普通招式的伤害。主要来自根骨，再加护甲。'],
    ['暴击','打出会心一击（1.6倍伤害）的几率。来自力道。'],['闪避','完全躲开一击的几率。来自身法；对手出手越快，越难躲。'],
    ['速度（含在身法里）','出手的频率。不单独显示，由身法决定。'],['真气','每使一招都要耗真气，招式越高耗得越多。每回合按「气聚」恢复一些，多少取决于内功。真气耗尽，就只能出普通招式。'],
@@ -384,7 +384,7 @@ function drawTeams(){
   for(let i=0;i<BT.visible;i++){const f=r.fighters[i];(teams[f.team]=teams[f.team]||[]).push(i)}
   $('bt-teams').innerHTML=Object.keys(teams).map(t=>`<div class="team">${teams[t].map(i=>{const f=r.fighters[i],hp=BT.hp[i],mx=BT.mx[i];
     const mp=BT.mp?BT.mp[i]:f.mpMax,mmx=BT.mmx?BT.mmx[i]:f.mpMax,ss=BT.ss?BT.ss[i]:(f.conds||[]).map(k=>'c_'+k);
-    return`<div class="fc${hp<=0?' dead':''}"><div class="nm">${nmHTML(r,i)}<span class="num">${hp} / ${mx}</span></div><div class="hp"><i class="b${f.team%5}" style="width:${clamp(hp/mx*100,0,100)}%"></i></div>${mmx?`<div class="mpb" title="${zh()?'真气':'True qi'} ${mp}/${mmx}"><i style="width:${clamp(mp/mmx*100,0,100)}%"></i></div>`:''}${ss&&ss.length&&typeof stChips==='function'?`<div class="stl">${stChips(ss)}</div>`:''}${f.st?`<div class="sline">${statLine(f.st)}</div>`:''}<div class="sks">${(f.skills||[]).map(x=>skillChip(x)).join('')}</div></div>`}).join('')}</div>`).join('');
+    return`<div class="fc${hp<=0?' dead':''}"><div class="nm">${nmHTML(r,i)}<span class="num">${hp} / ${mx}${f.you&&f.k&&Math.abs(f.k-1)>.05?`<small class="muted" title="${zh()?'战斗中的气血＝真实气血×抗打':'Health in a fight = real health × toughness'}"> （${zh()?'抗打':'tough'}×${Math.round(f.k*10)/10}）</small>`:''}</span></div><div class="hp"><i class="b${f.team%5}" style="width:${clamp(hp/mx*100,0,100)}%"></i></div>${mmx?`<div class="mpb" title="${zh()?'真气':'True qi'} ${mp}/${mmx}"><i style="width:${clamp(mp/mmx*100,0,100)}%"></i></div>`:''}${ss&&ss.length&&typeof stChips==='function'?`<div class="stl">${stChips(ss)}</div>`:''}${f.st?`<div class="sline">${statLine(f.st)}</div>`:''}<div class="sks">${(f.skills||[]).map(x=>skillChip(x)).join('')}</div></div>`}).join('')}</div>`).join('');
 }
 function stepBattle(silent){
   const r=BT.r,fr=r.frames[BT.i++];if(!fr)return;
@@ -416,7 +416,7 @@ function arenaHTML(){const L=u();const txt=SHEET.text??store.get('jh4_arena',SAM
   return`<p style="margin:0 0 8px">${L.arenaHelp}</p><textarea class="names" id="ar-txt" aria-label="${L.arena}">${esc(txt)}</textarea>
   <div class="bctl" style="margin:8px 0 12px"><button class="btn main" id="ar-go">${L.fight}</button><button class="btn" id="ar-me"${S?'':' disabled'}>${L.addMe}</button><button class="btn" id="ar-rand">${L.rand}</button></div>
   ${arenaCards(teams)}`}
-function arenaFighter(n){return S&&S.alive&&n===S.cn?Object.assign(youFighter(S),{hp:youFighter(S).maxHp}):nameFighter(n)}
+function arenaFighter(n){if(S&&S.alive&&n===S.cn){const f=effFighter(youFighter(S));f.hp=f.maxHp;return f}return nameFighter(n)}
 function arenaCards(teams){
   const L=u(),list=[];teams.slice(0,8).forEach((b,ti)=>b.slice(0,6).forEach(n=>list.push({n,ti,f:arenaFighter(n)})));
   if(!list.length)return'';const mx={};STAT_KEYS.forEach(k=>mx[k]=Math.max(...list.map(x=>fstats(x.f)[k])));
