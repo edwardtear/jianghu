@@ -76,3 +76,5 @@ B4({id:'b4_artban',age:[20,80],once:1,w:2.2,when:s=>!s.sect&&s.flags.formerSect&
    win:[{t:c=>T(`${c.npc.en} lowers the sword. “It is yours, then. You earned it twice.”`,`${c.npc.zh}放下了剑。"那它就是你的了。你挣了两回。"`),c:'good',fx:{fame:3}}],
    lose:[{t:T('The old way, it turns out, means your sword arm is not right for a year.','所谓老规矩，就是你握剑的那只手，一年都没缓过来。'),c:'bad',fx:{skill:-2,hurt:[10,20],cause:T('a former sect’s elder','旧门派的长老')}}]},
   {l:T('Offer to teach it only to their disciples','提出只教给他们门下的弟子'),if:s=>s.smarts>=40,out:[{t:c=>T(`${c.npc.en} did not expect a negotiation. In the end you teach three of their disciples for a season, and everyone is satisfied.`,`${c.npc.zh}没想到你会讨价还价。最后你给他们的三个弟子教了一季，各方都满意。`),c:'good',fx:(s,c)=>({fame:2,f:s=>sAdj(s,c.o,12,1)})}]}]});
+/* scenes where your master speaks need a living master */
+['sc_r_heir','sc_gm_bed','dk_rt_music'].forEach(id=>{const i=INC_BY[id];if(!i)return;const w=i.when;i.when=s=>!!masterOf(s)&&(!w||w(s))});
