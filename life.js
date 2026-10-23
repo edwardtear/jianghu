@@ -18,6 +18,10 @@ var LTAG='other',LSUB=null;
 /* LSUB, when set, also books the coin to one named thing (which shop), so the ledger can break a category down */
 const pay=(s,n)=>{const v=Math.max(0,Math.round(s.money+n))-s.money;s.money+=v;if(v&&s.ledger){const L=s.ledger.items;L[LTAG]=(L[LTAG]||0)+v;
   if(LSUB){const D=s.ledger.sub=s.ledger.sub||{},k=LTAG+'|'+LSUB.zh;(D[k]=D[k]||{c:LTAG,n:LSUB,v:0}).v+=v}}};
+/* a shop's name in the books: 茶摊（一）, 茶摊（二）… when you own several of the same kind */
+const bizLabel=(s,it)=>{const d=itemDef(it.id);const same=s.items.filter(x=>x.id===it.id);
+  /* the number stays with the shop, so selling one does not renumber the others */
+  same.forEach(x=>{if(!x.no)x.no=Math.max(0,...same.map(y=>y.no||0))+1});if(same.length<2)return T(d.n.en,d.n.zh);return T(`${d.n.en} #${it.no}`,`${d.n.zh}（${cnNum(it.no)}）`)};
 const payT=(s,n,k)=>{const o=LTAG;LTAG=k;pay(s,n);LTAG=o};
 const fmtMoney=n=>Math.round(n).toLocaleString('en-US');
 
@@ -246,7 +250,10 @@ function yearly(s){
     else if(s.perf<12){say(s,`You are dismissed from your post as ${J.n[s.jobLv].en}.`,`你被辞退了，丢了${J.n[s.jobLv].zh}的差事。`,'bad');s.job=null;happy(s,-8)}}
   if(s.sect&&!s.retired&&s.jail<=0)payT(s,2+s.rank*6,'sect');
   owned(s,'house').forEach(h=>payT(s,-h.upkeep,'house'));
-  {const o=LTAG;LTAG='biz';owned(s,'biz').forEach(b=>{LSUB=b.n;if(b.risk&&chance(b.risk)){const loss=Math.round(b.price*.15);pay(s,-loss);say(s,`Bad year for your ${b.n.en}: you lose ${loss} taels.`,`你的${b.n.zh}今年亏了${loss}两。`,'bad')}else{const g=rint(b.inc[0],b.inc[1]);pay(s,g);if(g>100)say(s,`Your ${b.n.en} earns ${g} taels.`,`你的${b.n.zh}今年赚了${g}两。`,'good')}});LSUB=null;LTAG=o;if(s.ledger&&s.ledger.sub){const C={};owned(s,'biz').forEach(b=>C[b.n.zh]=(C[b.n.zh]||0)+1);for(const k in s.ledger.sub){const x=s.ledger.sub[k];if(x.c==='biz'&&C[x.n.zh])x.k=C[x.n.zh]}}}
+  /* each shop is booked on its own, under a numbered name when you own more than one of a kind */
+  {const o=LTAG;LTAG='biz';s.items.forEach(it=>{const d=itemDef(it.id);if(!d||d.cat!=='biz')return;const b=Object.assign({},d,it),nm=bizLabel(s,it);LSUB=nm;
+    if(b.risk&&chance(b.risk)){const loss=Math.round(b.price*.15);pay(s,-loss);say(s,`Bad year for your ${nm.en}: you lose ${loss} taels.`,`你的${nm.zh}今年亏了${loss}两。`,'bad')}
+    else{const g=rint(b.inc[0],b.inc[1]);pay(s,g);if(g>100)say(s,`Your ${nm.en} earns ${g} taels.`,`你的${nm.zh}今年赚了${g}两。`,'good')}});LSUB=null;LTAG=o}
   /* people grow old */
   s.people.forEach(p=>{if(!p.alive)return;p.age++;
     if(['friend','acq','fellow','rival','lover','sworn'].includes(p.rel))p.bond=clamp(p.bond-rint(1,4),0,100);

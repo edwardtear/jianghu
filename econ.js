@@ -183,4 +183,4 @@ function econLines(s){const L=[];if(s.land)L.push([zh()?`田产${cnNum(s.land*10
   L.push([zh()?'排场':'Lifestyle',tr(STYLES[styleOf(s)][0])]);return L}
 
 /* money from a shop's decisions is booked to that shop */
-(()=>{const B=ACT_BY.bizdec,c0=B.choose;B.choose=function(s,k,c){const d=c&&c.it&&itemDef(c.it.id);const o=LSUB;LSUB=d?d.n:null;try{return c0.apply(this,arguments)}finally{LSUB=o}}})();
+(()=>{const B=ACT_BY.bizdec,c0=B.choose;B.choose=function(s,k,c){const it=c&&c.it&&(s.items.includes(c.it)?c.it:s.items.find(x=>x.id===c.it.id&&x.age===c.it.age));const o=LSUB;LSUB=it?bizLabel(s,it):null;try{return c0.apply(this,arguments)}finally{LSUB=o}}})();
