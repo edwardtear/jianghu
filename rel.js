@@ -67,7 +67,7 @@ I({id:'rl_trouble',only:1,tags:RT,ctx:s=>({foe:foeName(),lv:PW(.95,4)(s)}),
   {l:T('It is their own mess','自作自受，不管'),out:[{w:2,t:c=>T(`${c.npc.en} finds the money somehow. Things are never quite the same between you.`,`${c.npc.zh}不知从哪弄到了钱。你们之间再也回不到从前。`),c:'muted',fx:{bond:-12}},{w:1,t:c=>T(`${c.npc.en} loses two fingers. You hear about it later.`,`${c.npc.zh}丢了两根手指。你是后来才听说的。`),c:'bad',fx:{bond:-20,happy:-4}}]}]});
 /* secrets: each one at most once a life, and only from someone it could be true of */
 const SECRETS=[
- {if:p=>p.age>=25,t:c=>T(`Late one night ${c.npc.en} tells you a secret: years ago ${c.npc.he} ran from a sect, and someone is still looking for ${c.npc.him}.`,`一天深夜，${c.npc.zh}告诉你一个秘密：多年前曾叛出一个门派，至今还有人在找。`)},
+ {if:(p,s)=>p.age>=25&&(p.lv>=25||p.sect)&&!(s&&s.sectTale),t:c=>T(`Late one night ${c.npc.en} tells you a secret: years ago ${c.npc.he} ran from a sect, and someone is still looking for ${c.npc.him}.`,`一天深夜，${c.npc.zh}告诉你一个秘密：多年前曾叛出一个门派，至今还有人在找。`)},
  {if:p=>p.age>=18,t:c=>T(`${c.npc.en} confesses to being in love with someone who is already married.`,`${c.npc.zh}向你坦白：自己爱上了一个${c.npc.sex==='f'?'有妇之夫':'有夫之妇'}。`)},
  {if:p=>p.age>=18,t:c=>T(`${c.npc.en} admits to taking money from ${c.npc.his} employer, meaning to put it back, and now cannot.`,`${c.npc.zh}承认挪用了东家的钱，本想还上，却还不上了。`)},
  {if:p=>p.age>=30,t:c=>T(`${c.npc.en} tells you ${c.npc.he} is ill, and has not told ${c.npc.his} family.`,`${c.npc.zh}说自己得了病，还没告诉家里人。`)},
@@ -79,8 +79,9 @@ const SECRETS=[
  {if:p=>p.age>=30,t:c=>T(`${c.npc.en} means to leave everything one day soon, shave ${c.npc.his} head and enter a temple, and has told no one.`,`${c.npc.zh}打算过些日子就抛下一切，剃度出家。谁也没告诉。`)},
  {if:p=>p.age>=20,t:c=>T(`${c.npc.en} confesses that the famous deed everyone credits ${c.npc.him} with was really done by someone else, who died.`,`${c.npc.zh}坦白：大家都夸${c.npc.ta}的那桩义举，其实是别人做的。那人已经死了。`)},
  {if:p=>p.age>=25,t:c=>T(`${c.npc.en} has been quietly paying off the debts of a family ${c.npc.he} once wronged, for ten years.`,`十年来，${c.npc.zh}一直在悄悄替一户人家还债。那户人家，是${c.npc.ta}当年对不起的。`)}];
-const secretsFor=(s,p)=>SECRETS.map((x,i)=>i).filter(i=>!(s.secUsed||[]).includes(i)&&SECRETS[i].if(p));
-I({id:'rl_confide',only:1,tags:RT,ctx:(s,p)=>{const ok=p?secretsFor(s,p):[];const sec=ok.length?pick(ok):0;(s.secUsed=s.secUsed||[]).push(sec);return{sec}},
+/* the deserter's secret is one story a life, whoever tells it (a parent's past in a sect counts too) */
+const secretsFor=(s,p)=>SECRETS.map((x,i)=>i).filter(i=>!(s.secUsed||[]).includes(i)&&SECRETS[i].if(p,s));
+I({id:'rl_confide',only:1,tags:RT,ctx:(s,p)=>{const ok=p?secretsFor(s,p):[];const sec=ok.length?pick(ok):rint(1,SECRETS.length-1);(s.secUsed=s.secUsed||[]).push(sec);if(sec===0)s.sectTale=1;return{sec}},
  text:c=>SECRETS[c.sec].t(c),
  opts:[{l:T('Keep the secret and stand by them','守口如瓶，站在对方这边'),out:[{w:3,t:c=>T(`${c.npc.en} squeezes your hand. You carry it together now.`,`${c.npc.zh}握了握你的手。从此这事你们一起扛。`),c:'good',fx:{bond:12}},{w:1,t:c=>T(`Keeping it costs you, later, when someone asks you straight out and you have to lie.`,`后来有人当面问你，你只好撒谎。守这个秘密，是有代价的。`),c:'muted',fx:{bond:8,align:-1,happy:-2}}]},
   {l:T('Urge them to set it right','劝对方把事情摆平'),out:[{w:s=>1+s.smarts/40,t:c=>T(`${c.npc.en} takes your advice. It is hard, and it works.`,`${c.npc.zh}听了你的劝。过程很难，可终于摆平了。`),c:'good',fx:{bond:8,align:2}},{w:1.5,t:c=>T(`${c.npc.en} wanted comfort, not advice, and goes quiet.`,`${c.npc.zh}要的是安慰，不是劝告，从此话少了。`),c:'muted',fx:{bond:-4}}]},

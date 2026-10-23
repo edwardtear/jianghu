@@ -131,7 +131,7 @@ PEV('favourback',{w:4,gap:10,who:(s,p)=>(s.mem||[]).some(r=>r.pid===p.id&&r.kind
  text:(c,s)=>T(`${c.npc.en} has heard you are in a bad way, and arrives without being asked. “${s.age-c.r.at} years ago you helped me when you did not have to. My turn.”`,`${c.npc.zh}听说你落了难，没等你开口就来了。“${cnYrs(s.age-c.r.at)}年前，你本可以不管我，却帮了我。这回轮到我了。”`),
  opts:[{l:T('Accept the help','接受'),out:[{t:T('Silver, a doctor, and three weeks of soup. You are back on your feet.','银子、大夫，还有三个礼拜的汤。你又站起来了。'),c:'gold',fx:{money:[40,90],heal:25,cure:1,bond:10,happy:6}}]},
   {l:T('Say there is no debt between you','说你们之间不存在什么亏欠'),out:[{t:T('They leave the silver on the table anyway and go before you can argue.','对方还是把银子留在了桌上，不等你推辞就走了。'),c:'good',fx:{money:[20,40],bond:12}}]}]});
-PEV('childsecret',{w:4,gap:6,who:(s,p)=>p.rel==='child'&&p.age>=15&&p.age<=24,ctx:(s,p)=>({v:rint(0,2)}),
+PEV('childsecret',{w:4,gap:6,who:(s,p)=>p.rel==='child'&&p.age>=15&&p.age<=24,ctx:(s,p)=>{const v=s.sectTale||p.lv<20?rint(1,2):rint(0,2);if(v===0)s.sectTale=1;return{v}},
  text:c=>[T(`${c.npc.en} comes to you at night: ${c.npc.he} has been secretly training with a sect you do not approve of, and wants your blessing to join it.`,`${c.npc.zh}夜里来找你：${c.npc.ta}一直偷偷跟一个你不待见的门派学武，想求你点头让${c.npc.ta}入门。`),
   T(`${c.npc.en} has fallen in love with someone you have never met, from a family with a bad name, and is afraid to tell you.`,`${c.npc.zh}爱上了一个你从没见过的人，那户人家名声不好。${c.npc.ta}一直不敢告诉你。`),
   T(`${c.npc.en} wants to leave home and go somewhere far away to make ${c.npc.his} own way, and has been saving in secret for two years.`,`${c.npc.zh}想离家远行，自己去闯一番。已经偷偷攒了两年的钱。`)][c.v],
