@@ -127,3 +127,25 @@ if(typeof document!=='undefined'){
     setTimeout(()=>{if(t.isConnected){delete t.dataset.sure;t.textContent=old;t.classList.remove('warn')}},3000)},true);}
 /* selling or using shifts the list, so close any open details */
 ['sell','useItem'].forEach(f=>{const g=globalThis[f];if(typeof g!=='function')return;globalThis[f]=function(){const r=g.apply(this,arguments);if(typeof SHEET!=='undefined'&&SHEET)SHEET.ipick=null;return r}});
+
+/* keepsakes: things people give you in the story. No effect in a fight; they are kept, shown, and passed to your heir */
+Object.assign(ITEMS,{
+ jadecup:{cat:'keep',n:T('Jade Cup','玉杯'),price:60,desc:T('Given by someone you were paid to hunt and let go instead.','一个你受雇去追杀、却放走了的人送的。')},
+ hairpins:{cat:'keep',n:T('Box of Hairpins','一盒发簪'),price:20,desc:T('From a peddler you talked across the plank road. You have no use for them and would not part with them.','长空栈道上你一块木板一块木板领过来的货郎送的。用不上，也舍不得给人。')},
+ turquoise:{cat:'keep',n:T('Turquoise Stone','松绿小玉'),price:40,desc:T('Pressed on you by a jade merchant after you drove off a snow leopard.','你赶走雪豹后，玉石商人硬塞给你的。')},
+ royaljade:{cat:'keep',n:T('Palace Jade Pendant','宫中玉佩'),price:300,desc:T('A runaway princess gave it to you at the frontier. “If you ever need the palace, bring this.”','逃婚的公主在边关交给你的。"若有一日用得着宫里，拿这个来。"')},
+ silverpin:{cat:'keep',n:T('Your Mother’s Silver Hairpin','娘的银簪子'),price:30,desc:T('Hers. Now yours.','她的。如今是你的了。')},
+ bambooflute:{cat:'keep',n:T('Bamboo Flute','竹笛'),price:5,desc:T('Left to you by a silent swordsman when the snow stopped. You keep it all your life.','雪停时，一个话不多的剑客留给你的。你珍藏了一辈子。')},
+ familyseal:{cat:'keep',n:T('Comb and Seal','娘的梳子和爹的印章'),price:10,desc:T('What your sibling gave you after the will was read.','念完遗嘱后，兄弟姐妹交到你手里的。')},
+ halfjade:{cat:'keep',n:T('Half a Jade Disc','半块玉'),price:50,desc:T('Half of a broken disc, carved with half a poem.','一块碎玉的一半，刻着半首诗。')}});
+/* scenes that hand you something now actually put it in your belongings */
+(()=>{const zhOf=(o,c,s)=>{try{const t=typeof o.t==='function'?o.t(c,s):o.t;return t&&t.zh||''}catch(e){return typeof o.t==='function'?String(o.t):''}};
+ const give=(id,frag,item)=>{const inc=INC_BY[id];if(!inc)return;(inc.opts||[]).forEach(op=>[].concat(op.out||[],op.win||[],op.lose||[]).forEach(o=>{
+   const txt=typeof o.t==='function'?String(o.t):(o.t&&o.t.zh)||'';if(!txt.includes(frag))return;
+   if(typeof o.fx==='function'){const f0=o.fx;o.fx=(s,c)=>{const r=f0(s,c)||{};return Object.assign({},r,{item:[].concat(r.item||[],item)})}}
+   else{o.fx=Object.assign({},o.fx||{});o.fx.item=[].concat(o.fx.item||[],item)}}))};
+ [['hostcontract','玉杯','jadecup'],['l2_banditmonk','念珠','beads'],['sc_hs_plank','发簪','hairpins'],['sc_kl_caravan','小玉','turquoise'],['og_princess','玉佩交给你','royaljade'],
+  ['dk_rc_seasand','名头很响的刀','coldsaber'],['dk_rc_cultblood','银簪子','silverpin'],['dk_rc_bloodsaber','薄刀','coldsaber'],['wx_dagger','竹笛','bambooflute'],
+  ['pe_willfight','印章','familyseal'],['mw_herbbeast','草药','salve'],['jade_open','把玉给了你','halfjade'],['jade_open','暖了很久','halfjade']].forEach(a=>give(...a))})();
+/* whenever a scene puts something in your belongings, say so */
+(()=>{const a0=applyFx;applyFx=function(s,e,c){const r=a0.apply(this,arguments);if(e&&e.item&&s&&s.alive!==false){[].concat(e.item).forEach(id=>{let d=null;try{d=itemDef(id)}catch(x){}if(d)say(s,`You receive: ${d.n.en}.`,`获得：${d.n.zh}。`,'gold')})}return r}})();

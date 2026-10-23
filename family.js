@@ -143,7 +143,7 @@ function heirLife(prev,pid){const k=person(prev,pid);if(!k)return null;
   prev.people.filter(p=>p.rel==='child'&&p.alive&&p.id!==k.id).forEach(o=>s.people.push(mkPerson(s,{rel:'sibling',sex:o.sex,name:o.n,age:o.age,bond:o.bond,lv:o.lv})));
   prev.people.filter(p=>['enemy'].includes(p.rel)&&p.alive).slice(0,2).forEach(e=>s.people.push(mkPerson(s,{rel:'enemy',sex:e.sex,name:e.n,age:e.age,bond:10,lv:e.lv})));
   const inh=Math.round(prev.money*.7);s.money=inh;s.fame=Math.round(prev.fame*.3+(k.lv>=60?10:0));s.align=clamp(Math.round(prev.align*.3),-100,100);
-  s.items=prev.items.filter(it=>{const d=itemDef(it.id);return d&&['house','biz','weapon','armor','mount','charm','anqi'].includes(d.cat)}).map(it=>Object.assign({},it,{eq:it.eq}));
+  s.items=prev.items.filter(it=>{const d=itemDef(it.id);return d&&['house','biz','weapon','armor','mount','charm','anqi','keep'].includes(d.cat)}).map(it=>Object.assign({},it,{eq:it.eq}));
   s.skill=Math.round(k.lv*.75);s.qi=Math.round(k.lv*.5);const fam=(prev.arts||[]).slice().sort((a,b)=>(a.tier||0)-(b.tier||0))[0];if(fam&&k.age>=10)learn(s,fam);
   if(typeof r9Of==='function')s.brk=Math.max(3,r9Of(rawPower(s)));if(typeof attrW==='function')attrW(s);
   s.sst={};Object.keys(prev.sst||{}).forEach(x=>s.sst[x]=Math.round(prev.sst[x]*.5));
