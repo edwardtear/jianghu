@@ -35,7 +35,8 @@ ownHTML=function(){
   }
   const book=(lg,title)=>{if(!lg)return'';const it=Object.entries(lg.items).filter(([k,v])=>v);const inc=it.filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]),exp=it.filter(([k,v])=>v<0).sort((a,b)=>a[1]-b[1]);
     const ti=inc.reduce((t,x)=>t+x[1],0),te=exp.reduce((t,x)=>t+x[1],0);const nm=k=>tr(LCAT[k]||LCAT.other);
-    const line=([k,v])=>`<div class="lgrow"><span>${nm(k)}</span><b class="${v>0?'pos':'neg'}">${v>0?'+':'−'}${num(Math.abs(v))}</b></div>`;
+    const sub=k=>Object.values(lg.sub||{}).filter(x=>x.c===k&&x.v).sort((a,b)=>b.v-a.v).map(x=>`<div class="lgrow lsub"><span>${tr(x.n)}</span><b class="${x.v>0?'pos':'neg'}">${x.v>0?'+':'−'}${num(Math.abs(x.v))}</b></div>`).join('');
+    const line=([k,v])=>`<div class="lgrow"><span>${nm(k)}</span><b class="${v>0?'pos':'neg'}">${v>0?'+':'−'}${num(Math.abs(v))}</b></div>`+sub(k);
     return`<div class="grp"><h4>${title}</h4><div class="ledger"><div><span class="lbl">${zh()?'收入':'Income'}</span>${inc.length?inc.map(line).join(''):`<p class="muted">${zh()?'无':'None'}</p>`}</div><div><span class="lbl">${zh()?'支出':'Expenses'}</span>${exp.length?exp.map(line).join(''):`<p class="muted">${zh()?'无':'None'}</p>`}</div></div>
      <div class="lgrow total"><span>${zh()?'净额':'Net'}</span><b class="${ti+te>=0?'pos':'neg'}">${ti+te>=0?'+':'−'}${num(Math.abs(ti+te))} ${L.taels}</b></div></div>`};
   const worth=s.money+s.items.reduce((t,it)=>t+sellPrice(s,it),0)+(s.land||0)*130+(s.loans||[]).reduce((t,x)=>t+x.amt,0);

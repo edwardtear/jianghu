@@ -155,10 +155,12 @@ const LCAT={job:T('Wages','工钱'),sect:T('Sect stipend','门派月例'),biz:T(
 /* the first line of each year: what came in and went out last year, and the biggest of each */
 function yearMoney(s,lg){if(!s.alive||s.age<8)return;const it=Object.entries(lg.items).filter(([k,v])=>v);
   const inc=it.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),exp=it.filter(x=>x[1]<0).sort((a,b)=>a[1]-b[1]);if(!inc.length&&!exp.length)return;
-  const ti=inc.reduce((t,x)=>t+x[1],0),te=Math.abs(exp.reduce((t,x)=>t+x[1],0)),net=ti-te,nm=k=>LCAT[k]||LCAT.other,m=fmtMoney;
-  const top=(a,en,zh)=>a.length?[`${en} ${nm(a[0][0]).en.toLowerCase()}`,`${zh}${nm(a[0][0]).zh}`]:null;const ti1=top(inc,'mostly','主要是'),te1=top(exp,'mostly','大头是');
-  const en=`Last year's money: ${m(ti)} tael${ti===1?'':'s'} in${ti1&&inc.length>1?' ('+ti1[0]+')':''}, ${m(te)} out${te1&&exp.length>1?' ('+te1[0]+')':''}. ${net?(net>0?'Up ':'Down ')+m(Math.abs(net)):'Even'}; you ended the year with ${m(s.money)}.`;
-  const zh=`去年进账${m(ti)}两${ti1&&inc.length>1?'（'+ti1[1]+'）':''}，花销${m(te)}两${te1&&exp.length>1?'（'+te1[1]+'）':''}，${net?(net>0?'结余':'亏空')+m(Math.abs(net))+'两':'收支相抵'}。年底手头剩${m(s.money)}两。`;
+  const ti=inc.reduce((t,x)=>t+x[1],0),te=Math.abs(exp.reduce((t,x)=>t+x[1],0)),net=ti-te,nm=k=>LCAT[k]||LCAT.other,m=fmtMoney,sg=v=>(v>0?'+':'−')+m(Math.abs(v));
+  const top=(a,en,zh)=>a.length>1?[` (${en} ${nm(a[0][0]).en.toLowerCase()})`,`（${zh}${nm(a[0][0]).zh}）`]:['',''];const ti1=top(inc,'mostly','主要是'),te1=top(exp,'mostly','大头是');
+  /* each shop on its own, so you can see which one carries you and which one bleeds */
+  const bz=Object.values(lg.sub||{}).filter(x=>x.c==='biz'&&x.v).sort((a,b)=>b.v-a.v);
+  const en=`Last year's money: ${m(ti)} tael${ti===1?'':'s'} in${ti1[0]}, ${m(te)} out${te1[0]}. ${net?(net>0?'Up ':'Down ')+m(Math.abs(net)):'Even'}.${bz.length?` Shops: ${bz.map(x=>x.n.en+' '+sg(x.v)).join(', ')}.`:''} You ended the year with ${m(s.money)}.`;
+  const zh=`去年进账${m(ti)}两${ti1[1]}，花销${m(te)}两${te1[1]}，${net?(net>0?'结余':'亏空')+m(Math.abs(net))+'两':'收支相抵'}。${bz.length?`产业：${bz.map(x=>x.n.zh+sg(x.v)+'两').join('，')}。`:''}年底手头剩${m(s.money)}两。`;
   say(s,en,zh,net>=0?'money':'money neg')}
 const _yearly3=yearly;
 yearly=function(s){

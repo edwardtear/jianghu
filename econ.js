@@ -181,3 +181,6 @@ TEXTURE.push({rep:1,age:[16,99],w:1,when:s=>s.age>=16,t:s=>{const g=pick(Object.
 function econLines(s){const L=[];if(s.land)L.push([zh()?`田产${cnNum(s.land*10)}亩`:`${s.land*10} mu of farmland`,zh()?'年租约看收成':'rent depends on the harvest']);
   (s.loans||[]).forEach(x=>L.push([zh()?`借给${x.n.zh}${x.amt}两`:`${x.amt} lent to ${x.n.en}`,zh()?`年息${Math.round(x.rate*100)}分，${x.due<=s.age?'已到期':cnNum(x.due-s.age)+'年后到期'}`:`${Math.round(x.rate*100)}% · due ${x.due<=s.age?'now':'in '+(x.due-s.age)+' yr'}`]));
   L.push([zh()?'排场':'Lifestyle',tr(STYLES[styleOf(s)][0])]);return L}
+
+/* money from a shop's decisions is booked to that shop */
+(()=>{const B=ACT_BY.bizdec,c0=B.choose;B.choose=function(s,k,c){const d=c&&c.it&&itemDef(c.it.id);const o=LSUB;LSUB=d?d.n:null;try{return c0.apply(this,arguments)}finally{LSUB=o}}})();
