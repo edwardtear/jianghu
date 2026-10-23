@@ -14,9 +14,9 @@ How the game's content is organised, what exists, and how to add a batch safely.
 
 Text is always `T(english, chinese)`. Outcomes are `{w, t, c, fx, next, keep}`; `fx` uses the effects in `applyFx` (`life.js`). When an amount depends on the scene, write the whole `fx` as a function, `fx:(s,c)=>({money:c.amt})`, not a function inside it. Events that add someone to your relationships (`meet`, `enemy`) use `c.npc`, so set `npc` in `ctx` to the person the scene is about.
 
-## Inventory (October 2026, after Batch 3)
+## Inventory (October 2026, after Batch 4)
 
-- 1,338 incidents in 71 files; 29 story series (171 endings); 32 encounters; 32 people events; 100 activities; 24 person actions; 18 kinds of date (`date.js`).
+- 1,364 incidents in 73 files; 33 story series (186 endings); about 200 sect scenes; 32 encounters; 32 people events; 100 activities; 24 person actions; 18 kinds of date (`date.js`).
 - Simulation reaches all but about 2% of incidents within 400 lives.
 - Thin areas before Batch 1: teenage years (20 teen-only incidents), region-specific scenes, reconciliation. Late life turned out to be well covered already (about 44 scenes aged 50+); what was missing was legacy: nothing in an heir's life remembered the parent.
 
@@ -69,9 +69,17 @@ Stories that outlive you (`st7.js`): 三十年之约 The Thirty-Year Promise · 
 
 Testing: `heirtest.js` in the scratchpad plays a parent to 40, sets up friends, an enemy, a loan, memories, a manual and an unfinished story, carries on as the child and plays 45 more years.
 
+## Batch 4 (26 units): 门派风云
+
+Sect content already had about 196 scenes (every sect's own flavour, around 30 sect missions, succession, contests, a lost manual, being framed). What it lacked was stories that unfold over years, and a few angles.
+
+Sect stories (`st8.js`): 内鬼 The Traitor Within (clue-based; three suspects, the culprit fixed at the start, a false-roster trap, the option to turn the traitor) · 禁术 The Forbidden Manual (power that costs you; burn it, confess, or master it and be cast out) · 两派血案 A Death Between Two Sects (envoy work: apology, a duel of champions, or finding out what really happened) · 师恩 Your Master's Last Years (one last wish: a lost son, a journey home, or an unfinished move; if the master dies first, you inherit their sword).
+
+One-off scenes (`b4.js`): surpassing your master in public · your master punishes the wrong disciple · a new, harsher master after yours dies · cheating at the promotion test · secretly learning from an outsider · seniors bullying new disciples (rank 2+) · reforming the founders' rules (as head) · the sect runs out of money · a hostage disciple from another sect · a birthday gift that is an insult · your former sect asks you back · your former sect wants its art back.
+
 ## Adding a batch
 
-1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st7.js`.
+1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st8.js`.
 2. Run the validator: `node tools/validate.js <dir> 250 '<regex of new ids>'`. It loads every file and checks:
    - ids are unique, and `next` references, story stages and endings, and people-event ids all resolve;
    - no one-language text;
