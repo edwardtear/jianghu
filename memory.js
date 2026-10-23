@@ -43,7 +43,9 @@ if(typeof addThread==='function')addThread=function(){};
 
 function memAgo(s,r){const n=s.age-r.at,R=REGIONS.find(x=>x.id===r.reg);const ago=n>0?T(`${n} year${n>1?'s':''} ago`,`${cnNum(n)}年前`):T('Earlier this year','今年早些时候');if(n===2)ago.zh='两年前';
   return T(`${ago.en}${R?' in '+R.en:''}: ${r.what.en}${r.chose&&r.chose.en?` You chose: ${r.chose.en}.`:''}`,`${ago.zh}${R?'在'+R.cn:''}：${r.what.zh}${r.chose&&r.chose.zh?`你选择了「${r.chose.zh}」。`:''}`)}
-function memCtx(s,r){const w=r.who,p=r.pid&&person(s,r.pid);if(p&&!p.alive)return null;
+/* family and your own master are part of your life already: they never 'come back' as old acquaintances */
+const MEM_NOCALL=['father','mother','sibling','spouse','child','master'];
+function memCtx(s,r){const w=r.who,p=r.pid&&person(s,r.pid);if(p&&!p.alive)return null;if(p&&MEM_NOCALL.includes(p.rel))return null;
   const yrs=s.age-r.at,age=Math.max(8,(w.age||25)+yrs);
   const c=scene();c.npc=npc(s,{name:w.n,sex:w.sex,occ:w.occ,age,lv:Math.max(2,Math.round((w.lv||10)*(age<45?1+yrs*.06:1)))});
   if(p){c.pid=p.id;c.p=p;c.npc.lv=p.lv}c.rec=r;c.yrs=yrs;
@@ -62,7 +64,8 @@ function memCtx(s,r){const w=r.who,p=r.pid&&person(s,r.pid);if(p&&!p.alive)retur
 /* ---------- the long-term callbacks ---------- */
 const MI=d=>{d.only=1;d.noThread=1;d.noRipple=1;I(d)};
 /* someone you helped has done well */
-MI({id:'mem_prosper',cctx:(s,c)=>({v:[5,17,23,26,11,12].includes(c.npc.occ)?0:c.npc.age<30||[1,9].includes(c.npc.occ)?1:2}),
+/* only someone who can fight becomes a famous swordsman; others do well in trade or office */
+MI({id:'mem_prosper',cctx:(s,c)=>({v:[5,17,23,26,11,12].includes(c.npc.occ)?0:[1,9].includes(c.npc.occ)?1:(c.npc.lv||0)>=25?2:c.npc.age<30?1:0}),
  text:c=>[T(`${c.npc.en} has done well since: a trading house now, with boats on three rivers. ${c.npc.He} has come to settle an old debt, and to offer you a share.`,`${c.npc.zh}这些年发达了：开了商号，三条江上都有船。${c.npc.ta}是来还当年那份情的，想分你一股。`),
    T(`${c.npc.en} wears an official's cap now. ${c.npc.He} has never forgotten, and asks what ${c.npc.he} can do for you.`,`${c.npc.zh}如今戴上了官帽。${c.npc.ta}一直没忘，问你有什么能帮上忙的。`),
    T(`${c.npc.en} has become a swordsman with a name of ${c.npc.his} own, and says ${c.npc.he} owes you that too.`,`${c.npc.zh}如今是个有名号的剑客了，说这也有你一份功劳。`)][c.v],
