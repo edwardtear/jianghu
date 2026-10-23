@@ -10,7 +10,7 @@ const num=n=>Math.round(n).toLocaleString(zh()?'zh-CN':'en-US');
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const U={
  en:{tag:'one life in the jianghu',intro:'Heaven picks where you are born. Train, fight, love, gamble and scheme one year at a time; the chronicle records what became of you.',
-  me:'Guide',act:'Activities',ppl:'People',own:'Assets',age:'Next year',arena:'Name Arena',nw:'New life',sure:'Start over?',
+  me:'Status',act:'Activities',ppl:'People',own:'Assets',age:'Next year',arena:'Name Arena',nw:'New life',sure:'Start over?',
   odds:n=>`Of every <b>${n}</b> children born under heaven that year, one began life exactly as you did.`,dead:'deceased',
   health:'Health',joy:'Happiness',smarts:'Smarts',looks:'Looks',power:'Martial power',silver:'Silver',taels:'taels',
   TN:{root:'Bones',wit:'Insight',luck:'Fortune',heart:'Heart'},
@@ -31,7 +31,7 @@ const U={
   fight:'Fight!',addMe:'Add me',rand:'Random names',preview:'Fighters',stakes:{spar:'friendly bout',light:'not lethal',injury:'dangerous',death:'to the death'},
   confirmDeath:'Close'},
  zh:{tag:'人生只有一回',intro:'生在何处，由天不由你。练功、比武、恋爱、赌钱、闯荡，一年一年地活，史书会记下你的一生。',
-  me:'说明',act:'活动',ppl:'人脉',own:'家当',age:'过一年',arena:'名字论剑',nw:'重新投胎',sure:'确定重来？',
+  me:'状态',act:'活动',ppl:'人脉',own:'家当',age:'过一年',arena:'名字论剑',nw:'重新投胎',sure:'确定重来？',
   odds:n=>`普天之下，那一年每 <b>${n}</b> 个新生儿中，只有一个与你同样开局。`,dead:'已辞世',
   health:'气血',joy:'心情',smarts:'学识',looks:'容貌',power:'功力',silver:'银两',taels:'两',
   TN:{root:'体质',wit:'悟性',luck:'福缘',heart:'心性'},
@@ -186,7 +186,7 @@ const GUIDE={
    ['Speed (in Agility)','How often you act. Not shown separately: it comes from Agility.'],['True qi','Every technique costs true qi (more for higher-level techniques). It refills a little each turn; how much depends on Inner force. Run dry and you can only strike plainly.'],
    ['Qi force (in Inner force)','Damage of qi techniques, and some resistance to them. Not shown separately: it comes from Inner force.'],
    ['Technique rate','How eager you are to use a technique when you have the qi for it. More arts, more chances.'],
-   ['The four attributes','Strength (力道), Constitution (根骨), Agility (身法) and Inner force (内功), as in Wandering Sword. Their total grows with martial power; how it is split is up to you: each time you advance a stage you choose which one grows. The percentage shows how you compare with everyone in the jianghu.'],
+   ['The four attributes','Strength (力道), Constitution (根骨), Agility (身法) and Inner force (内功). Their total grows with martial power; how it is split is up to you: each time you advance a stage you choose which one grows. The percentage shows how you compare with everyone in the jianghu.'],
    ['Where they come from','Your talents set your starting leanings, martial power sets the total, your choices shape the split, and weapons, armour and mounts add the rest. Other people get theirs from their level and their build.']]],
   std:['Standing in the jianghu',[
    ['Alignment','From demonic to heroic. Your choices move it; it changes who trusts you and how you are remembered.'],
@@ -224,7 +224,7 @@ const GUIDE={
    ['速度（含在身法里）','出手的频率。不单独显示，由身法决定。'],['真气','每使一招都要耗真气，招式越高耗得越多。每回合按「气聚」恢复一些，多少取决于内功。真气耗尽，就只能出普通招式。'],
    ['内劲（含在内功里）','内功招式的伤害，也能抵挡对方的内功。不单独显示，由内功决定。'],
    ['出招率','真气够用时，你有多想出招。武功学得越多，机会越多。'],
-   ['四维','力道、根骨、身法、内功，参照《逸剑风云决》。总量随功力增长，怎么分配由你：每精进一阶，选一项长进。百分比表示你在整个江湖里胜过多少人。'],
+   ['四维','力道、根骨、身法、内功。总量随功力增长，怎么分配由你：每精进一阶，选一项长进。百分比表示你在整个江湖里胜过多少人。'],
    ['从何而来','天赋决定起初的偏向，功力决定总量，你的选择决定分配，兵器、护甲、坐骑再添几分。别人的四维由其功力和体格决定。']]],
   std:['江湖地位',[
    ['正邪','从魔道到侠义。你的选择会推动它，影响谁信任你、后人如何记得你。'],
@@ -454,7 +454,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{if(e.target.id==='ar-txt'){SHEET.text=e.target.value}});
 $('veil').addEventListener('click',e=>{if(e.target.id==='veil')closeSheet()});
 $('d-age').onclick=()=>{if(!S.alive||S.queue.length)return;ageUp(S);update(true)};
-$('d-me').onclick=()=>openSheet('guide');$('d-act').onclick=()=>openSheet('act');$('d-ppl').onclick=()=>openSheet('ppl');$('d-own').onclick=()=>openSheet('own');
+$('d-me').onclick=()=>openSheet('status');$('d-act').onclick=()=>openSheet('act');$('d-ppl').onclick=()=>openSheet('ppl');$('d-own').onclick=()=>openSheet('own');
 
 $('b-new').onclick=()=>{const b=$('b-new');if(!S.alive||b.dataset.sure){delete b.dataset.sure;reborn();return}b.dataset.sure=1;b.textContent=u().sure;setTimeout(()=>{delete b.dataset.sure;b.textContent=u().nw},3000)};
 $('l-en').onclick=()=>applyLang('en');$('l-zh').onclick=()=>applyLang('zh');
