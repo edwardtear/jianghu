@@ -12,11 +12,11 @@ How the game's content is organised, what exists, and how to add a batch safely.
 | People event | `PEV(id,{who,...})` | Something a person you know brings to you; `who(s,p)` decides who can | `people.js`, `b1.js` |
 | Wording variants | `VARY['<exact zh line>']` | Extra ways to say a line that appears in most lives | `vary.js` |
 
-Text is always `T(english, chinese)`. Outcomes are `{w, t, c, fx, next, keep}`; `fx` uses the effects in `applyFx` (`life.js`).
+Text is always `T(english, chinese)`. Outcomes are `{w, t, c, fx, next, keep}`; `fx` uses the effects in `applyFx` (`life.js`). When an amount depends on the scene, write the whole `fx` as a function, `fx:(s,c)=>({money:c.amt})`, not a function inside it. Events that add someone to your relationships (`meet`, `enemy`) use `c.npc`, so set `npc` in `ctx` to the person the scene is about.
 
-## Inventory (October 2026, after Batch 1)
+## Inventory (October 2026, after Batch 2)
 
-- 1,271 incidents in 65 files; 25 story series (153 endings); 32 encounters; 27 people events; 100 activities; 24 person actions.
+- 1,312 incidents in 68 files; 27 story series (161 endings); 32 encounters; 31 people events; 100 activities; 24 person actions; 18 kinds of date (`date.js`).
 - Simulation reaches all but about 2% of incidents within 400 lives.
 - Thin areas before Batch 1: teenage years (20 teen-only incidents), late life (28), region-specific scenes, reconciliation, mentorship late in life.
 
@@ -43,9 +43,23 @@ Short incidents (`b1.js`): an unusual request from a silk merchant · sharing a 
 
 People events (`b1.js`): a former travelling companion (from the memory record) · a rival asks for help · a favour returned when you are down · a grown child's secret · a parent's story · a student surpasses you · an old friend visits in old age · reconciliation with someone you drifted from.
 
+## Batch 2 (34 units)
+
+Job dilemmas (`b2.js`), one for each job that had none or almost none: inn waiter (a missing guest's sword) · dock porter (a crate that breathes, two scenes) · smith (a blade made to break) · bookkeeper (the master's son's missing money) · tutor (the poor pupil or the rich one) · doctor (a wounded fugitive at midnight) · storyteller (paid to slander) · opera actor (a patron's supper) · house guard (the master's son) · constable (arrest the convenient man) · official (flood relief money).
+
+Teenage years (`b2.js`): delivering a rival's love letter · an apprenticeship offer · a bell-tower race · sneaking out to see a famous swordswoman.
+
+Regions (`b2.js`), one scene each, only in that region: Shu (a face-changer's trick) · the North (a scarred colt at the horse fair) · the West (a monk carrying sutras) · the Miao borderlands (the Sisters' Meal) · the East coast (a typhoon) · the capital (exam questions for sale) · Jiangnan (dying silkworms) · the Central Plains (a failing Yellow River dike).
+
+Sect life by rank (`b2.js`): outer disciple (a senior takes your rations) · inner disciple (first errand with a junior) · personal disciple (asked to spy on a teacher) · elder (voting for the next head) · head (an alliance sealed by a marriage).
+
+Family (`b2.js`, people events): a teenage child's choices · a spouse who feels neglected · the in-laws come to stay · a grown child brings someone home.
+
+Mysteries (`st6.js`), clue-based, with the answer fixed when the story opens and wrong accusations that stick: 喜宴 The Wedding Cup · 假银 False Silver.
+
 ## Adding a batch
 
-1. Write the content in a new file (for example `b2.js`, `st6.js`) and add its `<script>` tag to `page.html` after `b1.js`.
+1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st6.js`.
 2. Run the validator: `node tools/validate.js <dir> 250 '<regex of new ids>'`. It loads every file and checks:
    - ids are unique, and `next` references, story stages and endings, and people-event ids all resolve;
    - no one-language text;

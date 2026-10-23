@@ -128,7 +128,7 @@ function fightHint(s,f){const fl=Math.round(f.foe.lv)+(f.foe.extra||[]).reduce((
 /* ---------- effects ---------- */
 function applyFx(s,e,c){
   if(!e)return;c=c||{};
-  const n=v=>Array.isArray(v)?rint(v[0],v[1]):v;
+  const n=v=>typeof v==='function'?v(s,c):Array.isArray(v)?rint(v[0],v[1]):v;
   if(e.money!=null)pay(s,n(e.money));
   if(e.happy!=null)happy(s,n(e.happy));
   if(e.smarts!=null)s.smarts=clamp(s.smarts+n(e.smarts),0,100);
