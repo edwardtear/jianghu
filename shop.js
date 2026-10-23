@@ -87,12 +87,15 @@ function itemFacts(s,d){const L=u(),Z=zh(),f=[];if(d.lore&&d.desc)f.push(tr(d.de
   if(d.art&&typeof ARTS!=='undefined'&&ARTS[d.art])f.push(Z?`品阶${cnNum(ARTS[d.art].tier)} · 研读后可习得`:`tier ${ARTS[d.art].tier} · study to learn`);
   if(SLOTS[d.cat])f.push(Z?'同类只能用一件':'one of this kind in use at a time');
   return f}
+/* on the card itself: the key numbers, then the description in full (never cut off) */
+function cardText(d,ff){const st=ff.filter(x=>!/one of this kind|同类只能用一件|used up when taken|用一次就没了|suits your style|not your style|any weapon serves|合你的路数|不合你的路数|什么兵器都一样用/.test(x)).slice(0,3).join(' · ');
+  const ds=d.lore||d.desc;return(st?`<span class="cstat">${st}</span>`:'')+(ds?`<span class="cdesc">${tr(ds)}</span>`:'')}
 const shopPrice=(s,d)=>Math.round(d.price*(['house','biz'].includes(d.cat)?s.stock.mkt:1));
 function shopHTML(){const s=S,L=u(),Z=zh(),pk=SHEET.pick;const by={};s.stock.ids.forEach(id=>{const d=itemDef(id);if(d)(by[d.cat]=by[d.cat]||[]).push([id,d])});
   let h=`<p class="muted" style="margin:0 0 6px;font-size:14px">${L.stockNote} ${Z?'点一下看看是什么，再决定买不买。':'Tap an item to see what it is before you buy.'}</p>`;
   Object.keys(L.cats).forEach(cat=>{if(!by[cat])return;h+=`<div class="grp"><h4>${L.cats[cat]}</h4><div class="rows">${by[cat].map(([id,d])=>{const price=shopPrice(s,d),on=pk===id,ff=itemFacts(s,d);
     const why=!s.alive?'':s.queue.length?(Z?'先做完眼前的决定':'Decide first'):s.money<price?(Z?`还差${num(price-s.money)}两`:`${num(price-s.money)} taels short`):s.age<10&&d.cat!=='pet'&&d.cat!=='pill'?(Z?'年纪太小':'Too young to buy this'):'';
-    const row=`<button class="rowb shoprow${on?' on':''}" data-pick="${id}" title="${esc(tr(d.lore||d.desc||T('','')))}"><span class="main"><b>${tr(d.n)}</b><span>${ff.filter(x=>!/one of this kind|同类只能用一件|used up when taken|用一次就没了/.test(x)).slice(0,2).join(' · ')||(d.desc?tr(d.desc):'')}</span></span><span class="side"><span class="price">${num(price)}</span> ${L.taels} <span class="caret">${on?'▴':'▾'}</span></span></button>`;
+    const row=`<button class="rowb shoprow${on?' on':''}" data-pick="${id}" title="${esc(tr(d.lore||d.desc||T('','')))}"><span class="main"><b>${tr(d.n)}</b>${cardText(d,ff)}</span><span class="side"><span class="price">${num(price)}</span> ${L.taels} <span class="caret">${on?'▴':'▾'}</span></span></button>`;
     if(!on)return row;
     return row+`<div class="shopdet">${(d.lore||d.desc)?`<p class="sd-desc">${tr(d.lore||d.desc)}</p>`:''}<ul class="sd-facts">${ff.map(x=>`<li>${x}</li>`).join('')}</ul>
       <div class="sd-b"><button class="btn main" data-buy="${id}"${why?' disabled':''}>${Z?`买下 · ${num(price)}两`:`Buy for ${num(price)} taels`}</button>${why?`<span class="muted">${why}</span>`:''}</div></div>`}).join('')}</div></div>`});
@@ -110,8 +113,7 @@ function invHTML(){const s=S,L=u(),Z=zh(),pk=SHEET.ipick;if(!s.items.length)retu
   const by={};s.items.forEach((it,i)=>{const d=itemDef(it.id);if(d)(by[d.cat]=by[d.cat]||[]).push([it,i,d])});
   Object.keys(L.cats).filter(c=>by[c]).concat(Object.keys(by).filter(c=>!L.cats[c])).forEach(cat=>{
     h+=`<div class="grp"><h4>${L.cats[cat]||cat} <span class="muted">(${by[cat].length})</span></h4><div class="rows">${by[cat].map(([it,i,d])=>{const eq=!!(SLOTS[d.cat]&&it.eq),on=pk===i,ff=itemFacts(s,d);
-      const sum=ff.filter(x=>!/one of this kind|同类只能用一件|used up when taken|用一次就没了/.test(x)).slice(0,2).join(' · ')||(d.desc?tr(d.desc):'');
-      const card=`<div class="rowb invrow${on?' on':''}" data-ipick="${i}" title="${esc(tr(d.lore||d.desc||T('','')))}"><span class="main"><b>${tr(d.n)}${it.cnt!=null?` ×${it.cnt}`:''} ${eq?`<span class="pill eq">${L.equipped}</span>`:''}</b><span>${sum}</span></span><span class="side" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${d.use?`<button class="chip" data-use="${i}">${L.use}</button>`:''}${SLOTS[d.cat]&&!eq?`<button class="chip" data-equip="${i}">${Z?'换上':'Equip'}</button>`:''}<button class="chip" data-sell="${i}">${L.sell(num(sellPrice(s,it)))}</button></span></div>`;
+      const card=`<div class="rowb invrow${on?' on':''}" data-ipick="${i}" title="${esc(tr(d.lore||d.desc||T('','')))}"><span class="main"><b>${tr(d.n)}${it.cnt!=null?` ×${it.cnt}`:''} ${eq?`<span class="pill eq">${L.equipped}</span>`:''}</b>${cardText(d,ff)}</span><span class="side" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${d.use?`<button class="chip" data-use="${i}">${L.use}</button>`:''}${SLOTS[d.cat]&&!eq?`<button class="chip" data-equip="${i}">${Z?'换上':'Equip'}</button>`:''}<button class="chip" data-sell="${i}">${L.sell(num(sellPrice(s,it)))}</button></span></div>`;
       return on?card+`<div class="shopdet">${(d.lore||d.desc)?`<p class="sd-desc">${tr(d.lore||d.desc)}</p>`:''}<ul class="sd-facts">${ff.map(x=>`<li>${x}</li>`).join('')}${it.paid?`<li>${Z?`当初花了${num(it.paid)}两`:`you paid ${num(it.paid)} taels`}</li>`:''}</ul></div>`:card}).join('')}</div></div>`});
   return h}
 if(typeof ownHTML==='function')(()=>{const o0=ownHTML;ownHTML=function(){const h=o0.apply(this,arguments);if(SHEET.tab!=='inv')return h;
