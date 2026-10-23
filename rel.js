@@ -7,7 +7,7 @@ function relDie(s,p){if(!p||!p.alive)return;p.alive=false;p.diedAt=s.age;p.cause
 const near=s=>s.people.filter(p=>p.alive&&!p.temp&&!p.gone);
 
 /* ---------- interactions with uncertain outcomes ---------- */
-function relWrap(id,fn){const a=PACT_BY[id];if(!a)return;const r0=a.run;a.run=function(s,p){if(fn(s,p,r0)===false)r0.call(a,s,p);maybeRelEvent(s,p,.15)}}
+function relWrap(id,fn){const a=PACT_BY[id];if(!a)return;const r0=a.run;a.run=function(s,p){if(fn(s,p,r0)===false)r0.call(a,s,p);if(!s.queue.length)maybeRelEvent(s,p,.15)}}
 /* chat: how it goes now depends on what you talk about and who they are (talk.js), not a dice roll */
 relWrap('chat',()=>false);
 relWrap('gift',(s,p)=>{pay(s,-20);const tr=TR(p),r=R();

@@ -30,7 +30,8 @@ resolve=function(s,outs,c){
   if(!o)return;
   sayT(s,lab(o.t,c,s),o.c);
   let fx=typeof o.fx==='function'?o.fx(s,c):o.fx;
-  if(fx&&typeof fx==='object'&&!o.sure){const p=twistChance(s,ok.length),r=R();const dir=r<p.better?'better':r<p.better+p.worse?'worse':null;
+  /* a twist needs something to twist: outcomes that only run story logic are left alone */
+  if(fx&&typeof fx==='object'&&!o.sure&&Object.keys(fx).some(k=>!['f','flag','unflag','deed','meet','item','art','cure','ill','die','jail','enemy'].includes(k))){const p=twistChance(s,ok.length),r=R();const dir=r<p.better?'better':r<p.better+p.worse?'worse':null;
     if(dir){const tw=twistFx(s,fx,dir);fx=tw.e;const l=tw.neg?(TWIST_NEG[dir][tw.key]||TWIST_NEG[dir].any):(TWIST[dir][tw.key]||TWIST[dir].any);applyFx(s,fx,c);say(s,l[0],l[1],dir==='better'?'good':'muted');if(o.next){const n=INC_BY[o.next];if(n)runIncident(s,n,o.keep?c:null)}return}}
   applyFx(s,fx,c);
   if(o.next){const n=INC_BY[o.next];if(n)runIncident(s,n,o.keep?c:null)}
