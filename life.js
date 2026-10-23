@@ -98,7 +98,9 @@ function relLabel(s,p){
 }
 function storeNpc(s,c,rel,bond){
   const n=c.npc;if(!n)return null;
-  if(c.pid){const p=person(s,c.pid);if(p){p.rel=rel;if(bond!=null)p.bond=bond;return p}}
+  /* meeting someone you already know never demotes them: your mother stays your mother, she just likes you more */
+  if(c.pid){const p=person(s,c.pid);if(p){const keep=['father','mother','sibling','spouse','child','lover','master','disciple'].includes(p.rel)&&['friend','acq','sworn','rival','fellow'].includes(rel);
+    if(keep){if(bond!=null)p.bond=Math.max(p.bond,bond);return p}p.rel=rel;if(bond!=null)p.bond=bond;return p}}
   const p={id:++s.pid,n:n.n,sex:n.sex,age:n.age,rel,bond:bond??60,alive:true,trait:n.trait,lv:n.lv,occ:n.occ,met:s.age,talked:-1};
   s.people.push(p);c.pid=p.id;return p;
 }
