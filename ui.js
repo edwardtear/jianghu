@@ -117,7 +117,7 @@ let renderChron=function(){
   /* show what the last choice led to before the next decision */
   const H=s._hold,HE=s.log[s.log.length-1];const hl=H&&HE&&!AUTO?HE.lines.slice(H.i0,H.i1).filter(l=>!['prompt','act'].includes(l.c)):[];
   const ppl=q&&typeof queuePeople==='function'?queuePeople(s,q):[];
-  const pplH=ppl.length?`<div class="qppl"><span class="muted">${zh()?'相关人物（点开看交情再决定）':'People involved (tap to see where you stand)'}</span>${ppl.map(p=>`<button class="pchip" data-pp="${p.id}">${zh()?p.n.cn:esc(p.n.py)} · ${tr(relLabel(s,p))} · ${zh()?'交情':'bond'} ${Math.round(p.bond)}</button>`).join('')}</div>`:'';
+  const pplH=ppl.length?`<div class="qppl"><span class="muted">${zh()?'相关人物（点开看交情再决定）':'People involved (tap to see where you stand)'}</span>${ppl.map(p=>`<button class="pchip" data-pp="${p.id}">${zh()?p.n.cn:esc(p.n.py)}${typeof sxMark==='function'?sxMark(p):''} · ${tr(relLabel(s,p))} · ${zh()?'交情':'bond'} ${Math.round(p.bond)}</button>`).join('')}</div>`:'';
   if(q&&hl.some(l=>l.c!=='you'))top=`<div class="choices outcome" role="group"><span class="lbl">${zh()?'结果':'What happened'}</span><div class="olines">${hl.map(lineHTML).join('')}</div><button class="choice cont" data-cont="1"><b>${zh()?'继续':'Continue'}</b></button></div>`;
   else if(q)top=`<div class="choices" role="group"><span class="lbl">${L.choose}${s.queue.length>1?` · 1/${s.queue.length}`:''}</span>${q.tagline?`<p class="qfrom qtale">✦ ${tr(q.tagline)}</p>`:''}${q.follow&&q.from?`<p class="qfrom">↳ ${tr(T('Follow-up · after: ','后续 · 接上文：'))}${tr(q.from)}</p>`:''}${q.text?`<p class="qtext">${tr(q.text)}</p>`:''}${pplH}${q.opts.map(o=>`<button class="choice" data-k="${o.k}"><b>${tr(o.l)}</b>${o.sub?`<span>${tr(o.sub)}</span>`:''}${o.fight?riskHTML(o.fight):''}</button>`).join('')}</div>`;
   if(!s.alive)top=epitaph(s);
@@ -325,7 +325,7 @@ function personHTML(id){
   const s=S,L=u(),p=person(s,id);if(!p)return'';
   const acts=PACTS.filter(a=>!a.if||a.if(s,p));
   return`<button class="chip" data-back>← ${L.ppl}</button>
-   <div class="who" style="margin-top:12px"><span class="av" style="width:52px;height:52px;font-size:26px">${p.n.sur[0][0]}</span><div><h2>${zh()?p.n.cn:esc(p.n.py)+` <span class="cn muted" style="font-size:17px">${p.n.cn}</span>`}</h2><p>${tr(relLabel(s,p))} · ${L.age2} ${p.age} · ${L.traitL}: ${tr(P(TRAITS[p.trait]))} · ${L.lvl} ${p.lv}${p.alive?'':' · †'}</p></div></div>
+   <div class="who" style="margin-top:12px"><span class="av sx-${p.sex}" style="width:52px;height:52px;font-size:26px">${p.n.sur[0][0]}</span><div><h2>${zh()?p.n.cn:esc(p.n.py)+` <span class="cn muted" style="font-size:17px">${p.n.cn}</span>`}${typeof sxMark==='function'?sxMark(p):''}</h2><p>${tr(relLabel(s,p))} · ${p.sex==='f'?(zh()?'女':'female'):(zh()?'男':'male')} · ${L.age2} ${p.age} · ${L.traitL}: ${tr(P(TRAITS[p.trait]))} · ${L.lvl} ${p.lv}${p.alive?'':' · †'}</p></div></div>
    ${p.alive?`<div class="bar" style="margin:10px 0 4px"><div class="row"><span>${L.bond}</span><b>${p.bond}</b></div><div class="track"><div class="fill f-pw" style="width:${p.bond}%"></div></div></div>
    <div class="rows" style="margin-top:12px">${acts.map(a=>{const ok=canPact(s,p,a);return`<button class="rowb" data-pa="${a.id}" data-pid="${p.id}"${ok===true?'':' disabled'}><span class="main"><b>${tr(a.n)}</b></span><span class="side">${ok===true||ok===false?((a.ap??1)?'●':(zh()?'不耗行动':'free')):tr(ok)}</span></button>`}).join('')}</div>`:''}`;
 }
