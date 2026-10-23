@@ -133,7 +133,7 @@ body.zh .yl p{max-width:42em}
 .fin{width:100%;box-sizing:border-box;font:inherit;font-size:15px;padding:9px 10px;margin:4px 0;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)}
 .topbar .chip[hidden]{display:none}
 .tip{cursor:help;text-decoration:underline dotted;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,currentColor 45%,transparent)}
-#tipcard{position:fixed;z-index:60;background:var(--paper);color:var(--ink);border:1px solid var(--ink);border-radius:6px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:14px;line-height:1.5}
+#tipcard{position:fixed;box-sizing:border-box;max-width:calc(100vw - 24px);z-index:60;background:var(--paper);color:var(--ink);border:1px solid var(--ink);border-radius:6px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:14px;line-height:1.5}
 #tipcard p{margin:4px 0 8px}#tipcard b{font-size:15px}
 
 .memlist{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:6px}.memlist li{font-size:13.5px;border-left:2px solid var(--line);padding-left:8px}.memlist small{display:block;color:var(--ink-2);font-size:12px}

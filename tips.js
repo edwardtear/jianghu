@@ -28,8 +28,9 @@ document.addEventListener('click',e=>{const t=e.target.closest('.tip');const ope
   e.preventDefault();e.stopPropagation();const same=open&&open.dataset.for===t.dataset.tipN;hideTip();if(same)return;
   const c=document.createElement('div');c.id='tipcard';c.dataset.for=t.dataset.tipN;c.setAttribute('role','tooltip');
   c.innerHTML=`<b>${esc(t.dataset.tipN)}</b><p>${esc(t.dataset.tip)}</p><button class="info" data-guide>ⓘ ${zh()?'完整说明':'Full guide'}</button>`;
-  document.body.appendChild(c);tipAt=Date.now();const r=t.getBoundingClientRect(),w=Math.min(300,innerWidth-24);c.style.width=w+'px';
-  c.style.left=Math.max(12,Math.min(innerWidth-w-12,r.left))+'px';const below=r.bottom+8,h=c.offsetHeight;
+  document.body.appendChild(c);tipAt=Date.now();const r=t.getBoundingClientRect(),vw=Math.min(innerWidth,document.documentElement.clientWidth||innerWidth);
+  /* phones: span the screen with a margin; wider screens: a 300px card near the label, kept on screen */
+  if(vw<620){c.style.left='12px';c.style.right='12px'}else{const w=300;c.style.width=w+'px';c.style.left=Math.max(12,Math.min(vw-w-12,r.left))+'px'}const below=r.bottom+8,h=c.offsetHeight;
   c.style.top=(below+h<innerHeight-8?below:Math.max(8,r.top-h-8))+'px'},true);
 let tipAt=0;addEventListener('scroll',()=>{if(Date.now()-tipAt>400)hideTip()},true);addEventListener('resize',hideTip);
 /* the guide lives in the top bar now */
