@@ -29,8 +29,8 @@ function stCtx(s,id){const r=stRec(s,id);const c=scene();if(!r)return c;const yr
   else c.npc=npc(s);
   c.r=r;c.f=r.facts;c.yrs=yrs;c.since=s.age-r.adv;c.sid=id;return c}
 /* the two kinds of incident a story is made of: an opening that can happen to anyone, and the stages that follow */
-function SOPEN(id,d){d.id=d.id||id+'_open';d.once=1;d.noThread=1;d.noRipple=1;d.sopen=id;const w=d.when;d.when=s=>stCan(s,id)&&(!w||w(s));I(d)}
-function STI(id,stage,d){d.id=id+'_'+stage;d.only=1;d.cd=0;d.noThread=1;d.noRipple=1;d.story=id;d.stage=stage;d.need='st_'+id;d.tags=d.tags||[];
+function SOPEN(id,d){if(typeof d.text!=='function'){const t=d.text;d.text=()=>t}d.id=d.id||id+'_open';d.once=1;if(typeof d.w==='number'&&d.w<=4)d.w*=.55;d.noThread=1;d.noRipple=1;d.sopen=id;const w=d.when;d.when=s=>stCan(s,id)&&(!w||w(s));I(d)}
+function STI(id,stage,d){if(typeof d.text!=='function'){const t=d.text;d.text=()=>t}d.id=id+'_'+stage;d.only=1;d.cd=0;d.noThread=1;d.noRipple=1;d.story=id;d.stage=stage;d.need='st_'+id;d.tags=d.tags||[];
   const w=d.when;d.when=s=>{const r=stRec(s,id);return!!r&&r.st==='on'&&r.stage===stage&&s.age>=r.next&&(!w||w(s,r))};d.ctx=d.ctx||(s=>stCtx(s,id));I(d);return d}
 const stStage=(id,st)=>INC_BY[id+'_'+st];
 /* label the decision so you know which story it belongs to */
