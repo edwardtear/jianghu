@@ -14,9 +14,9 @@ How the game's content is organised, what exists, and how to add a batch safely.
 
 Text is always `T(english, chinese)`. Outcomes are `{w, t, c, fx, next, keep}`; `fx` uses the effects in `applyFx` (`life.js`). When an amount depends on the scene, write the whole `fx` as a function, `fx:(s,c)=>({money:c.amt})`, not a function inside it. Events that add someone to your relationships (`meet`, `enemy`) use `c.npc`, so set `npc` in `ctx` to the person the scene is about.
 
-## Inventory (October 2026, after Batch 4)
+## Inventory (October 2026, after Batches 5 and 6)
 
-- 1,364 incidents in 73 files; 33 story series (186 endings); about 200 sect scenes; 32 encounters; 32 people events; 100 activities; 24 person actions; 18 kinds of date (`date.js`).
+- 1,397 incidents in 77 files; 39 story series (209 endings); about 200 sect scenes; 32 encounters; 40 people events; 100 activities; 24 person actions; 18 kinds of date (`date.js`).
 - Simulation reaches all but about 2% of incidents within 400 lives.
 - Thin areas before Batch 1: teenage years (20 teen-only incidents), region-specific scenes, reconciliation. Late life turned out to be well covered already (about 44 scenes aged 50+); what was missing was legacy: nothing in an heir's life remembered the parent.
 
@@ -77,9 +77,21 @@ Sect stories (`st8.js`): 内鬼 The Traitor Within (clue-based; three suspects, 
 
 One-off scenes (`b4.js`): surpassing your master in public · your master punishes the wrong disciple · a new, harsher master after yours dies · cheating at the promotion test · secretly learning from an outsider · seniors bullying new disciples (rank 2+) · reforming the founders' rules (as head) · the sect runs out of money · a hostage disciple from another sect · a birthday gift that is an insult · your former sect asks you back · your former sect wants its art back.
 
+## Batch 5 (奇案与秘闻)
+
+Stories (`st9.js`): 身边人 The Person Beside You (someone close to you, a real person in your life, is secretly a Guard agent, a massacred clan's last heir or a retired killer; keep the secret, help them, or report them) · 三卷残经 The Three Volumes (a sword manual torn into three; collecting it ends in a new art, sharing it with a rival, losing the race, or burning it) · 二十年前的灭门案 A Massacre Twenty Years Cold (clue-based; one of the three suspects is a revered hero, and naming the wrong one in public costs you).
+
+Short scenes (`b5.js`): the beggar who is a master · the nun who was a famous swordswoman · a stranger who greets you by someone else's name (and that person's creditors, two scenes) · a palace eunuch hunting a boy you know · your old tutor on a thirty-year-old wanted notice · a manual in cipher · a manual missing its last page · a girl stealing back her father's manual.
+
+## Batch 6 (恩怨情仇)
+
+Stories (`st10.js`): 故人 Someone You Loved Once (your first love, or an actual ex, met again in middle age; letters; begin again, stay friends or let go) · 亦敌亦友 Best Friend, Best Rival (you and your best friend want the same thing; years later a rematch or a drink decides whether you end as friends, happy rivals or enemies) · 金兰之难 A Sworn Sibling Accused (of murder; find the real killer, break them out, or trust the court; sometimes they really did it).
+
+People events (`b6.js`): a dying friend asks you to raise their child (who becomes your adopted child, and so a possible heir) · a marriage anniversary · your old rival asks you to face a young upstart together · siblings and the parents' will · making peace with a parent · your lover's family disapproves · becoming a godparent · a friend's twenty-year-old confession.
+
 ## Adding a batch
 
-1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st8.js`.
+1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st10.js`.
 2. Run the validator: `node tools/validate.js <dir> 250 '<regex of new ids>'`. It loads every file and checks:
    - ids are unique, and `next` references, story stages and endings, and people-event ids all resolve;
    - no one-language text;
