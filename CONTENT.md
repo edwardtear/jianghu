@@ -14,11 +14,11 @@ How the game's content is organised, what exists, and how to add a batch safely.
 
 Text is always `T(english, chinese)`. Outcomes are `{w, t, c, fx, next, keep}`; `fx` uses the effects in `applyFx` (`life.js`). When an amount depends on the scene, write the whole `fx` as a function, `fx:(s,c)=>({money:c.amt})`, not a function inside it. Events that add someone to your relationships (`meet`, `enemy`) use `c.npc`, so set `npc` in `ctx` to the person the scene is about.
 
-## Inventory (October 2026, after Batch 2)
+## Inventory (October 2026, after Batch 3)
 
-- 1,312 incidents in 68 files; 27 story series (161 endings); 32 encounters; 31 people events; 100 activities; 24 person actions; 18 kinds of date (`date.js`).
+- 1,338 incidents in 71 files; 29 story series (171 endings); 32 encounters; 32 people events; 100 activities; 24 person actions; 18 kinds of date (`date.js`).
 - Simulation reaches all but about 2% of incidents within 400 lives.
-- Thin areas before Batch 1: teenage years (20 teen-only incidents), late life (28), region-specific scenes, reconciliation, mentorship late in life.
+- Thin areas before Batch 1: teenage years (20 teen-only incidents), region-specific scenes, reconciliation. Late life turned out to be well covered already (about 44 scenes aged 50+); what was missing was legacy: nothing in an heir's life remembered the parent.
 
 ## Roadmap
 
@@ -57,9 +57,21 @@ Family (`b2.js`, people events): a teenage child's choices · a spouse who feels
 
 Mysteries (`st6.js`), clue-based, with the answer fixed when the story opens and wrong accusations that stick: 喜宴 The Wedding Cup · 假银 False Silver.
 
+## Batch 3 (26 units): what a life leaves behind
+
+The legacy record (`b3.js`): when you carry on as your child, the heir gets `s.legacy` with the parent's name, fame, alignment, deeds, close friends, people helped and wronged (from the memory record), unfinished stories, a handwritten manual if one was written, and the grandparent's name. Loans the parent made pass to the heir. Enemies carried over are marked `inherited`.
+
+Heir scenes (`b3.js`): the parent's old friend visits · the grave at Qingming (offerings, a defaced stone, or a quiet day, by the parent's alignment) · someone the parent wronged · someone the parent saved · living in a famous parent's shadow · an unsent letter · the parent's handwritten manual · the inherited enemy at the crossroads (two scenes) · the old family house · a storyteller's version of your grandparent · the parent's unfinished story.
+
+Late life, new angles only (`b3.js`): failing eyes · failing ears · caring for a sick spouse (people event) · life after being widowed · the last of your old friends · hearing your own legend told wrong · writing your art down for your children (becomes the heir's manual).
+
+Stories that outlive you (`st7.js`): 三十年之约 The Thirty-Year Promise · 半块玉 Half a Jade Disc. Each registers a `STORY_INHERIT[id]` handler, so an heir who takes up the parent's notes continues the story where it stopped, with its own 'finished by your child' ending.
+
+Testing: `heirtest.js` in the scratchpad plays a parent to 40, sets up friends, an enemy, a loan, memories, a manual and an unfinished story, carries on as the child and plays 45 more years.
+
 ## Adding a batch
 
-1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st6.js`.
+1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st7.js`.
 2. Run the validator: `node tools/validate.js <dir> 250 '<regex of new ids>'`. It loads every file and checks:
    - ids are unique, and `next` references, story stages and endings, and people-event ids all resolve;
    - no one-language text;

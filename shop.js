@@ -105,7 +105,7 @@ if(typeof ownHTML==='function')(()=>{const o0=ownHTML;ownHTML=function(){const h
 if(typeof document!=='undefined')document.addEventListener('click',e=>{const t=e.target.closest('[data-pick]');if(!t||!SHEET||SHEET.kind!=='own')return;
   SHEET.pick=SHEET.pick===t.dataset.pick?null:t.dataset.pick;const b=$('veil').querySelector('.sh-body'),y=b?b.scrollTop:0;renderSheet();const b2=$('veil').querySelector('.sh-body');if(b2)b2.scrollTop=y});
 /* after buying, close the details */
-(()=>{const b0=buy;buy=function(){const r=b0.apply(this,arguments);if(r===true&&SHEET)SHEET.pick=null;return r}})();
+(()=>{const b0=buy;buy=function(){const r=b0.apply(this,arguments);if(r===true&&typeof SHEET!=='undefined'&&SHEET)SHEET.pick=null;return r}})();
 /* your belongings: tap one to read it in full; selling asks twice */
 function invHTML(){const s=S,L=u(),Z=zh(),pk=SHEET.ipick;if(!s.items.length)return`<p class="muted">${L.empty}</p>`;
   Object.keys(SLOTS).forEach(k=>eqItem(s,k));const worth=s.money+s.items.reduce((t,it)=>t+sellPrice(s,it),0);
