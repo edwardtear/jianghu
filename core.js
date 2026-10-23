@@ -121,7 +121,8 @@ function mkPerson(s,o={}){
   const occ=o.occ!=null?OCC[o.occ]:null;
   const sex=o.sex||(occ&&occ[2]!=='x'?occ[2]:(chance(.5)?'m':'f'));
   const n=o.name||genName(sex,o.sur);
-  return Object.assign({id:++s.pid,n:{cn:n.cn,py:n.py,sur:n.sur},sex,age:o.age??rint(16,45),rel:o.rel||'acq',bond:o.bond??rint(35,60),alive:true,
+  const sur=n.sur&&n.sur[0]?n.sur:[(n.cn||'?')[0],String(n.py||'').split(' ')[0]||''];
+  return Object.assign({id:++s.pid,n:{cn:n.cn,py:n.py,sur},sex,age:o.age??rint(16,45),rel:o.rel||'acq',bond:o.bond??rint(35,60),alive:true,
     trait:o.trait??Math.floor(R()*TRAITS.length),lv:o.lv??worldLv(),occ:o.occ??null,met:s?s.age:0,talked:-1},o.extra||{});
 }
 /* a throwaway character for one incident (not stored unless you befriend them) */

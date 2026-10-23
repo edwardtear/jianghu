@@ -49,7 +49,7 @@ I({id:'yt_pet',age:[4,12],cd:20,w:1.1,
 
 I({id:'yt_ruler',age:[6,12],cd:6,w:1.2,when:s=>s.family!=='beggar',
  ctx:s=>{const c=scene();c.npc=npc(s,{occ:1,sex:'m',age:rint(50,66)});c.kid=npc(s,{occ:21,sex:'m',age:s.age});return c},
- text:c=>T(`At the village school, Master ${c.npc.n.sur[1]} catches you with a storybook about swordsmen tucked inside your copy of the Analects. He holds out his hand for the ruler.`,`村塾里，${c.npc.n.sur[0]}先生发现你把一本武侠话本夹在《论语》里偷看。他伸手去拿戒尺。`),
+ text:c=>T(`At the village school, Master ${(c.npc.n.sur||['',''])[1]||c.npc.en} catches you with a storybook about swordsmen tucked inside your copy of the Analects. He holds out his hand for the ruler.`,`村塾里，${c.npc.n.sur[0]}先生发现你把一本武侠话本夹在《论语》里偷看。他伸手去拿戒尺。`),
  opts:[{l:T('Hold out your palm','伸出手掌'),out:[
    {w:s=>s.t.heart*.25,t:T('After the third stroke he stops, flips through the book, and asks if you have reached the part where the swordsman repays his debt. He keeps the book. The next day there is a note in it with his own opinion of the ending.','打到第三下他停了手，翻了翻那本书，问你看到那剑客报恩那一回没有。书他没收了。第二天书还回来，里头夹了张纸条，写着他对结局的看法。'),c:'good',fx:{smarts:2,happy:1}},
    {w:1.3,t:T('Ten strokes. Your palm is so swollen you hold your chopsticks in the wrong hand for three days.','整整十下。手掌肿得老高，你左手拿了三天筷子。'),c:'bad',fx:{happy:-4,hurt:[1,3],cause:T('the teacher’s ruler','先生的戒尺')}}]},
@@ -233,7 +233,7 @@ I({id:'yt_debt',age:[16,25],once:1,w:2.5,when:s=>!['noble','temple','beggar'].in
 I({id:'yt_capping',age:[15,20],once:1,w:3,
  ctx:s=>{const c=scene();c.npc=npc(s,{occ:19,sex:'m',age:rint(60,78)});return c},
  text:(c,s)=>{const r={north:['you must also put an arrow through a hanging ring','还得一箭射穿吊着的铜环'],miao:['your aunts have spent a month on your silver headdress','几位婶娘花了一个月替你打银饰'],west:['the whole oasis is invited to the feast','整个绿洲的人都请来吃席'],east:['the boats are dressed in red ribbons','渔船上都系了红绸'],jiangnan:['there is a boat on the canal for the feast','席面摆在河上的画舫里'],shu:['there are three kinds of chilli at every table','每桌都摆了三样辣子']}[s.region]||['the ancestral hall has been swept for the first time in a year','祠堂一年来头一回打扫干净'];
-  return T(`Your coming-of-age ceremony. ${s.gender==='m'?'You are to be capped':'Your hair is to be pinned up'}, ${r[0]}, and old Uncle ${c.npc.n.sur[1]}, the eldest of the clan, will give you your courtesy name.`,`你的${s.gender==='m'?'冠礼':'及笄礼'}到了。${r[1]}，族里辈分最高的${c.npc.n.sur[0]}老太爷要给你取字。`)},
+  return T(`Your coming-of-age ceremony. ${s.gender==='m'?'You are to be capped':'Your hair is to be pinned up'}, ${r[0]}, and old Uncle ${(c.npc.n.sur||['',''])[1]||c.npc.en}, the eldest of the clan, will give you your courtesy name.`,`你的${s.gender==='m'?'冠礼':'及笄礼'}到了。${r[1]}，族里辈分最高的${c.npc.n.sur[0]}老太爷要给你取字。`)},
  opts:[{l:T('Ask for a grand name','求个气派的字'),out:[
    {w:s=>.4+s.fame/20+power(s)/60+s.looks/80,t:T('He gives you one that means “riding the clouds.” It suits you, oddly. People remember it.','他给你取了个"凌云"的意思。说来也怪，还真衬你。人家一听就记住了。'),c:'good',fx:{fame:2,happy:3}},
    {w:1.2,t:T('He gives you one that means “riding the clouds,” and you trip on the steps on your way down. Your cousins will call you that, in that tone, forever.','他给你取了个"凌云"的意思，你下台阶时就绊了一跤。表兄弟们从此都拿那个腔调叫你这个字。'),c:'muted',fx:{happy:-3,fame:1}}]},

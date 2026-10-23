@@ -1,5 +1,7 @@
 /* 江湖一生 · ui */
 'use strict';
+/* the letter on someone's round badge: the surname, or the first character of the name when there is no surname */
+const avChar=p=>((p.n&&p.n.sur&&p.n.sur[0])||(p.n&&p.n.cn)||'?')[0];
 const $=id=>document.getElementById(id);
 let S=null,LANG='en',WATCH=true,/* fights always play first */lastLen=0,SHEET=null;
 const DEFER={on:false,scroll:false,arena:false};
@@ -318,14 +320,14 @@ function peopleHTML(){
   const s=S,L=u();const al=s.people.filter(p=>p.alive).sort((a,b)=>REL_ORDER.indexOf(a.rel)-REL_ORDER.indexOf(b.rel)||b.bond-a.bond);
   const dead=s.people.filter(p=>!p.alive&&!p.gone).slice(-8).reverse();
   if(!al.length&&!dead.length)return`<p class="muted">${L.noPeople}</p>`;
-  const row=p=>`<button class="rowb" data-p="${p.id}"><span class="av${p.alive?'':' dead'}">${p.n.sur[0][0]}</span><span class="main"><b>${zh()?p.n.cn:esc(p.n.py)} <span class="muted" style="font-weight:400">· ${tr(relLabel(s,p))}</span></b><span>${zh()?`${cnNum(p.age)}岁 · ${TRAITS[p.trait][1]}`:`${p.age} · ${TRAITS[p.trait][0]}`}${p.alive?'':' · †'}</span>${p.alive?`<span class="bond${p.bond<30?' low':''}"><i style="width:${p.bond}%"></i></span>`:''}</span><span class="side">${L.lvl} ${p.lv}</span></button>`;
+  const row=p=>`<button class="rowb" data-p="${p.id}"><span class="av${p.alive?'':' dead'}">${avChar(p)}</span><span class="main"><b>${zh()?p.n.cn:esc(p.n.py)} <span class="muted" style="font-weight:400">· ${tr(relLabel(s,p))}</span></b><span>${zh()?`${cnNum(p.age)}岁 · ${TRAITS[p.trait][1]}`:`${p.age} · ${TRAITS[p.trait][0]}`}${p.alive?'':' · †'}</span>${p.alive?`<span class="bond${p.bond<30?' low':''}"><i style="width:${p.bond}%"></i></span>`:''}</span><span class="side">${L.lvl} ${p.lv}</span></button>`;
   return`<div class="rows">${al.map(row).join('')}</div>${dead.length?`<div class="grp"><h4>${L.dead2}</h4><div class="rows">${dead.map(row).join('')}</div></div>`:''}`;
 }
 function personHTML(id){
   const s=S,L=u(),p=person(s,id);if(!p)return'';
   const acts=PACTS.filter(a=>!a.if||a.if(s,p));
   return`<button class="chip" data-back>← ${L.ppl}</button>
-   <div class="who" style="margin-top:12px"><span class="av sx-${p.sex}" style="width:52px;height:52px;font-size:26px">${p.n.sur[0][0]}</span><div><h2>${zh()?p.n.cn:esc(p.n.py)+` <span class="cn muted" style="font-size:17px">${p.n.cn}</span>`}${typeof sxMark==='function'?sxMark(p):''}</h2><p>${tr(relLabel(s,p))} · ${p.sex==='f'?(zh()?'女':'female'):(zh()?'男':'male')} · ${L.age2} ${p.age} · ${L.traitL}: ${tr(P(TRAITS[p.trait]))} · ${L.lvl} ${p.lv}${p.alive?'':' · †'}</p></div></div>
+   <div class="who" style="margin-top:12px"><span class="av sx-${p.sex}" style="width:52px;height:52px;font-size:26px">${avChar(p)}</span><div><h2>${zh()?p.n.cn:esc(p.n.py)+` <span class="cn muted" style="font-size:17px">${p.n.cn}</span>`}${typeof sxMark==='function'?sxMark(p):''}</h2><p>${tr(relLabel(s,p))} · ${p.sex==='f'?(zh()?'女':'female'):(zh()?'男':'male')} · ${L.age2} ${p.age} · ${L.traitL}: ${tr(P(TRAITS[p.trait]))} · ${L.lvl} ${p.lv}${p.alive?'':' · †'}</p></div></div>
    ${p.alive?`<div class="bar" style="margin:10px 0 4px"><div class="row"><span>${L.bond}</span><b>${p.bond}</b></div><div class="track"><div class="fill f-pw" style="width:${p.bond}%"></div></div></div>
    <div class="rows" style="margin-top:12px">${acts.map(a=>{const ok=canPact(s,p,a);return`<button class="rowb" data-pa="${a.id}" data-pid="${p.id}"${ok===true?'':' disabled'}><span class="main"><b>${tr(a.n)}</b></span><span class="side">${ok===true||ok===false?((a.ap??1)?'●':(zh()?'不耗行动':'free')):tr(ok)}</span></button>`}).join('')}</div>`:''}`;
 }
