@@ -232,3 +232,13 @@ function tkLife(s,key,list){s.tkLife=s.tkLife||[];const fresh=list.filter(x=>!s.
   const used=s.tkYr===s.age?(s.tkUsed||[]):[];const all=talkTopics(s,p),last=p.tkLast,tp=[];const pool=all.slice();
   while(tp.length<3&&pool.length){const t=wpick(pool,t=>t.w*(last&&t.me.zh===last?.2:1)*(used.includes(t.lb.zh)?.2:1));pool.splice(pool.indexOf(t),1);if(!tp.some(x=>x.lb.zh===t.lb.zh))tp.push(t)}
   const c=scene();c.pid=p.id;c.p=p;c.npc=peNpc(s,p);c.tp=tp;c.all=all;runIncident(s,INC_BY.pk_chat,c);return true}})();
+/* a friend's tip from a chat waits until you go roaming, and the scene says who sent you */
+const tipPerson=s=>{const t=s.roadTip;if(!t||s.age-t.age>3)return null;const p=person(s,t.pid);return p&&p.alive?p:null};
+(()=>{const W=ACT_BY.wander;if(!W)return;const r0=W.run;W.run=function(s){const p=tipPerson(s);delete s.roadTip;
+  if(p){const i=pickIncident(s,'wander');if(i){say(s,`You remember what ${p.n.py} told you and go to find it.`,`你想起${p.n.cn}说过的那件事，循着找了过去。`,'muted');const n=s.queue.length;runIncident(s,i);
+    const q=s.queue[n];if(q)q.tagline=T(`Heard from ${p.n.py}`,`听${p.n.cn}说起的`);return}}
+  return r0.call(W,s)}})();
+const TIP_H=new Map();
+(()=>{const oq=openQuests;openQuests=function(s){const q=oq(s);const p=s.alive&&tipPerson(s);if(!p)return q;
+  const k=p.id+':'+s.roadTip.age;let o=TIP_H.get(k);if(!o){o=T(`${p.n.py} told you about something on the road. Go roaming to find it.`,`${p.n.cn}说起路上的一件怪事，闯荡江湖时可以去看看。`);TIP_H.set(k,o);if(typeof QGO!=='undefined')QGO.set(o,{k:'tip',tags:['wander']})}
+  q.push(o);return q}})();

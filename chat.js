@@ -36,7 +36,7 @@ const CHAT={
 const CHAT_FX=[
  {if:(s,p)=>p.rel==='master',w:.25,run:(s,p)=>{s.skill+=.6;say(s,'Something your master said makes a move finally click (technique +0.6).','师父一句话，让你终于想通了一招（外功+0.6）。','good')}},
  {if:(s,p)=>['father','mother'].includes(p.rel)&&s.age<16,w:.15,run:(s,p)=>{s.smarts=clamp(s.smarts+2,0,100);say(s,'You learn something you did not expect to (smarts +2).','你学到了意想不到的东西（学识+2）。','good')}},
- {if:(s,p)=>['friend','sworn'].includes(p.rel)&&s.age>=14,w:.12,run:(s,p)=>{const i=pickIncident(s,'wander');if(i){say(s,'They tell you about something they heard on the road. You go and see.','对方说起路上听来的一件事，你决定去看看。','muted');runIncident(s,i)}}},
+ {if:(s,p)=>['friend','sworn'].includes(p.rel)&&s.age>=14,w:.12,run:(s,p)=>{s.roadTip={pid:p.id,age:s.age};say(s,`${p.n.py} mentions something odd ${PRON[p.sex].he} heard about on the road. Next time you go roaming, you could look into it.`,`${p.n.cn}说起路上听来的一件怪事。下回闯荡江湖时，不妨去看看。`,'muted')}},
  {if:(s,p)=>p.rel==='spouse'&&s.health<s.maxHealth*.6,w:.4,run:(s,p)=>{heal(s,6);say(s,'They make you rest and cook you soup (health +6).','对方逼你歇着，还给你炖了汤（气血+6）。','good')}}
 ];
 (()=>{const C=PACTS.find(a=>a.id==='chat');if(!C)return;

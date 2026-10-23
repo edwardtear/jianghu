@@ -106,7 +106,7 @@ function riskHTML(f){const L=u();const r=f.foe/Math.max(1,f.me);const cls=r<.85?
   return`<span class="risk ${cls}">${L.foe} ${f.foe} · ${L.you} ${f.me} · ${L.stakes[f.stakes]}</span>`}
 function lineHTML(l){return`<p class="${l.c||''}">${tr(l.t)}${l.b&&BATTLES[l.b]?` <button class="watch" data-b="${l.b}">▶ ${u().watch}</button>`:''}</p>`}
 /* within a year, the newest event comes first; each event (its prompt, your choice, what came of it and its follow-ups) still reads top to bottom */
-function newestFirst(lines){const B=[[]];lines.forEach(l=>{const c=l.c||'';if((/\bprompt\b/.test(c)&&!/\bfollow\b/.test(c))||c==='act'){if(B[B.length-1].length)B.push([])}B[B.length-1].push(l)});
+function newestFirst(lines){const M=lines.filter(l=>/\bmoney\b/.test(l.c||''));if(M.length)return M.map(lineHTML).join('')+newestFirst(lines.filter(l=>!M.includes(l)));const B=[[]];lines.forEach(l=>{const c=l.c||'';if((/\bprompt\b/.test(c)&&!/\bfollow\b/.test(c))||c==='act'){if(B[B.length-1].length)B.push([])}B[B.length-1].push(l)});
   return B.filter(b=>b.length).reverse().map((b,i)=>`<div class="ev${i===0&&B.length>1?' new':''}">${b.map(lineHTML).join('')}</div>`).join('')}
 let renderChron=function(){
   const s=S,L=u();

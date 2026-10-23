@@ -152,9 +152,17 @@ const LCAT={job:T('Wages','工钱'),sect:T('Sect stipend','门派月例'),biz:T(
  living:T('Food and lodging','衣食住行'),house:T('Property upkeep','房产开销'),mount:T('Mount feed','坐骑草料'),shop:T('Purchases','买东西'),sell:T('Sales','变卖'),
  health:T('Doctors & medicine','看病吃药'),fun:T('Leisure','消遣'),gamble:T('Gambling','赌博'),crime:T('Crime','黑道'),jh:T('The jianghu','江湖营生'),train:T('Training','修炼'),
  work:T('Work','营生'),life:T('Life','人生'),jail:T('Prison','牢狱'),opp:T('Opportunities','机缘'),events:T('Life events','人生际遇'),other:T('Other','其他'),people:T('People','人情往来')};
+/* the first line of each year: what came in and went out last year, and the biggest of each */
+function yearMoney(s,lg){if(!s.alive||s.age<8)return;const it=Object.entries(lg.items).filter(([k,v])=>v);
+  const inc=it.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),exp=it.filter(x=>x[1]<0).sort((a,b)=>a[1]-b[1]);if(!inc.length&&!exp.length)return;
+  const ti=inc.reduce((t,x)=>t+x[1],0),te=Math.abs(exp.reduce((t,x)=>t+x[1],0)),net=ti-te,nm=k=>LCAT[k]||LCAT.other,m=fmtMoney;
+  const top=(a,en,zh)=>a.length?[`${en} ${nm(a[0][0]).en.toLowerCase()}`,`${zh}${nm(a[0][0]).zh}`]:null;const ti1=top(inc,'mostly','主要是'),te1=top(exp,'mostly','大头是');
+  const en=`Last year's money: ${m(ti)} tael${ti===1?'':'s'} in${ti1&&inc.length>1?' ('+ti1[0]+')':''}, ${m(te)} out${te1&&exp.length>1?' ('+te1[0]+')':''}. ${net?(net>0?'Up ':'Down ')+m(Math.abs(net)):'Even'}; you ended the year with ${m(s.money)}.`;
+  const zh=`去年进账${m(ti)}两${ti1&&inc.length>1?'（'+ti1[1]+'）':''}，花销${m(te)}两${te1&&exp.length>1?'（'+te1[1]+'）':''}，${net?(net>0?'结余':'亏空')+m(Math.abs(net))+'两':'收支相抵'}。年底手头剩${m(s.money)}两。`;
+  say(s,en,zh,net>=0?'money':'money neg')}
 const _yearly3=yearly;
 yearly=function(s){
-  if(s.ledger)s.ledgerLast=s.ledger;s.ledger={age:s.age,items:{}};
+  if(s.ledger){s.ledgerLast=s.ledger;yearMoney(s,s.ledger)}s.ledger={age:s.age,items:{}};
   _yearly3(s);
   yearNews(s);
 };
