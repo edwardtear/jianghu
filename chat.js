@@ -40,7 +40,10 @@ const CHAT_FX=[
  {if:(s,p)=>p.rel==='spouse'&&s.health<s.maxHealth*.6,w:.4,run:(s,p)=>{heal(s,6);say(s,'They make you rest and cook you soup (health +6).','对方逼你歇着，还给你炖了汤（气血+6）。','good')}}
 ];
 (()=>{const C=PACTS.find(a=>a.id==='chat');if(!C)return;
- C.run=(s,p)=>{p.talked=s.age;addBond(p,rint(2,7));happy(s,1);
+ C.run=(s,p)=>{p.talked=s.age;
+  /* a real conversation when there is something to talk about (talk.js); the old one-liners for small children */
+  if(typeof talkRun==='function'&&talkRun(s,p)!==false){const fx=CHAT_FX.filter(e=>e.if(s,p));for(const e of fx)if(chance(e.w)){e.run(s,p);break}return}
+  addBond(p,rint(2,7));happy(s,1);
   const g=s.age<13&&p.age<16?'kid':CHAT[p.rel]?p.rel:['sworn'].includes(p.rel)?'friend':p.age>=65?'old':'any';
   const FAM=['father','mother','sibling','spouse','child'];const pool=CHAT[g].concat(['friend','lover','master'].includes(g)?CHAT.any.slice(4,7):[]).concat(p.age>=65&&g!=='old'&&g!=='kid'?CHAT.old:[]);
   s.chatSeen=s.chatSeen||[];const fresh=pool.map((f,i)=>({f,k:g+i})).filter(x=>!s.chatSeen.includes(x.k));const x=pick(fresh.length?fresh:pool.map((f,i)=>({f,k:g+i})));

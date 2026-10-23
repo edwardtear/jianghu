@@ -74,7 +74,7 @@ function queuePeople(s,q){if(!q)return[];const ids=new Set();const c=q.c||{};if(
 const snip=x=>{const f=(v,n)=>{v=String(v||'').replace(/\s+/g,' ');return v.length>n?v.slice(0,n)+'…':v};return T(f(x.en,48),f(x.zh,20))};
 function markFollow(s,old,from){if(!from)return;s.queue.forEach(q=>{if(!old.has(q)&&q.text&&!q.follow){q.follow=1;q.from=from}})}
 (()=>{const ch=choose;choose=function(s,k){const q=s.queue[0],old=new Set(s.queue),E=s.log[s.log.length-1],i0=E?E.lines.length:0,n=s.log.length;const r=ch(s,k);
-  if(q&&s.alive&&s.log.length===n&&E&&!E.lines.slice(i0).some(l=>!/prompt|you/.test(l.c||''))&&!s.queue.some(x=>!old.has(x)))say(s,'Nothing much comes of it.','这事就这么过去了，没起什么波澜。','muted');
+  if(q&&q.src==='inc'&&s.alive&&s.log.length===n&&E&&!E.lines.slice(i0).some(l=>!/prompt|you/.test(l.c||''))&&!s.queue.some(x=>!old.has(x)))say(s,'Nothing much comes of it.','这事就这么过去了，没起什么波澜。','muted');
   if(q)markFollow(s,old,q.text?snip(q.text):q.from||(ACT_BY[q.id]&&ACT_BY[q.id].n));return r}})();
 (()=>{const af=actFollow;actFollow=function(s,id){const old=new Set(s.queue);af(s,id);if(ACT_BY[id])markFollow(s,old,ACT_BY[id].n)}})();
 

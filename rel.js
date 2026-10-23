@@ -8,10 +8,8 @@ const near=s=>s.people.filter(p=>p.alive&&!p.temp&&!p.gone);
 
 /* ---------- interactions with uncertain outcomes ---------- */
 function relWrap(id,fn){const a=PACT_BY[id];if(!a)return;const r0=a.run;a.run=function(s,p){if(fn(s,p,r0)===false)r0.call(a,s,p);maybeRelEvent(s,p,.15)}}
-relWrap('chat',(s,p,r0)=>{if(p.talked===s.age)return false;const r=R();const tr=TR(p);
-  if(r<.12+(tr==='cold'?.1:0)){p.talked=s.age;addBond(p,-rint(2,5));say(s,`You say something that ${p.n.py} takes the wrong way. The talk goes cold.`,`你说了句话，${p.n.cn}听岔了，气氛一下子冷了。`,'muted');return}
-  if(r<.24&&p.bond>=50){p.talked=s.age;addBond(p,rint(7,12));happy(s,3);say(s,`What starts as small talk with ${p.n.py} turns into the best conversation you have had in years.`,`本来只是和${p.n.cn}随便聊聊，结果聊成了这几年最痛快的一回。`,'good');if(chance(.5))relEvent(s,p,'confide');return}
-  return false});
+/* chat: how it goes now depends on what you talk about and who they are (talk.js), not a dice roll */
+relWrap('chat',()=>false);
 relWrap('gift',(s,p)=>{pay(s,-20);const tr=TR(p),r=R();
   if((tr==='upright'||tr==='cold')&&r<.3){addBond(p,-2);say(s,`${p.n.py} refuses the gift. "Between us there is no need for this."`,`${p.n.cn}没收。"你我之间，用不着这个。"`,'muted');pay(s,20);return}
   if(tr==='greedy'&&r<.35){addBond(p,rint(2,5));say(s,`${p.n.py} weighs the gift in one hand and looks at you as if expecting more.`,`${p.n.cn}掂了掂礼物，看你的眼神像是还在等下文。`,'muted');return}

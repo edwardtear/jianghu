@@ -26,5 +26,6 @@ function encHTML(){if(typeof ENC_ORDER==='undefined')return'';const L=(store.get
 (()=>{const rs=renderSheet;renderSheet=function(){if(SHEET&&SHEET.kind==='lore'){$('veil').innerHTML=sheetFrame(zh()?'江湖奇遇录':'Book of Encounters',loreHTML()+encHTML());return}rs()}})();
 (()=>{const s0=sideHTML;sideHTML=function(s){const h=s0.apply(this,arguments);if(!s||s.age<10)return h;const[g,a]=loreCount();
   const b=`<button class="chip lorebtn" data-lore>📜 ${zh()?'江湖奇遇录':'Book of Encounters'} · ${g}/${a}</button>`;const i=h.indexOf('<details class="sec"');return i<0?h+b:h.slice(0,i)+b+h.slice(i)}})();
-(()=>{const u0=update;update=function(){try{loreSync()}catch(e){}return u0.apply(this,arguments)}})();
+(()=>{const u0=update;update=function(){try{loreSync()}catch(e){}try{if(typeof VARMEM!=='undefined')store.set('jh4_var',VARMEM)}catch(e){}return u0.apply(this,arguments)}})();
+try{if(typeof VARMEM!=='undefined')Object.assign(VARMEM,store.get('jh4_var',{}))}catch(e){}
 document.addEventListener('click',e=>{if(e.target.closest('[data-lore]'))openSheet('lore')});
