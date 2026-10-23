@@ -246,7 +246,7 @@ function yearly(s){
     else if(s.perf<12){say(s,`You are dismissed from your post as ${J.n[s.jobLv].en}.`,`你被辞退了，丢了${J.n[s.jobLv].zh}的差事。`,'bad');s.job=null;happy(s,-8)}}
   if(s.sect&&!s.retired&&s.jail<=0)payT(s,2+s.rank*6,'sect');
   owned(s,'house').forEach(h=>payT(s,-h.upkeep,'house'));
-  {const o=LTAG;LTAG='biz';owned(s,'biz').forEach(b=>{LSUB=b.n;if(b.risk&&chance(b.risk)){const loss=Math.round(b.price*.15);pay(s,-loss);say(s,`Bad year for your ${b.n.en}: you lose ${loss} taels.`,`你的${b.n.zh}今年亏了${loss}两。`,'bad')}else{const g=rint(b.inc[0],b.inc[1]);pay(s,g);if(g>100)say(s,`Your ${b.n.en} earns ${g} taels.`,`你的${b.n.zh}今年赚了${g}两。`,'good')}});LSUB=null;LTAG=o}
+  {const o=LTAG;LTAG='biz';owned(s,'biz').forEach(b=>{LSUB=b.n;if(b.risk&&chance(b.risk)){const loss=Math.round(b.price*.15);pay(s,-loss);say(s,`Bad year for your ${b.n.en}: you lose ${loss} taels.`,`你的${b.n.zh}今年亏了${loss}两。`,'bad')}else{const g=rint(b.inc[0],b.inc[1]);pay(s,g);if(g>100)say(s,`Your ${b.n.en} earns ${g} taels.`,`你的${b.n.zh}今年赚了${g}两。`,'good')}});LSUB=null;LTAG=o;if(s.ledger&&s.ledger.sub){const C={};owned(s,'biz').forEach(b=>C[b.n.zh]=(C[b.n.zh]||0)+1);for(const k in s.ledger.sub){const x=s.ledger.sub[k];if(x.c==='biz'&&C[x.n.zh])x.k=C[x.n.zh]}}}
   /* people grow old */
   s.people.forEach(p=>{if(!p.alive)return;p.age++;
     if(['friend','acq','fellow','rival','lover','sworn'].includes(p.rel))p.bond=clamp(p.bond-rint(1,4),0,100);

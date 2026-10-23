@@ -159,8 +159,8 @@ function yearMoney(s,lg){if(!s.alive||s.age<8)return;const it=Object.entries(lg.
   const top=(a,en,zh)=>a.length>1?[` (${en} ${nm(a[0][0]).en.toLowerCase()})`,`（${zh}${nm(a[0][0]).zh}）`]:['',''];const ti1=top(inc,'mostly','主要是'),te1=top(exp,'mostly','大头是');
   /* each shop on its own, so you can see which one carries you and which one bleeds */
   const bz=Object.values(lg.sub||{}).filter(x=>x.c==='biz'&&x.v).sort((a,b)=>b.v-a.v);
-  const en=`Last year's money: ${m(ti)} tael${ti===1?'':'s'} in${ti1[0]}, ${m(te)} out${te1[0]}. ${net?(net>0?'Up ':'Down ')+m(Math.abs(net)):'Even'}.${bz.length?` Shops: ${bz.map(x=>x.n.en+' '+sg(x.v)).join(', ')}.`:''} You ended the year with ${m(s.money)}.`;
-  const zh=`去年进账${m(ti)}两${ti1[1]}，花销${m(te)}两${te1[1]}，${net?(net>0?'结余':'亏空')+m(Math.abs(net))+'两':'收支相抵'}。${bz.length?`产业：${bz.map(x=>x.n.zh+sg(x.v)+'两').join('，')}。`:''}年底手头剩${m(s.money)}两。`;
+  const en=`Last year's money: ${m(ti)} tael${ti===1?'':'s'} in${ti1[0]}, ${m(te)} out${te1[0]}. ${net?(net>0?'Up ':'Down ')+m(Math.abs(net)):'Even'}.${bz.length?` Shops: ${bz.map(x=>x.n.en+(x.k>1?` ×${x.k}`:'')+' '+sg(x.v)).join(', ')}.`:''} You ended the year with ${m(s.money)}.`;
+  const zh=`去年进账${m(ti)}两${ti1[1]}，花销${m(te)}两${te1[1]}，${net?(net>0?'结余':'亏空')+m(Math.abs(net))+'两':'收支相抵'}。${bz.length?`产业：${bz.map(x=>x.n.zh+(x.k>1?`（${cnNum(x.k)}间）`:'')+sg(x.v)+'两').join('，')}。`:''}年底手头剩${m(s.money)}两。`;
   say(s,en,zh,net>=0?'money':'money neg')}
 const _yearly3=yearly;
 yearly=function(s){
