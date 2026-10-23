@@ -104,5 +104,5 @@ function talkRun(s,p){
   if(Array.isArray(topic.q))topic.q=tkPick(s,p,'q'+topic.me.zh.length,topic.q);const tr=tkTrait(p);const score=(topic.fit[tr]||0)+(p.bond-50)/45+(R()-.5)*.8;
   say(s,topic.me.en.replace(/^They (notice|know|ask|have)\b/,(m,v)=>p.n.py+' '+(v==='have'?'has':v+'s')),topic.me.zh.replace(/^对方/,p.n.cn),'muted');sayT(s,voice(p,topic.q,topic.tone));
   if(score<-.75){addBond(p,-rint(2,5));if(topic.bad)sayT(s,topic.bad,'muted');else say(s,`Somewhere the conversation turns. ${p.n.py} grows quiet and leaves early.`,`说着说着，话头不知怎么就拧了。${p.n.cn}沉默下来，早早走了。`,'muted');return true}
-  if(score>1.05){addBond(p,rint(7,12));happy(s,topic.mood?rint(topic.mood[0],topic.mood[1]):3);sayT(s,topic.good||T(`It turns into the best talk you have had with ${p.n.py} in years.`,`聊着聊着，成了你和${p.n.cn}这几年最痛快的一回。`),'good');if(chance(.35)&&typeof relEvent==='function')relEvent(s,p,'confide');return true}
+  if(score>1.05){addBond(p,rint(7,12));happy(s,topic.mood?rint(topic.mood[0],topic.mood[1]):3);sayT(s,topic.good||T(`It turns into the best talk you have had with ${p.n.py} in years.`,`聊着聊着，成了你和${p.n.cn}这几年最痛快的一回。`),'good');if(chance(.35)&&typeof relKinds==='function'&&relKinds(s,p).includes('confide'))relEvent(s,p,'confide');return true}
   addBond(p,rint(2,6));happy(s,topic.mood?rint(1,topic.mood[0]):1);return true}
