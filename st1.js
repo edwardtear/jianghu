@@ -166,7 +166,7 @@ SDEF('tale',{n:T('The Storyteller','江湖说书人'),theme:T('A teahouse storyt
   silenced:{n:T('Every copy bought up','书全被你买断了'),tone:'mixed'},forgotten:{n:T('A tale that faded','故事慢慢没人讲了'),tone:'mixed'},lapsed:{n:T('A tale that faded','故事慢慢没人讲了'),tone:'mixed'}},
  hint:{b:(s,r)=>T(`Master ${r.facts.teller.en} is still telling stories about you. (Visit a teahouse.)`,`${r.facts.teller.zh}先生还在茶馆里讲你的故事。（下一步：去茶馆）`),c:(s,r)=>T(`Master ${r.facts.teller.en} is said to be writing a book.`,`听说${r.facts.teller.zh}先生在写书。`)}});
 const TALE_V=[T('killed a tiger with a pair of chopsticks and turned down a princess the same afternoon','用一双筷子打死了老虎，当天下午又回绝了公主的婚事'),T('drinks the blood of the men it kills and keeps their ears on a string','喝死人的血，还把人耳朵串成一串挂着')];
-SOPEN('tale',{age:[18,75],w:4,tags:['town'],when:s=>s.fame>=15,
+SOPEN('tale',{age:[18,75],w:3,tags:['town'],when:s=>s.fame>=15,
  ctx:s=>{const t=genName('m');return{teller:T(t.py.split(' ')[0],t.cn[0]),v:s.align>=20?0:s.align<=-20?1:(chance(.5)?0:1)}},
  text:(c,s)=>T(`At the teahouse, Master ${c.teller.en} slaps the table: “…and that is how ${s.name}” (you nearly drop your cup) “${TALE_V[c.v].en}!” The room roars.`,`茶馆里，${c.teller.zh}先生一拍醒木：“……这就是${s.cn}”，你差点把茶碗掉了，“${TALE_V[c.v].zh}！”满堂喝彩。`),
  opts:[{l:T('Stand up and correct him','站起来当众纠正'),out:[{t:T('The room laughs at you, not with you. The storyteller asks, very politely, to speak with you afterwards.','满堂哄笑，笑的是你。说书先生客客气气地说，散场后想跟你聊聊。'),c:'muted',fx:{f:(s,c)=>stBegin(s,'tale',c,'b',{teller:c.teller,v:c.v,corrected:1},[0,1])}}]},

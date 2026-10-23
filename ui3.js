@@ -3,7 +3,7 @@
 /* endings found are kept on this device (and in the cloud when signed in), not in the life */
 function loreSync(){if(!S)return;let L=null;
   const get=()=>L||(L=store.get('jh4_lore',{}));
-  if(S.loreNew&&S.loreNew.length){get();S.loreNew.forEach(([id,e])=>{if(!STORY[id])return;if(e==='lapsed'&&loreDup(id))e=loreDup(id);const x=L[id]=L[id]||{ends:{},met:0};x.ends[e]=(x.ends[e]||0)+1});S.loreNew=[]}
+  if(S.loreNew&&S.loreNew.length){get();S.loreNew.forEach(([id,e])=>{if(id==='@'){const m=L['@']=L['@']||{};m[e]=(m[e]||0)+1;return}if(!STORY[id])return;if(e==='lapsed'&&loreDup(id))e=loreDup(id);const x=L[id]=L[id]||{ends:{},met:0};x.ends[e]=(x.ends[e]||0)+1});S.loreNew=[]}
   if(S.story){S._loreMet=S._loreMet||[];for(const id in S.story)if(!S._loreMet.includes(id)){get();const x=L[id]=L[id]||{ends:{},met:0};x.met++;S._loreMet.push(id)}}
   if(L)store.set('jh4_lore',L)}
 /* "lapsed" shares its name with another ending in some stories; count those as one */
@@ -18,7 +18,12 @@ function loreHTML(){const L=store.get('jh4_lore',{}),Z=zh(),[got,all]=loreCount(
     return`<div class="lore${seen?'':' unseen'}"><div class="lore-h"><b>${tr(D.n)}</b>${now}</div>
      <p class="muted">${seen?tr(D.theme):(Z?'尚未遇到。':'Not yet met.')}</p>
      <ul class="lore-ends">${loreEnds(id).map(k=>{const E=D.ends[k],n=x.ends[k];return`<li class="${n?'t-'+E.tone:'locked'}">${n?tr(E.n)+(n>1?` <small>×${n}</small>`:''):'？？？'}</li>`}).join('')}</ul></div>`}).join('')}
-(()=>{const rs=renderSheet;renderSheet=function(){if(SHEET&&SHEET.kind==='lore'){$('veil').innerHTML=sheetFrame(zh()?'江湖奇遇录':'Book of Encounters',loreHTML());return}rs()}})();
+/* the one-off encounters, grouped by where they happen */
+function encHTML(){if(typeof ENC_ORDER==='undefined')return'';const L=(store.get('jh4_lore',{})['@'])||{},Z=zh();const got=ENC_ORDER.filter(id=>L[id]).length;
+  const groups=[...new Set(ENC_ORDER.map(id=>ENC[id].g))];
+  return`<h4 class="lore-sec">${Z?'江湖见闻':'Encounters'} · ${got}/${ENC_ORDER.length}</h4><p class="muted" style="margin-top:0;font-size:13.5px">${Z?'各地独有的奇遇、节令和趣事。每一世每样最多遇到一次，搬去别处才能遇到别处的。':'One-off encounters found only in certain regions, at festivals, or just by chance. Move around to find the ones that belong elsewhere.'}</p>`+
+   groups.map(g=>`<div class="lore"><div class="lore-h"><b>${cap(tr(ENC_GROUP[g]))}</b></div><ul class="lore-ends">${ENC_ORDER.filter(id=>ENC[id].g===g).map(id=>`<li class="${L[id]?'t-good':'locked'}">${L[id]?tr(ENC[id].n):'？？？'}</li>`).join('')}</ul></div>`).join('')}
+(()=>{const rs=renderSheet;renderSheet=function(){if(SHEET&&SHEET.kind==='lore'){$('veil').innerHTML=sheetFrame(zh()?'江湖奇遇录':'Book of Encounters',loreHTML()+encHTML());return}rs()}})();
 (()=>{const s0=sideHTML;sideHTML=function(s){const h=s0.apply(this,arguments);if(!s||s.age<10)return h;const[g,a]=loreCount();
   const b=`<button class="chip lorebtn" data-lore>📜 ${zh()?'江湖奇遇录':'Book of Encounters'} · ${g}/${a}</button>`;const i=h.indexOf('<details class="sec"');return i<0?h+b:h.slice(0,i)+b+h.slice(i)}})();
 (()=>{const u0=update;update=function(){try{loreSync()}catch(e){}return u0.apply(this,arguments)}})();
