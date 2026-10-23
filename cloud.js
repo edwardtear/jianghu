@@ -23,11 +23,11 @@ async function cloudInit(){if(!window.FIREBASE_CONFIG)return;
 const localStamp=()=>+(localStorage.getItem('jh4_upd')||0);
 async function cloudPull(){const u=CLOUD.user;if(!u)return;
   try{const d=await CLOUD.db.collection('users').doc(u.uid).get();const x=d.exists?d.data():null;
-    if(x&&x.save&&(x.updated||0)>localStamp()){const sv=JSON.parse(x.save);if(sv&&sv.v===4&&sv.log){S=sv;lastLen=S.log.length;store.set('jh4_save',S);if(x.hall)store.set('jh4_hall',JSON.parse(x.hall));localStorage.setItem('jh4_upd',String(x.updated));closeSheet();update(false);CLOUD.status='pulled';return}}
+    if(x&&x.save&&(x.updated||0)>localStamp()){const sv=JSON.parse(x.save);if(sv&&sv.v===4&&sv.log){S=sv;lastLen=S.log.length;store.set('jh4_save',S);if(x.hall)store.set('jh4_hall',JSON.parse(x.hall));if(x.lore)store.set('jh4_lore',JSON.parse(x.lore));localStorage.setItem('jh4_upd',String(x.updated));closeSheet();update(false);CLOUD.status='pulled';return}}
     cloudPush(true)}catch(e){CLOUD.status='err'}}
 function cloudPush(now){if(!CLOUD.user||!CLOUD.db)return;clearTimeout(CLOUD.timer);
   const go=()=>{const t=Date.now();try{localStorage.setItem('jh4_upd',String(t))}catch(e){}
-    CLOUD.db.collection('users').doc(CLOUD.user.uid).set({save:JSON.stringify(S),hall:JSON.stringify(store.get('jh4_hall',[])),updated:t,name:S.cn||'',age:S.age||0},{merge:true}).then(()=>{CLOUD.status='saved'}).catch(()=>{CLOUD.status='err'})};
+    CLOUD.db.collection('users').doc(CLOUD.user.uid).set({save:JSON.stringify(S),hall:JSON.stringify(store.get('jh4_hall',[])),lore:JSON.stringify(store.get('jh4_lore',{})),updated:t,name:S.cn||'',age:S.age||0},{merge:true}).then(()=>{CLOUD.status='saved'}).catch(()=>{CLOUD.status='err'})};
   if(now)go();else CLOUD.timer=setTimeout(go,4000)}
 (()=>{const u0=update;update=function(){const r=u0.apply(this,arguments);try{localStorage.setItem('jh4_upd',String(Date.now()))}catch(e){}cloudPush(false);return r}})();
 
