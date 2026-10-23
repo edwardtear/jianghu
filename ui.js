@@ -13,7 +13,7 @@ const U={
   me:'Status',act:'Activities',ppl:'People',own:'Assets',age:'Next year',arena:'Name Arena',nw:'New life',sure:'Start over?',
   odds:n=>`Of every <b>${n}</b> children born under heaven that year, one began life exactly as you did.`,dead:'deceased',
   health:'Health',joy:'Happiness',smarts:'Smarts',looks:'Looks',power:'Martial power',silver:'Silver',taels:'taels',
-  TN:{root:'Bones',wit:'Insight',luck:'Fortune',heart:'Heart'},
+  TN:{root:'Bones',wit:'Insight',luck:'Fortune',heart:'Composure'},
   dt:{path:'status',sect:'sect',align:'alignment',fame:'fame',fam:'family',arts:'arts',law:'the law',ill:'illness'},
   evil:'evil',good:'righteous',noSect:'None',former:'former',jail:n=>`In prison · ${n} year${n>1?'s':''} left`,wanted:n=>'Wanted '+'★'.repeat(n),
   unmarried:'Unmarried',married:p=>'Married to '+p,kids:n=>` · ${n} child${n>1?'ren':''}`,noArts:'None yet',
@@ -34,7 +34,7 @@ const U={
   me:'状态',act:'活动',ppl:'人脉',own:'家当',age:'过一年',arena:'名字论剑',nw:'重新投胎',sure:'确定重来？',
   odds:n=>`普天之下，那一年每 <b>${n}</b> 个新生儿中，只有一个与你同样开局。`,dead:'已辞世',
   health:'气血',joy:'心情',smarts:'学识',looks:'容貌',power:'功力',silver:'银两',taels:'两',
-  TN:{root:'体质',wit:'悟性',luck:'福缘',heart:'心性'},
+  TN:{root:'体质',wit:'悟性',luck:'福缘',heart:'定力'},
   dt:{path:'身份',sect:'门派',align:'正邪',fame:'名望',fam:'家室',arts:'武学',law:'官府',ill:'病痛'},
   evil:'邪',good:'正',noSect:'无门无派',former:'已离开',jail:n=>`身陷囹圄 · 尚余${cnNum(n)}年`,wanted:n=>'通缉 '+'★'.repeat(n),
   unmarried:'未婚',married:p=>'配偶 '+p,kids:n=>` · 子女${cnNum(n)}人`,noArts:'尚未习得',
@@ -173,7 +173,7 @@ const GUIDE={
    ['Bones (体质)','Natural body. Health, how fast you train, how long you live, and where your Constitution and Strength start.'],
    ['Insight (悟性)','Understanding. How fast you train and learn new arts.'],
    ['Fortune (福缘)','Luck. Lucky encounters, hidden manuals, better rolls.'],
-   ['Heart (心性)','Temperament. Inner energy, calm, and a lean toward kindness.']]],
+   ['Composure (定力)','A steady mind. It raises your Inner force, how fast your inner energy grows and how far your cultivation can go. In many events it helps you keep calm, let things go and treat people with patience. A settled mind is harder to lead astray, so you start a little nearer the righteous path.']]],
   mar:['Martial arts',[
    ['Martial power (功力)','Your overall strength, and your experience: technique (from practice, sparring and sect training) + half your inner energy (from meditation, seclusion and elixirs) + a bonus for every art you know (basic +3, intermediate +7, advanced +14, legendary +24). Gains are bigger when you are young and talented, and slow down as you improve. After each action the chronicle shows exactly what changed.'],
    ['Realm (境界)','Nine realms, each in four stages (entry, minor, major, perfected). Stages come with training. Crossing into a new realm from First-rate upward needs a breakthrough: when you hit the wall, you choose how to try, and it can fail. Talent decides how far you are likely to get. See the ladder below.'],
@@ -211,7 +211,7 @@ const GUIDE={
    ['机缘','每年总有两三件机会在江湖上流传：剑冢、秘密拍卖、远航海岛……闯荡江湖时会听人说起，由你决定去不去；在茶馆里打听到的消息也会在路上应验。']]],
   tal:['天赋（生来注定，1–10）',[
    ['体质','天生的体魄。影响气血、练功快慢、寿命，以及战斗属性「根骨」和「力道」的起点。'],['悟性','领悟。影响练功快慢和学新武功。'],
-   ['福缘','运气。影响奇遇、秘籍和各种机缘。'],['心性','性情。影响内力、心境，以及向善之心。']]],
+   ['福缘','运气。影响奇遇、秘籍和各种机缘。'],['定力','心定不乱。影响内功、内力增长的快慢，以及修为能走多远。许多事情里，定力高的人更沉得住气、放得下，待人也更有耐性。心定的人不易走上歪路，起初也更偏向正道一些。']]],
   mar:['武学',[
    ['功力','你的整体实力，也就是你的"经验"：外功（修炼、切磋、门派修炼所得）＋一半内力（修炼、闭关、丹药所得）＋每门武学的加成（入门+3，中乘+7，上乘+14，绝学+24）。年轻、天赋好时长得快，越往上越慢。每次行动后，史书里都会写明变化。'],
    ['境界','九大境界，每境分初入、小成、大成、圆满四阶。阶靠苦练；从二流往上，每跨一个大境界都要突破瓶颈：撞上瓶颈时由你选怎么冲，也可能失败。天资决定你大概能走多远。见下方阶梯。'],
