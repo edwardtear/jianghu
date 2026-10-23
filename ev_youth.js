@@ -313,7 +313,7 @@ I({id:'yt_trade1',age:[15,22],once:1,w:4,when:s=>!s.sect&&!!YT_par(s)&&!!YT_TRAD
 I({id:'yt_trade2',only:1,noThread:1,
  text:c=>T(`The test: ${c.tr.test.en}. ${c.tr.hand.en[0].toUpperCase()+c.tr.hand.en.slice(1)} watches you set off and says nothing.`,`考题是：${c.tr.test.zh}。${c.tr.hand.zh}看着你出门，一声不吭。`),
  opts:[{l:T('Do it the hard, honest way','老老实实，下死功夫'),out:[
-   {w:(s,c)=>c.tr.st(s)+(c.fav?.4:0),t:T('It nearly breaks you. It does not. You come back thinner, with exactly what was asked for.','差点把你累垮，可到底没垮。你回来时瘦了一圈，要的东西一样不差。'),c:'good',fx:{maxHealth:1,f:(s,c)=>{c.pass=1}},next:'yt_trade3',keep:1},
+   {w:(s,c)=>YT_TRADE[s.family].st(s)+(c.fav?.4:0),t:T('It nearly breaks you. It does not. You come back thinner, with exactly what was asked for.','差点把你累垮，可到底没垮。你回来时瘦了一圈，要的东西一样不差。'),c:'good',fx:{maxHealth:1,f:(s,c)=>{c.pass=1}},next:'yt_trade3',keep:1},
    {w:1.1,t:T('You give it everything and fall just short. Close is not the same.','你拼尽了全力，差了那么一点点。差一点，就是没成。'),c:'bad',fx:{happy:-3,f:(s,c)=>{c.pass=0}},next:'yt_trade3',keep:1}]},
   {l:T('Find a clever shortcut','找条巧路子'),out:[
    {w:s=>s.smarts/30+s.t.luck*.1,t:T('Nobody said you could not hire help, or borrow, or bargain. It works, and you are not entirely sure it was fair.','又没人说不许雇人、不许借、不许讲价。成了。你自己也说不准，这算不算公道。'),c:'muted',fx:{smarts:2,f:(s,c)=>{c.pass=1;c.cheat=1}},next:'yt_trade3',keep:1},
@@ -338,7 +338,7 @@ I({id:'yt_trade3',only:1,noThread:1,
    {w:s=>s.t.heart*.2,t:c=>T(`Later, alone, ${YT_pn(c.par).en} says: “A trade is not the only thing a person can be.” It helps more than you expected.`,`后来没人的时候，${YT_pn(c.par).zh}对你说："一个人能做的，不只这一门手艺。"这话比你想的管用。`),c:'good',fx:{happy:1,f:(s,c)=>addBond(c.par,6)}},
    {w:1,t:T('Someone else takes it on. For a while you feel very small, and then you start looking at the road.','家业交给了别人。有那么一阵，你觉得自己矮了半截。再后来，你开始望着门外那条路出神。'),c:'bad',fx:{happy:-5,smarts:1}}]},
   {l:T('Demand a second chance','再求一次机会'),if:(s,c)=>!c.sib&&c.pass===0,out:[
-   {w:(s,c)=>c.tr.st(s)*.6+s.t.luck*.1,t:T('Second time, you do it. Nobody mentions the first time again, at least to your face.','第二回，你做成了。头一回的事再没人提，至少没人当着你的面提。'),c:'good',fx:{money:[30,70],happy:4,flag:'yt_heir'}},
+   {w:(s,c)=>YT_TRADE[s.family].st(s)*.6+s.t.luck*.1,t:T('Second time, you do it. Nobody mentions the first time again, at least to your face.','第二回，你做成了。头一回的事再没人提，至少没人当着你的面提。'),c:'good',fx:{money:[30,70],happy:4,flag:'yt_heir'}},
    {w:1,t:T('You fail again, in front of more people. You leave home that winter.','又没成，这回看的人更多。那年冬天，你离了家。'),c:'bad',fx:{happy:-6,f:(s,c)=>addBond(c.par,-5)}}]},
   {l:T('Set out at dawn','天一亮就上路'),if:(s,c)=>c.pass==null||c.sib,out:[
    {w:s=>.5+s.t.luck*.15+power(s)/60,t:T('On the first night out you share a fire with another young fool going the same way. You travel together for a month.','头一夜在野外，你跟另一个同样犯傻的年轻人凑着一堆火。你们结伴走了一个月。'),c:'good',fx:{happy:5,skill:1,meet:'friend',bond:55}},
