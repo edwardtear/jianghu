@@ -8,6 +8,10 @@ const zh=()=>LANG==='zh';
 const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const num=n=>Math.round(n).toLocaleString(zh()?'zh-CN':'en-US');
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+/* three save slots: slot 0 keeps the original keys so older saves carry over */
+const SLOT_N=3;let SLOT=(()=>{try{const v=+localStorage.getItem('jh4_slot');return v>=0&&v<SLOT_N?v:0}catch(e){return 0}})();
+const slotKey=i=>{i=i??SLOT;return i?'jh4_save'+i:'jh4_save'};
+const slotStampKey=i=>{i=i??SLOT;return i?'jh4_upd'+i:'jh4_upd'};
 const U={
  en:{tag:'one life in the jianghu',intro:'Heaven picks where you are born. Train, fight, love, gamble and scheme one year at a time; the chronicle records what became of you.',
   me:'Status',act:'Activities',ppl:'People',own:'Assets',age:'Next year',arena:'Name Arena',nw:'New life',sure:'Start over?',
@@ -145,7 +149,7 @@ function renderDock(){
 }
 function update(scroll){
   if(!S.alive&&!S.recorded){S.recorded=1;const t=titleOf(S);const h=store.get('jh4_hall',[]);h.unshift({name:S.name,cn:S.cn,title:T(t[1].en,t[0].zh),age:S.age,realm:rname(S)});store.set('jh4_hall',h.slice(0,10))}
-  store.set('jh4_save',S);
+  store.set(slotKey(),S);
   if(!WATCH)SHOW.length=0;
   /* a fight just happened: play it first, and only reveal what it led to afterwards */
   if(SHOW.length&&!DEFER.arena){DEFER.on=true;DEFER.scroll=DEFER.scroll||scroll;renderDock();playShows();return}
@@ -486,7 +490,7 @@ function start(data){
   setTimeout(()=>{if(S&&S.age<0&&!SHEET){if(typeof openSetup==='function')openSetup();else openSheet('birth')}},0);
   WATCH=true;
   let l=store.get('jh4_lang',null);if(l!=='en'&&l!=='zh')l=window.JH_DEFAULT_LANG||((navigator.language||'').toLowerCase().startsWith('zh')?'zh':'en');
-  const saved=data&&data.S&&data.S.v===4?data.S:store.get('jh4_save',null);
+  const saved=data&&data.S&&data.S.v===4?data.S:store.get(slotKey(),null);
   if(saved&&saved.v===4&&saved.log){S=saved;lastLen=S.log.length}else{S=newLife()}
   applyLang(data&&data.LANG||l);drawHills();update(false);
 }

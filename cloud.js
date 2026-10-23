@@ -19,22 +19,35 @@ async function cloudInit(){if(!window.FIREBASE_CONFIG)return;
   firebase.initializeApp(window.FIREBASE_CONFIG);CLOUD.auth=firebase.auth();CLOUD.db=firebase.firestore();CLOUD.on=true;cloudBar();
   CLOUD.auth.onAuthStateChanged(async u=>{CLOUD.user=u;cloudBar();if(u)await cloudPull();if(SHEET&&SHEET.kind==='acct')renderSheet()})}
 
-/* ---------- saves: the newer of this device and the cloud wins ---------- */
-const localStamp=()=>+(localStorage.getItem('jh4_upd')||0);
-async function cloudPull(){const u=CLOUD.user;if(!u)return;
-  try{const d=await CLOUD.db.collection('users').doc(u.uid).get();const x=d.exists?d.data():null;
-    if(x&&x.save&&(x.updated||0)>localStamp()){const sv=JSON.parse(x.save);if(sv&&sv.v===4&&sv.log){S=sv;lastLen=S.log.length;store.set('jh4_save',S);if(x.hall)store.set('jh4_hall',JSON.parse(x.hall));if(x.lore)store.set('jh4_lore',JSON.parse(x.lore));localStorage.setItem('jh4_upd',String(x.updated));closeSheet();update(false);CLOUD.status='pulled';return}}
-    cloudPush(true)}catch(e){CLOUD.status='err'}}
-function cloudPush(now){if(!CLOUD.user||!CLOUD.db)return;clearTimeout(CLOUD.timer);
-  const go=()=>{const t=Date.now();try{localStorage.setItem('jh4_upd',String(t))}catch(e){}
-    CLOUD.db.collection('users').doc(CLOUD.user.uid).set({save:JSON.stringify(S),hall:JSON.stringify(store.get('jh4_hall',[])),lore:JSON.stringify(store.get('jh4_lore',{})),updated:t,name:S.cn||'',age:S.age||0},{merge:true}).then(()=>{CLOUD.status='saved'}).catch(()=>{CLOUD.status='err'})};
-  if(now)go();else CLOUD.timer=setTimeout(go,4000)}
-(()=>{const u0=update;update=function(){const r=u0.apply(this,arguments);try{localStorage.setItem('jh4_upd',String(Date.now()))}catch(e){}cloudPush(false);return r}})();
+/* ---------- saves: the newer of this device and the cloud wins, slot by slot ----------
+   slot 1 lives in users/{uid} (as it always has, with the hall and the book); slots 2 and 3 in users/{uid}/slots/{n} */
+const SL=typeof SLOT_N!=='undefined';
+const localStamp=i=>+(localStorage.getItem(SL?slotStampKey(i):'jh4_upd')||0);
+const slotDoc=i=>i?CLOUD.db.collection('users').doc(CLOUD.user.uid).collection('slots').doc(String(i)):CLOUD.db.collection('users').doc(CLOUD.user.uid);
+function takeRemote(i,x){const sv=x.save?JSON.parse(x.save):null;const cur=!SL||i===SLOT;
+  if(sv&&sv.v===4&&sv.log){if(cur){S=sv;lastLen=S.log.length}store.set(SL?slotKey(i):'jh4_save',sv)}else if(!cur)localStorage.removeItem(slotKey(i));
+  localStorage.setItem(SL?slotStampKey(i):'jh4_upd',String(x.updated||0));return cur&&sv}
+async function cloudPull(){const u=CLOUD.user;if(!u)return;let reload=false;
+  try{const d=await slotDoc(0).get();const x=d.exists?d.data():null;
+    if(x&&x.hall)store.set('jh4_hall',JSON.parse(x.hall));if(x&&x.lore)store.set('jh4_lore',JSON.parse(x.lore));
+    if(x&&x.save&&(x.updated||0)>localStamp(0)){if(takeRemote(0,x))reload=true}else cloudPush(true,0)}catch(e){CLOUD.status='err'}
+  if(SL)for(let i=1;i<SLOT_N;i++){try{const d=await slotDoc(i).get();const x=d.exists?d.data():null;
+    if(x&&(x.updated||0)>localStamp(i)){if(takeRemote(i,x))reload=true}else if(store.get(slotKey(i),null))cloudPush(true,i)}catch(e){CLOUD.slotErr=1}}
+  if(reload){closeSheet();update(false)}CLOUD.status=CLOUD.status==='err'?'err':'pulled'}
+function cloudPush(now,slot){if(!CLOUD.user||!CLOUD.db)return;const i=slot??(SL?SLOT:0);
+  const go=()=>{const t=Date.now();const sv=i===(SL?SLOT:0)?S:store.get(slotKey(i),null);try{localStorage.setItem(SL?slotStampKey(i):'jh4_upd',String(t))}catch(e){}
+    const shared={hall:JSON.stringify(store.get('jh4_hall',[])),lore:JSON.stringify(store.get('jh4_lore',{}))};
+    const mine={save:sv?JSON.stringify(sv):null,updated:t,name:sv?sv.cn||'':'',age:sv?sv.age||0:0};
+    const w=i?Promise.all([slotDoc(i).set(mine),slotDoc(0).set(shared,{merge:true})]):slotDoc(0).set(Object.assign(mine,shared),{merge:true});
+    w.then(()=>{CLOUD.status='saved'}).catch(()=>{if(i)CLOUD.slotErr=1;else CLOUD.status='err'})};
+  if(now)go();else{clearTimeout(CLOUD.timer);CLOUD.timer=setTimeout(go,4000)}}
+function cloudClearSlot(i){if(CLOUD.user&&CLOUD.db)cloudPush(true,i)}
+(()=>{const u0=update;update=function(){const r=u0.apply(this,arguments);try{localStorage.setItem(SL?slotStampKey():'jh4_upd',String(Date.now()))}catch(e){}cloudPush(false);return r}})();
 
 /* ---------- the account sheet ---------- */
 function acctHTML(){const Z=cz(),u=CLOUD.user;
   if(u)return`<p>${Z?'已登录：':'Signed in as '}<b>${esc(u.displayName||u.email||'')}</b></p><p class="muted" style="font-size:14px">${Z?'你的人生进度和往生录会自动保存到云端，换手机、换电脑都能接着玩。':'Your current life and your hall of past lives are saved to the cloud automatically, so you can continue on any device.'}</p>
-    <p class="muted" style="font-size:13px">${CLOUD.status==='err'?(Z?'⚠ 最近一次同步失败，稍后会再试。':'⚠ The last sync failed; it will retry.'):CLOUD.status==='saved'||CLOUD.status==='pulled'?(Z?'✓ 已同步':'✓ Synced'):''}</p>
+    <p class="muted" style="font-size:13px">${CLOUD.slotErr?(Z?'⚠ 存档2、3还没能同步到云端（需要更新数据库规则）。存档1正常。':'⚠ Slots 2 and 3 could not sync yet (the database rules need updating). Slot 1 is fine.'):CLOUD.status==='err'?(Z?'⚠ 最近一次同步失败，稍后会再试。':'⚠ The last sync failed; it will retry.'):CLOUD.status==='saved'||CLOUD.status==='pulled'?(Z?'✓ 已同步':'✓ Synced'):''}</p>
     <button class="btn" id="b-signout" style="margin-top:10px">${Z?'退出登录':'Sign out'}</button>`;
   return`<p class="muted" style="font-size:14px;margin-top:0">${Z?'登录后，进度会保存在云端，换设备也能接着玩。不登录也能照常玩，进度只存在这台设备上。':'Sign in to keep your progress in the cloud and play on any device. You can also play without an account; progress then stays on this device.'}</p>
    <button class="btn main" id="b-google" style="width:100%;margin:6px 0 14px">${Z?'用 Google 账号登录':'Continue with Google'}</button>
