@@ -17,7 +17,7 @@ function cloudBar(){const nb=$('b-new');if(!nb)return;let fb=$('b-fb'),ac=$('b-a
 async function cloudInit(){if(!window.FIREBASE_CONFIG)return;
   try{await loadJS(FB_URL('firebase-app'));await loadJS(FB_URL('firebase-auth'));await loadJS(FB_URL('firebase-firestore'))}catch(e){CLOUD.status='load';return}
   firebase.initializeApp(window.FIREBASE_CONFIG);CLOUD.auth=firebase.auth();CLOUD.db=firebase.firestore();CLOUD.on=true;cloudBar();
-  CLOUD.auth.onAuthStateChanged(async u=>{CLOUD.user=u;cloudBar();if(u)await cloudPull();if(SHEET&&SHEET.kind==='acct')renderSheet()})}
+  CLOUD.auth.onAuthStateChanged(async u=>{if(!u){CLOUD.ready=false;clearTimeout(CLOUD.timer)}CLOUD.user=u;cloudBar();if(u)await cloudPull();if(SHEET&&SHEET.kind==='acct')renderSheet()})}
 
 /* ---------- saves: the newer of this device and the cloud wins, slot by slot ----------
    slot 1 lives in users/{uid} (as it always has, with the hall and the book); slots 2 and 3 in users/{uid}/slots/{n} */
@@ -27,16 +27,59 @@ const slotDoc=i=>i?CLOUD.db.collection('users').doc(CLOUD.user.uid).collection('
 function takeRemote(i,x){const sv=x.save?JSON.parse(x.save):null;const cur=!SL||i===SLOT;
   if(sv&&sv.v===4&&sv.log){if(cur){S=sv;lastLen=S.log.length}store.set(SL?slotKey(i):'jh4_save',sv)}else if(!cur)localStorage.removeItem(slotKey(i));
   localStorage.setItem(SL?slotStampKey(i):'jh4_upd',String(x.updated||0));return cur&&sv}
-async function cloudPull(){const u=CLOUD.user;if(!u)return;let reload=false;
-  try{const d=await slotDoc(0).get();const x=d.exists?d.data():null;
-    if(x&&x.hall)store.set('jh4_hall',JSON.parse(x.hall));if(x&&x.lore)store.set('jh4_lore',JSON.parse(x.lore));
-    if(x&&x.save&&(x.updated||0)>localStamp(0)){if(takeRemote(0,x))reload=true}else cloudPush(true,0)}catch(e){CLOUD.status='err'}
-  if(SL)for(let i=1;i<SLOT_N;i++){try{const d=await slotDoc(i).get();const x=d.exists?d.data():null;
-    if(x&&(x.updated||0)>localStamp(i)){if(takeRemote(i,x))reload=true}else if(store.get(slotKey(i),null))cloudPush(true,i)}catch(e){CLOUD.slotErr=1}}
-  if(reload){closeSheet();update(false)}CLOUD.status=CLOUD.status==='err'?'err':'pulled'}
-function cloudPush(now,slot){if(!CLOUD.user||!CLOUD.db)return;const i=slot??(SL?SLOT:0);
-  const go=()=>{const t=Date.now();const sv=i===(SL?SLOT:0)?S:store.get(slotKey(i),null);try{localStorage.setItem(SL?slotStampKey(i):'jh4_upd',String(t))}catch(e){}
-    const shared={hall:JSON.stringify(store.get('jh4_hall',[])),lore:JSON.stringify(store.get('jh4_lore',{}))};
+/* Whose saves are on this device: the account they were last synced with. Progress made while signed out (a new
+   phone, a new browser) belongs to nobody, and must never overwrite an account's cloud save when that account signs in. */
+const OWNER_K='jh4_owner';
+function setAside(sv){try{const bk=store.get('jh4_guestbak',[]);if(!bk.some(x=>lifeId(x)===lifeId(sv)&&x.age===sv.age))bk.unshift(sv);store.set('jh4_guestbak',bk.slice(0,3))}catch(e){}}
+const lifeId=sv=>sv?[sv.cn,sv.name,sv.gender,sv.region,sv.family,sv.t?[sv.t.root,sv.t.wit,sv.t.luck,sv.t.heart].join('.'):''].join('|'):'';
+const okSave=sv=>!!sv&&sv.v===4&&!!sv.log&&sv.age>=0;
+const localSave=i=>{const cur=!SL||i===SLOT;const sv=cur?S:store.get(SL?slotKey(i):'jh4_save',null);return okSave(sv)?sv:null};
+function mergeShared(x){
+  /* the hall of past lives and the book of endings: keep both sides, never drop either */
+  try{const lh=store.get('jh4_hall',[]),ch=x&&x.hall?JSON.parse(x.hall):[];const key=h=>[h.cn,h.age,h.name,JSON.stringify(h.title||'')].join('|');
+    const seen=new Set(ch.map(key));const hall=lh.filter(h=>!seen.has(key(h))).concat(ch).slice(0,10);store.set('jh4_hall',hall)}catch(e){}
+  try{const ll=store.get('jh4_lore',{}),cl=x&&x.lore?JSON.parse(x.lore):{},L=JSON.parse(JSON.stringify(cl));
+    for(const id in ll){const a=ll[id],b=L[id];if(!b){L[id]=a;continue}
+      if(id==='@'){for(const k in a)b[k]=Math.max(b[k]||0,a[k]||0);continue}
+      b.met=Math.max(b.met||0,a.met||0);b.ends=b.ends||{};for(const k in (a.ends||{}))b.ends[k]=Math.max(b.ends[k]||0,a.ends[k]||0)}
+    store.set('jh4_lore',L)}catch(e){}}
+async function cloudPull(){const u=CLOUD.user;if(!u)return;CLOUD.ready=false;let reload=false;
+  const owner=localStorage.getItem(OWNER_K)||'',mine=owner===u.uid,N=SL?SLOT_N:1,remote=[];
+  /* saves last synced with a different account stay theirs: nothing here is uploaded into this one */
+  const foreign=!!owner&&!mine&&owner!=='out:'+u.uid;let fresh=false;
+  for(let i=0;i<N;i++){try{const d=await slotDoc(i).get();remote[i]=d.exists?d.data():null}catch(e){remote[i]=undefined;if(i)CLOUD.slotErr=1}}
+  /* if the main record cannot be read, change nothing and upload nothing */
+  if(remote[0]===undefined){CLOUD.status='err';setTimeout(()=>{if(CLOUD.user===u&&!CLOUD.ready)cloudPull()},30000);return}
+  mergeShared(remote[0]);
+  const push=[],guests=[];
+  for(let i=0;i<N;i++){const x=remote[i];if(x===undefined)continue;
+    let rs=null;try{rs=x&&x.save?JSON.parse(x.save):null}catch(e){rs=null}if(!okSave(rs))rs=null;
+    const loc=localSave(i);
+    if(foreign){if(rs){if(loc&&lifeId(loc)!==lifeId(rs)&&loc.age>=1)setAside(loc);if(takeRemote(i,x))reload=true}else if(loc){setAside(loc);if(SL&&i!==SLOT)localStorage.removeItem(slotKey(i));else fresh=true}continue}
+    if(mine){/* this device was already synced with this account: the newer side wins, as before */
+      if(rs&&(x.updated||0)>localStamp(i)){if(takeRemote(i,x))reload=true}else if(loc)push.push(i);continue}
+    /* progress made on this device while signed out */
+    if(rs){if(loc&&lifeId(loc)===lifeId(rs)&&localStamp(i)>(x.updated||0)){push.push(i);continue}
+      if(loc&&lifeId(loc)!==lifeId(rs)&&loc.age>=1)guests.push(loc);
+      if(takeRemote(i,x))reload=true}
+    else if(loc)push.push(i)}
+  /* a life begun here while signed out is kept: moved into an empty slot, or set aside if every slot is full */
+  const moved=[];
+  guests.forEach(g=>{let j=-1;for(let i=0;i<N;i++){const x=remote[i];const used=(x&&x.save)||localSave(i)||push.includes(i);if(!used&&x!==undefined){j=i;break}}
+    if(j>=0&&SL&&j!==SLOT){store.set(slotKey(j),g);try{localStorage.setItem(slotStampKey(j),String(Date.now()))}catch(e){}push.push(j);moved.push([g,j])}
+    else{setAside(g);moved.push([g,-1])}});
+  if(fresh){S=newLife();lastLen=0;closeSheet();update(false);if(typeof openSetup==='function')openSetup();else openSheet('birth');reload=false}
+  try{localStorage.setItem(OWNER_K,u.uid)}catch(e){}
+  CLOUD.ready=true;push.forEach(i=>cloudPush(true,i));if(!push.includes(0))cloudPush(true,0,true);
+  if(reload){closeSheet();update(false)}
+  if(moved.length&&typeof toast==='function'){const Z=cz();toast(moved.map(([g,j])=>j>=0?(Z?`未登录时开始的那一世（${g.cn}）已放进存档${j+1}。`:`The life you began while signed out (${g.name}) is now in slot ${j+1}.`)
+    :(Z?`未登录时开始的那一世（${g.cn}）已另存备份，云端的存档没有被覆盖。`:`The life you began while signed out (${g.name}) was set aside; your cloud saves were not touched.`)).join(' '))}
+  CLOUD.status=CLOUD.status==='err'?'err':'pulled'}
+/* nothing is uploaded until the cloud has been read after signing in */
+function cloudPush(now,slot,sharedOnly){if(!CLOUD.user||!CLOUD.db||!CLOUD.ready)return;const i=slot??(SL?SLOT:0);
+  const go=()=>{if(!CLOUD.user||!CLOUD.ready)return;const t=Date.now();const shared={hall:JSON.stringify(store.get('jh4_hall',[])),lore:JSON.stringify(store.get('jh4_lore',{}))};
+    if(sharedOnly){slotDoc(0).set(shared,{merge:true}).then(()=>{CLOUD.status='saved'}).catch(()=>{CLOUD.status='err'});return}
+    const sv=i===(SL?SLOT:0)?S:store.get(slotKey(i),null);try{localStorage.setItem(SL?slotStampKey(i):'jh4_upd',String(t))}catch(e){}
     const mine={save:sv?JSON.stringify(sv):null,updated:t,name:sv?sv.cn||'':'',age:sv?sv.age||0:0};
     const w=i?Promise.all([slotDoc(i).set(mine),slotDoc(0).set(shared,{merge:true})]):slotDoc(0).set(Object.assign(mine,shared),{merge:true});
     w.then(()=>{CLOUD.status='saved'}).catch(()=>{if(i)CLOUD.slotErr=1;else CLOUD.status='err'})};
@@ -75,7 +118,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('button');i
   if(t.id==='b-google'){try{await CLOUD.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())}catch(err){if(err&&err.code==='auth/popup-blocked'){CLOUD.auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())}else msg(authErr(err))}return}
   if(t.id==='b-esignin'||t.id==='b-esignup'){const em=$('in-email').value.trim(),pw=$('in-pass').value;try{if(t.id==='b-esignup')await CLOUD.auth.createUserWithEmailAndPassword(em,pw);else await CLOUD.auth.signInWithEmailAndPassword(em,pw)}catch(err){msg(authErr(err))}return}
   if(t.id==='b-reset'){const em=$('in-email').value.trim();if(!em){msg(cz()?'先填上邮箱。':'Enter your email first.');return}try{await CLOUD.auth.sendPasswordResetEmail(em);msg(cz()?'重置密码的邮件已发出。':'A reset email is on its way.')}catch(err){msg(authErr(err))}return}
-  if(t.id==='b-signout'){await CLOUD.auth.signOut();closeSheet();return}
+  if(t.id==='b-signout'){CLOUD.ready=false;clearTimeout(CLOUD.timer);try{if(CLOUD.user)localStorage.setItem(OWNER_K,'out:'+CLOUD.user.uid)}catch(e){}await CLOUD.auth.signOut();closeSheet();return}
   if(t.dataset.fbk){const v=$('in-fb')&&$('in-fb').value,m=$('in-fbmail')&&$('in-fbmail').value;SHEET.fbk=t.dataset.fbk;renderSheet();if($('in-fb'))$('in-fb').value=v||'';if($('in-fbmail')&&m!=null)$('in-fbmail').value=m;return}
   if(t.id==='b-fbsend'){const text=($('in-fb').value||'').trim(),fm=$('fb-msg');if(text.length<3){fm.textContent=cz()?'多写几个字吧。':'Please write a little more.';return}
     t.disabled=true;const life=$('in-fblife').checked&&S?`${S.cn} · ${S.gender} · age ${S.age} · ${S.region} · ${S.family} · sect ${S.sect||'-'} · power ${typeof power==='function'?power(S):''} · ${S.alive?'alive':'dead'}`:'';

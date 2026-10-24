@@ -27,3 +27,15 @@ function slotChip(){const nb=$('b-new');if(!nb)return;let b=$('b-slot');
   b.textContent=zh()?`💾 存档${SLOT+1}`:`💾 Slot ${SLOT+1}`}
 (()=>{const a0=applyLang;applyLang=function(){const r=a0.apply(this,arguments);try{slotChip()}catch(e){}return r}})();
 slotChip();
+/* lives set aside when signing in (begun on this device while signed out, or left by another account): put one back
+   into an empty slot whenever you like */
+(()=>{const sh=slotsHTML;slotsHTML=function(){let h=sh();const bk=store.get('jh4_guestbak',[]);if(!bk.length)return h;const Z=zh();
+  const empty=[...Array(SLOT_N).keys()].filter(i=>!slotSave(i));
+  h+=`<div class="grp" style="margin-top:14px"><h4>${Z?'另存的人生':'Lives set aside'}</h4><p class="muted" style="font-size:13px;margin:0 0 6px">${Z?'登录时，这台设备上另外的人生被另存在这里，没有覆盖你的存档。可以把它放进一个空存档。':'When you signed in, other lives on this device were set aside here instead of overwriting your saves. You can put one into an empty slot.'}</p>`+
+   bk.map((sv,k)=>`<div class="slot"><p class="slot-who">${Z?`${sv.cn} · ${sv.alive?cnNum(Math.max(0,sv.age))+'岁':'已故，享年'+cnNum(sv.age)+'岁'}`:`${esc(sv.name)} · ${sv.alive?'age '+Math.max(0,sv.age):'died at '+sv.age}`}</p><div class="slot-b">${empty.length?`<button class="btn" data-bakput="${k}">${Z?`放进存档${empty[0]+1}`:`Put into slot ${empty[0]+1}`}</button>`:`<span class="muted">${Z?'先清空一个存档':'Clear a slot first'}</span>`}<button class="chip" data-bakdel="${k}">${Z?'丢弃':'Discard'}</button></div></div>`).join('')+'</div>';
+  return h}})();
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.bakput!=null){const bk=store.get('jh4_guestbak',[]),k=+t.dataset.bakput,sv=bk[k];const j=[...Array(SLOT_N).keys()].find(i=>!slotSave(i));if(!sv||j==null)return;
+    if(j===SLOT){S=sv;lastLen=S.log.length}store.set(slotKey(j),sv);try{localStorage.setItem(slotStampKey(j),String(Date.now()))}catch(x){}bk.splice(k,1);store.set('jh4_guestbak',bk);
+    if(typeof cloudPush==='function')cloudPush(true,j);if(j===SLOT)update(false);renderSheet();return}
+  if(t.dataset.bakdel!=null){if(!t.dataset.sure){t.dataset.sure=1;t.textContent=zh()?'确定丢弃？':'Really discard?';return}const bk=store.get('jh4_guestbak',[]);bk.splice(+t.dataset.bakdel,1);store.set('jh4_guestbak',bk);renderSheet()}});
