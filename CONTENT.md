@@ -89,6 +89,18 @@ Stories (`st10.js`): 故人 Someone You Loved Once (your first love, or an actua
 
 People events (`b6.js`): a dying friend asks you to raise their child (who becomes your adopted child, and so a possible heir) · a marriage anniversary · your old rival asks you to face a young upstart together · siblings and the parents' will · making peace with a parent · your lover's family disapproves · becoming a godparent · a friend's twenty-year-old confession.
 
+## Gear, quantities and records (Oct 2026)
+
+Mounts (`gear.js`): 老黄牛 Old Ox, 骡子 Mule, 双峰骆驼 Bactrian Camel, 青骢马 Dapple-Grey Steed, 马车 Covered Carriage in the market; 照夜玉狮子 Night-Lighting Lion and 梅花鹿 Spotted Deer as rare finds. Mounts differ in escape chance, joy, feed and lifespan; all save a point of energy on journeys.
+
+New gear slots: 靴子 boots (speed, dodging) and 护腕 bracers (striking power, critical hits), four of each. Armour: 棉袍, 犀皮甲. Charms: 避毒珠 (60% of poisonings after a fight do not take hold), 寒玉佩 (+25% resistance to inner force).
+
+Shop (`qty.js`): medicine, smoke bombs, caltrops and hidden weapons can be bought several at a time (up to 20); identical medicines stack in your belongings and can be taken several at once.
+
+People (`departed.js`): the People sheet has two tabs, 在世 and 故人; 故人 lists everyone who died in this life, grouped, with age, cause and how long ago, plus the people you cut ties with.
+
+前因后果 (`causes.js`, `endview.js`): when someone from a memory record comes back, what you chose that time is kept on the record; every choice inside a story series is kept on the story. The tombstone shows up to five such moments, built only from those records.
+
 ## Adding a batch
 
 1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st10.js`.

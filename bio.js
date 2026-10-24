@@ -26,14 +26,11 @@ function biography(s){
     wronged:[['wronged %N','亏欠了%N'],['did %N a wrong','做了一件对不起%N的事'],['crossed %N badly','狠狠得罪了%N']],
     beat:[['defeated %N','打败了%N'],['bested %N in a fight','在一场比斗里胜过了%N'],['beat %N in front of witnesses','当众赢了%N']],
     lostTo:[['lost to %N, and remembered it for years','败给了%N，这一败记了很多年'],['was beaten by %N','被%N打败了'],['fell before %N','栽在了%N手里']]},used={};
-  const AFTER={helped:{close:[['It became one of the truest bonds of %H life.','这份情，后来成了%H一生最可靠的交情之一。'],['From then on they were close.','从那以后，两人便走得很近。'],['That was how a lifelong friendship began.','一段一辈子的交情，就是这么开始的。']],hostile:['Later, somehow, they became enemies.','可后来不知怎么，两人反目成仇。']},
-    wronged:{close:['In time they forgave %M, and became a friend.','后来对方原谅了%H，两人反倒成了朋友。'],hostile:['It was never settled.','这笔账，到最后也没算清。']},
-    beat:{close:['They became friends, as fighters sometimes do.','不打不相识，后来两人成了朋友。'],hostile:['They never forgave it.','对方始终没有释怀。']},
-    lostTo:{close:['In the end the two of them became friends.','到头来，两人倒成了朋友。'],hostile:['The rivalry lasted the rest of their lives.','这段较劲，一直持续到两人的晚年。']}};
+  /* only what is true at the end: the relationship as it stands, never a guess at what caused it */
   recs.forEach(({r,p})=>{const R=REGIONS.find(x=>x.id===r.reg),n=p?nm(p):T(r.who.n.py,r.who.n.cn),at=r.at,w=R?T(` in ${R.en}`,`在${R.cn}`):T('','');
     const k=r.kind,i=used[k]=(used[k]??-1)+1,v=V[k][i%V[k].length];
-    let af=p&&close.includes(p.rel)?AFTER[k].close:p&&hostileR.includes(p.rel)?AFTER[k].hostile:r.came?['Years later, it came back to find %M.','多年以后，这件事又找上了%H。']:['',''];
-    if(Array.isArray(af[0])){used.c=(used.c??-1)+1;af=af[used.c%af.length]}
+    const rl=p&&(close.includes(p.rel)||hostileR.includes(p.rel))?relLabel(s,p):null;
+    let af=rl?[`By the end, ${n.en} was ${his.en} ${rl.en.toLowerCase()}.`,`到最后，${n.zh}是${his.zh}的${rl.zh}。`]:r.came?['Years later, it came back to find %M.','多年以后，这件事又找上了%H。']:['',''];
     const fill=(x,L)=>x.replace('%N',L==='en'?n.en:n.zh).replace('%H',L==='en'?his.en:his.zh).replace('%M',L==='en'?(s.gender==='f'?'her':'him'):his.zh);
     add(`At ${at}${w.en}, ${he.en.toLowerCase()} ${fill(v[0],'en')}. ${fill(af[0],'en')}`.trim(),`${cnNum(at)}岁那年${w.zh}，${he.zh}${fill(v[1],'zh')}。${fill(af[1],'zh')}`)});
   /* the people who stayed */
