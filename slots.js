@@ -2,13 +2,18 @@
    江湖奇遇录 are shared by all three. Slot 1 is the original save, so an existing life carries over untouched. */
 'use strict';
 function slotSave(i){const sv=i===SLOT?S:store.get(slotKey(i),null);return sv&&sv.v===4&&sv.log?sv:null}
+/* when each slot was last saved, shown on its card */
+function slotTime(i){const n=+(localStorage.getItem(slotStampKey(i))||0);if(!n)return'';const d=new Date(n),p=x=>String(x).padStart(2,'0');
+  return zh()?`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${p(d.getHours())}:${p(d.getMinutes())}`:`${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`}
+(()=>{const u0=update;update=function(){const r=u0.apply(this,arguments);try{if(S&&S.age>=0)localStorage.setItem(slotStampKey(),String(Date.now()))}catch(e){}return r}})();
 function slotCard(i){const Z=zh(),sv=slotSave(i),cur=i===SLOT,n=Z?`存档 ${i+1}`:`Slot ${i+1}`;
   if(!sv||sv.age<0)return`<div class="slot${cur?' cur':''}"><div class="slot-h"><b>${n}</b>${cur?`<span class="muted">${Z?'当前':'current'}</span>`:''}</div><p class="muted">${Z?'空。一段还没开始的人生。':'Empty. A life not yet begun.'}</p>
     <button class="btn${cur?'':' main'}" data-slot="${i}">${cur?(Z?'正在这里':'You are here'):(Z?'在这里开始新的一世':'Start a new life here')}</button></div>`;
   const reg=REGIONS.find(r=>r.id===sv.region),pl=typeof placeName==='function'?placeName(sv):T(reg.en,reg.cn),rn=rname(sv);
   const who=Z?`${sv.cn} · ${sv.gender==='f'?'女':'男'} · ${sv.alive?cnNum(Math.max(0,sv.age))+'岁':'已故，享年'+cnNum(sv.age)+'岁'}`:`${esc(sv.name)} · ${sv.gender==='f'?'female':'male'} · ${sv.alive?'age '+Math.max(0,sv.age):'died at '+sv.age}`;
+  const tm=slotTime(i);
   return`<div class="slot${cur?' cur':''}"><div class="slot-h"><b>${n}</b>${cur?`<span class="muted">${Z?'当前':'current'}</span>`:''}</div>
-   <p class="slot-who">${who}</p><p class="muted">${Z?rn[1]:rn[2]} · ${tr(pl)}${sv.sect&&SECTS[sv.sect]?' · '+tr(T(SECTS[sv.sect].en,SECTS[sv.sect].cn)):''}</p>
+   ${tm?`<p class="slot-time">${Z?'上次保存：':'Last saved: '}${tm}</p>`:''}<p class="slot-who">${who}</p><p class="muted">${Z?rn[1]:rn[2]} · ${tr(pl)}${sv.sect&&SECTS[sv.sect]?' · '+tr(T(SECTS[sv.sect].en,SECTS[sv.sect].cn)):''}</p>
    <div class="slot-b"><button class="btn${cur?'':' main'}" data-slot="${i}">${cur?(Z?'正在这里':'You are here'):(Z?'切换到这一世':'Switch to this life')}</button>${cur?'':`<button class="chip" data-slotdel="${i}">${Z?'清空':'Clear'}</button>`}</div></div>`}
 function slotsHTML(){const Z=zh();return`<p class="muted" style="margin-top:0;font-size:14px">${Z?'三个存档，三段人生，随时切换。往生录和江湖奇遇录三个存档共用。':'Three slots, three lives; switch any time. The hall of past lives and the Book of Encounters are shared by all three.'}${typeof CLOUD!=='undefined'&&CLOUD.user?(Z?'已登录，三个存档都会同步到云端。':' Signed in: all three slots are saved to the cloud.'):''}</p>`+[0,1,2].map(slotCard).join('')}
 function switchSlot(i){if(i===SLOT){closeSheet();return}
