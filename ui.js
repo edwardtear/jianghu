@@ -184,7 +184,7 @@ const GUIDE={
    ['Martial power (功力)','Your overall strength, and your experience: technique (from practice, sparring and sect training) + half your inner energy (from meditation, seclusion and elixirs) + a bonus for every art you know (basic +3, intermediate +7, advanced +14, legendary +24). Gains are bigger when you are young and talented, and slow down as you improve. After each action the chronicle shows exactly what changed.'],
    ['Realm (境界)','Nine realms, each in four stages (entry, minor, major, perfected). Stages come with training. Crossing into a new realm from First-rate upward needs a breakthrough: when you hit the wall, you choose how to try, and it can fail. Talent decides how far you are likely to get. See the ladder below.'],
    ['Arts (武学)','Each art you learn becomes a technique in battle, and its tier sets the technique level (Lv1–Lv4).'],
-   ['Natural knack','Your name gives you one technique, as in Name Arena. It only appears once you reach Third-rate.']]],
+   ['Natural knack','Your name gives you one technique, as in Name Arena. It appears once you reach Third-rate, is used in every fight on its own, takes no slot in your fighting arts and does not level up.'],['Fighting arts','You fight with up to six learned arts: one lightness art (轻功, speed and dodging), one inner art (内功, inner force and qi), three outer arts (外功, your attacks) and one hidden-weapon art (暗器). Choose them in the Arts & loadout sheet. Each art has a mastery level, 1 to 10, that rises with training and fights.']]],
   fig:['Fighting stats (used in every fight)',[
    ['HP','Your health. In a fight it is shown multiplied by your toughness (the ×number), so that it is on the same scale as your opponent’s: 86 health with toughness ×1.8 shows as 155. Toughness grows with martial power, Constitution and armour. Whatever share you lose in the fight comes off your real health afterwards. A friendly bout ends when someone yields; a dangerous fight can kill.'],
    ['Attack','Damage of strikes. Mostly from Strength, plus your weapon.'],['Defence','Reduces damage from strikes. Mostly from Constitution, plus armour.'],
@@ -222,7 +222,7 @@ const GUIDE={
    ['功力','你的整体实力，也就是你的"经验"：外功（修炼、切磋、门派修炼所得）＋一半内力（修炼、闭关、丹药所得）＋每门武学的加成（入门+3，中乘+7，上乘+14，绝学+24）。年轻、天赋好时长得快，越往上越慢。每次行动后，史书里都会写明变化。'],
    ['境界','九大境界，每境分初入、小成、大成、圆满四阶。阶靠苦练；从二流往上，每跨一个大境界都要突破瓶颈：撞上瓶颈时由你选怎么冲，也可能失败。天资决定你大概能走多远。见下方阶梯。'],
    ['武学','每学会一门武功，战斗中就多一招，品阶决定招式等级（Lv1–Lv4）。'],
-   ['天赋招式','你的名字会给你一招，和名字论剑一样。要到三流好手才会显现。']]],
+   ['天赋招式','你的名字会给你一招，和名字论剑一样。要到三流好手才会显现；每场打斗自动会用，不占出战位，也不会升级。'],['出战武学','打斗时最多带六门学来的武功：轻功一门（提升身法闪避）、内功一门（提升内力真气）、外功三门（出手的招式）、暗器一门。在「武学与出战」里挑选。每门武功都有一成到十成火候，靠练功和打斗长进。']]],
   fig:['战斗属性（每场战斗都用到）',[
    ['气血','你的气血。打起来时，会乘上「抗打」（后面的×数字），换算成和对手同一个尺度显示：气血86、抗打×1.8，战斗里就显示155。抗打随功力、根骨和护甲增长。战斗中掉了几成，事后就从真实气血里扣几成。切磋点到为止，有人认输就停；凶险的打斗可能送命。'],
    ['攻击','普通招式的伤害。主要来自力道，再加兵器。'],['防御','减少普通招式的伤害。主要来自根骨，再加护甲。'],
@@ -252,8 +252,8 @@ function fightHTML(s){
   const arts=f.skills.filter(x=>!x.innate),knack=f.skills.find(x=>x.innate);
   return`${powerBreak(s)}<div class="fightbox"><div class="fhead"><span class="lbl">${zh()?'战斗属性':'fighting stats'}</span><button class="info" data-guide>ⓘ ${zh()?'说明':'What these mean'}</button></div>
    ${fightBars(f)}
-   <div class="ftech">${arts.length?arts.map(x=>skillChip(x)).join(''):`<span class="muted">${zh()?'未学武功，只会乱打一气。':'No arts yet. You just swing your fists.'}</span>`}${knack?`<span class="skc knack" title="${esc(tr(SKD[knack.id]))}">${zh()?'天赋':'Knack'}: ${esc(tr(SK[knack.id].n))}</span>`:''}</div>
-   ${f.skills.length?`<ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul>`:''}</div>`;
+   <div class="ftech">${arts.length?arts.map(x=>skillChip(x)).join(''):`<span class="muted">${zh()?'未学武功，只会乱打一气。':'No arts yet. You just swing your fists.'}</span>`}${knack?`<span class="skc knack" title="${esc(tr(SKD[knack.id]))}">${zh()?'天赋招式':'Natural knack'}: ${esc(tr(SK[knack.id].n))}</span>`:''}</div>
+   ${f.skills.length?`<ul class="sklist">${f.skills.map(x=>x.innate?`<li><b>${zh()?'天赋招式':'Natural knack'}：${esc(tr(SK[x.id].n))}</b> <span class="lvl">${zh()?'与生俱来':'inborn'}</span><br><span class="muted">${tr(SKD[x.id])} ${zh()?'这一招来自名字，不是学来的武功：每场打斗自动会用，不占出战位，也不会升级。':'It comes from the name, not a learned art: used in every fight on its own, takes no slot, and does not level up.'}</span></li>`:`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul>`:''}</div>`;
 }
 /* the four attributes, each measured against everyone else in the jianghu */
 function attrBlock(s){const A=attrsOf(s);return`<div class="attr4">${ATTR.map(k=>`<div title="${esc(tr(ATD[k]))}"><span>${tr(ATN[k])}</span><b>${A[k]}</b><small>${zh()?`胜过江湖中${attrPct(A[k])}%的人`:`better than ${attrPct(A[k])}% of the jianghu`}</small></div>`).join('')}</div>`}
@@ -354,7 +354,7 @@ function ownHTML(){
 function fighterCard(){
   const L=u(),f=youFighter(S);
   return`<div class="grp"><h4>${L.fstats}</h4>${bar(L.health,f.hp,f.maxHp,'f-hp',1)}${fightBars(f)}
-   <ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul><p class="muted" style="font-size:14px;margin:6px 0 0">${L.fnote}</p></div>`;
+   <ul class="sklist">${f.skills.map(x=>x.innate?`<li><b>${zh()?'天赋招式':'Natural knack'}：${esc(tr(SK[x.id].n))}</b> <span class="lvl">${zh()?'与生俱来':'inborn'}</span><br><span class="muted">${tr(SKD[x.id])} ${zh()?'这一招来自名字，不是学来的武功：每场打斗自动会用，不占出战位，也不会升级。':'It comes from the name, not a learned art: used in every fight on its own, takes no slot, and does not level up.'}</span></li>`:`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul><p class="muted" style="font-size:14px;margin:6px 0 0">${L.fnote}</p></div>`;
 }
 
 /* ---------- battles ---------- */
@@ -408,7 +408,7 @@ function statCard(name,f,team,mx){
   const L=u(),st=fstats(f);
   return`<div class="scard"><div class="nm"><b class="f${team%5}">${esc(name)}</b><span class="muted">${zh()?'功力':'Power'} ${st.lv}</span></div>
    <div class="sgrid">${STAT_KEYS.map(k=>`<div class="srow"><span>${L.stat[k]}</span><span class="sbar"><i class="b${team%5}" style="width:${clamp(st[k]/(mx[k]||1)*100,4,100)}%"></i></span><b>${st[k]}${PCTK.includes(k)?'%':''}</b></div>`).join('')}</div>
-   <ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul></div>`;
+   <ul class="sklist">${f.skills.map(x=>x.innate?`<li><b>${zh()?'天赋招式':'Natural knack'}：${esc(tr(SK[x.id].n))}</b> <span class="lvl">${zh()?'与生俱来':'inborn'}</span><br><span class="muted">${tr(SKD[x.id])} ${zh()?'这一招来自名字，不是学来的武功：每场打斗自动会用，不占出战位，也不会升级。':'It comes from the name, not a learned art: used in every fight on its own, takes no slot, and does not level up.'}</span></li>`:`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul></div>`;
 }
 
 /* ---------- name arena ---------- */
