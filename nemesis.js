@@ -13,8 +13,13 @@ const heatAdd=(s,n)=>{const m=NM(s);if(m)m.heat=clamp(m.heat+n,0,100)};
 const WHY={beat:T('you beat them in front of everyone','你当众打败了对方'),wronged:T('you did them a wrong they never forgave','你做了一件对方永远不肯原谅的事'),enemy:T('the old enmity between you','你们之间的旧怨'),lost:T('they beat you once and want to prove it was no accident','对方赢过你一次，想证明那不是侥幸'),heir:T('you killed their parent','你杀了对方的父亲或母亲')};
 /* end the feud: how it ended goes into the record of past nemeses */
 function nmEnd(s,how){const m=NM(s),p=nmP(s);if(!m)return;(s.nemPast=s.nemPast||[]).push({pid:m.pid,n:p?p.n:null,at:m.at,end:s.age,how});
-  if(p){delete p.nem;if(how==='peace'){p.rel='rival';p.bond=Math.max(p.bond,45)}if(how==='respect'){p.rel='rival';p.bond=Math.max(p.bond,55)}}
+  if(p){delete p.nem;if(how==='peace'){p.rel='rival';p.bond=Math.max(p.bond,45)}else if(how==='respect'){p.rel='rival';p.bond=Math.max(p.bond,55)}else if(how==='faded'){p.rel='acq';p.bond=Math.max(p.bond,20)}else if(p.rel==='nemesis')p.rel='enemy'}
   s.nem=null;s.flags.nemCD=s.age}
+/* a nemesis is their own kind of relation: the general enemy scenes (which pick any strong enemy for a fight to the
+   death) leave them alone, so the feud runs only through the scenes here */
+REL.nemesis=T('Nemesis','宿敌');if(!REL_GROUPS[5][2].includes('nemesis'))REL_GROUPS[5][2].push('nemesis');
+/* older saves: a nemesis stored as an ordinary enemy */
+(()=>{const y=yearly;yearly=function(s){const p=s&&s.nem&&s.nem.pid&&person(s,s.nem.pid);if(p&&p.alive&&p.rel==='enemy')p.rel='nemesis';return y(s)}})();
 /* who could become your nemesis: from your own record */
 function nmCandidate(s){const recent=(s.mem||[]).filter(r=>s.age-r.at<=10&&['beat','wronged','lostTo'].includes(r.kind)&&r.who&&r.who.n);
   const rec=recent.length?pick(recent):null;const en=living(s,'enemy').filter(p=>p.age>=16&&p.age<70&&!family_(p));
@@ -22,8 +27,8 @@ function nmCandidate(s){const recent=(s.mem||[]).filter(r=>s.age-r.at<=10&&['bea
     if(!p){const w=rec.who,yrs=s.age-rec.at;p=mkPerson(s,{rel:'enemy',sex:w.sex,name:w.n,age:Math.max(16,(w.age||25)+yrs),lv:Math.max(5,w.lv||power(s)),bond:5,occ:w.occ});s.people.push(p);rec.pid=p.id}
     return{p,why:rec.kind==='lostTo'?'lost':rec.kind}}
   if(en.length)return{p:pick(en),why:'enemy'};return null}
-function nmStart(s,c0){const cand=c0||nmCandidate(s);if(!cand)return false;const p=cand.p;p.rel='enemy';p.bond=Math.min(p.bond,10);p.nem=1;
-  p.lv=Math.max(p.lv,Math.round(power(s)*(.8+R()*.25)));
+function nmStart(s,c0){const cand=c0||nmCandidate(s);if(!cand)return false;const p=cand.p;p.rel='nemesis';p.bond=Math.min(p.bond,10);p.nem=1;
+  p.lv=Math.max(p.lv,Math.round(power(s)*(.7+R()*.2)));
   s.nem={pid:p.id,at:s.age,heat:cand.why==='heir'?55:30,stage:0,last:s.age,why:cand.why,beat:0,lost:0};
   runIncident(s,INC_BY.nm_vow,nmCtx(s));return true}
 
@@ -35,7 +40,7 @@ NMI({id:'nm_vow',text:c=>{const w=WHY[c.nm.why]||WHY.enemy;return T(`Word reache
 /* rumours */
 NMI({id:'nm_rumor',text:c=>T(`Stories about you are going round: that you won your fights by cheating, that you owe money everywhere. They all lead back to ${c.npc.en}.`,`江湖上传开了一些关于你的闲话：说你比武靠的是暗算，说你到处欠钱。追根溯源，都是${c.npc.zh}放出来的。`),
  opts:[{l:T('Let your deeds answer','让做的事替你说话'),out:[{w:2,t:T('It takes a year, but people stop repeating it.','过了一年，没人再提了。'),c:'muted',fx:{fame:-2}},{w:1,t:T('Some of it sticks.','有些话就这么传下去了。'),c:'bad',fx:{fame:-5}}]},
-  {l:T('Go and confront them','找上门去对质'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'injury',title:T('Settle the rumours','当面对质'),cause:T('a quarrel with a rival','与宿敌争斗')}),
+  {l:T('Go and confront them','找上门去对质'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'light',title:T('Settle the rumours','当面对质'),cause:T('a quarrel with a rival','与宿敌争斗')}),
    win:[{t:c=>T(`You beat ${c.npc.en} in front of witnesses. The rumours die; the grudge does not.`,`你当着众人打败了${c.npc.zh}。闲话没了，恨意却更深了。`),c:'good',fx:{fame:3,f:s=>{heatAdd(s,10);s.nem.beat++}}}],
    lose:[{t:c=>T(`${c.npc.en} wins, and now the stories have a witness.`,`${c.npc.zh}赢了。这下，那些闲话有了人证。`),c:'bad',fx:{fame:-4,f:s=>{heatAdd(s,-8);s.nem.lost++}}}]},
   {l:T('Spread a few stories of your own','以牙还牙，也放些风声'),out:[{t:T('Two liars, and the jianghu enjoys it enormously.','两个人互相泼脏水，江湖上看得津津有味。'),c:'muted',fx:{align:-3,f:s=>heatAdd(s,8)}}]}]});
@@ -43,7 +48,7 @@ NMI({id:'nm_rumor',text:c=>T(`Stories about you are going round: that you won yo
 NMI({id:'nm_sabotage',when:s=>owned(s,'biz').length>0||owned(s,'house').length>0,
  text:c=>T(`Fire in the night. Someone has set light to your property, and a neighbour saw ${c.npc.en} leaving with an empty oil jar.`,`半夜起了火。有人在你的产业上放了一把火，邻居看见${c.npc.zh}提着空油罐走了。`),
  opts:[{l:T('Put out the fire, count the cost','先救火，再算损失'),out:[{t:T('Most of it is saved. The rest you rebuild.','大半保住了。剩下的，你重新修。'),c:'bad',fx:(s,c)=>({money:-Math.min(s.money,rint(60,200))})}]},
-  {l:T('Go after them tonight','连夜追上去'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'injury',title:T('After the arsonist','追放火的人'),cause:T('chasing an arsonist','追捕放火之人')}),
+  {l:T('Go after them tonight','连夜追上去'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'light',title:T('After the arsonist','追放火的人'),cause:T('chasing an arsonist','追捕放火之人')}),
    win:[{t:c=>T(`You catch ${c.npc.en} on the bridge. ${c.npc.He} pays for the damage, through gritted teeth.`,`你在桥上追上了${c.npc.zh}。${c.npc.ta}咬着牙赔了损失。`),c:'good',fx:{money:[40,120],f:s=>{heatAdd(s,12);s.nem.beat++}}}],
    lose:[{t:T('They get away, and the fire did its work.','人跑了，火也烧完了。'),c:'bad',fx:(s,c)=>({money:-Math.min(s.money,rint(80,240)),f:s=>s.nem.lost++})}]},
   {l:T('Report it to the magistrate','报官'),out:[{w:s=>1+s.fame/40,t:c=>T(`${c.npc.en} spends a season in the cells and comes out angrier.`,`${c.npc.zh}在牢里蹲了一季，出来时火气更大了。`),c:'muted',fx:{f:s=>heatAdd(s,10)}},{w:1,t:T('No proof, says the magistrate, and pockets your fee.','县官说没有证据，顺手收下了你的银子。'),c:'bad',fx:{money:-30}}]}]});
@@ -51,7 +56,7 @@ NMI({id:'nm_sabotage',when:s=>owned(s,'biz').length>0||owned(s,'house').length>0
 NMI({id:'nm_family',when:s=>!!spouseOf(s)||living(s,'child').length>0,
  ctx:s=>{const c=nmCtx(s);const fam=spouseOf(s)||pick(living(s,'child'));c.fam=T(fam.n.py,fam.n.cn);c.famId=fam.id;return c},
  text:c=>T(`${c.fam.en} says a stranger has been standing across the road from the house for three days. You know who it is: ${c.npc.en}.`,`${c.fam.zh}说，一个陌生人在家门对面站了三天了。你知道那是谁：${c.npc.zh}。`),
- opts:[{l:T('Go out and face them now','立刻出门去会会'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'injury',title:T('At your own door','家门口'),cause:T('a fight at your own door','家门口的一场恶斗')}),
+ opts:[{l:T('Go out and face them now','立刻出门去会会'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'light',title:T('At your own door','家门口'),cause:T('a fight at your own door','家门口的一场恶斗')}),
    win:[{t:c=>T(`${c.npc.en} goes, and does not come back to the house. The feud goes on elsewhere.`,`${c.npc.zh}走了，再没来过你家。可这笔账换了个地方接着算。`),c:'good',fx:{f:(s,c)=>{heatAdd(s,8);s.nem.beat++;addBond(person(s,c.famId),6)}}}],
    lose:[{t:c=>T(`${c.npc.en} leaves you in the dust in front of your own family, and walks away laughing.`,`${c.npc.zh}当着你家人的面把你打翻在地，笑着走了。`),c:'bad',fx:{happy:-8,f:s=>{s.nem.lost++;heatAdd(s,-5)}}}]},
   {l:T('Send the family to stay with relatives (60 taels)','把家人送去亲戚家住一阵（六十两）'),cost:60,out:[{t:T('The house is empty and safe. You hate how quiet it is.','家里空了，也安全了。你讨厌这份安静。'),c:'muted',fx:{happy:-4}}]},
@@ -62,18 +67,18 @@ NMI({id:'nm_sect',when:s=>!!s.sect,text:c=>T(`Your sect elders call you in. A le
   {l:T('Demand to face your accuser','要求和写信的人当面对质'),out:[{w:1,t:c=>T(`${c.npc.en} never comes. The elders draw their own conclusion.`,`${c.npc.zh}始终没露面。长辈们心里有了数。`),c:'good',fx:{f:s=>{if(typeof sAdj==='function')sAdj(s,s.sect,6,1);heatAdd(s,10)}}}]}]});
 /* ambush */
 NMI({id:'nm_ambush',text:c=>T(`On a lonely road, ${c.npc.en} steps out from behind a tree with a drawn blade. “No witnesses this time.”`,`荒路上，${c.npc.zh}拔刀从树后走了出来。“这回没有旁人了。”`),
- opts:[{l:T('Fight','拔刀迎战'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:Math.round(c.p.lv*1.05),fixed:1},stakes:'injury',title:T('Ambush','伏击'),cause:T('an ambush by a sworn rival','宿敌的伏击')}),
+ opts:[{l:T('Fight','拔刀迎战'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'injury',title:T('Ambush','伏击'),cause:T('an ambush by a sworn rival','宿敌的伏击')}),
    win:[{t:c=>T(`${c.npc.en} limps into the woods. ${c.npc.He} will be back, and better.`,`${c.npc.zh}一瘸一拐地逃进了林子。${c.npc.ta}还会回来，而且会更强。`),c:'good',fx:{fame:2,f:s=>{s.nem.beat++;heatAdd(s,10)}}}],
    lose:[{t:c=>T(`You wake in a ditch with your purse gone. ${c.npc.en} has left a note: “Next time, properly.”`,`你在沟里醒来，钱袋没了。${c.npc.zh}留了张字条：“下回，来真的。”`),c:'bad',fx:(s,c)=>({money:-Math.min(s.money,rint(20,90)),f:s=>{s.nem.lost++;heatAdd(s,-4)}})}]},
-  {l:T('Run','掉头就跑'),out:[{w:2,t:T('You get away. It does not feel like winning.','你跑掉了。感觉一点也不像赢。'),c:'muted',fx:{fame:-2,f:s=>heatAdd(s,4)}},{w:1,t:T('Not fast enough.','没跑掉。'),c:'bad',fx:{hurt:[8,18],cause:T('an ambush by a sworn rival','宿敌的伏击')}}]}]});
+  {l:T('Run','掉头就跑'),out:[{w:2,t:T('You get away. It does not feel like winning.','你跑掉了。感觉一点也不像赢。'),c:'muted',fx:{fame:-2,f:s=>heatAdd(s,4)}},{w:1,t:T('Not fast enough.','没跑掉。'),c:'bad',fx:{hurt:[3,8],cause:T('an ambush by a sworn rival','宿敌的伏击')}}]}]});
 /* hired blades */
 NMI({id:'nm_gang',text:c=>T(`${c.npc.en} has found friends: three hired blades stand with ${c.npc.him} at the crossroads, and one of them is already grinning.`,`${c.npc.zh}找了帮手：三个拿钱办事的刀客跟${c.npc.ta}一起堵在路口，其中一个已经在笑了。`),
- opts:[{l:T('Fight them all','以一敌众'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1,extra:[{name:T('Hired blade','刀客'),lv:Math.round(power(s)*.55)},{name:T('Hired blade','刀客'),lv:Math.round(power(s)*.5)}]},stakes:'injury',title:T('Outnumbered','以寡敌众'),cause:T('a fight against hired blades','以寡敌众的恶战')}),
+ opts:[{l:T('Fight them all','以一敌众'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1,extra:[{name:T('Hired blade','刀客'),lv:Math.round(power(s)*.4)},{name:T('Hired blade','刀客'),lv:Math.round(power(s)*.35)}]},stakes:'injury',title:T('Outnumbered','以寡敌众'),cause:T('a fight against hired blades','以寡敌众的恶战')}),
    win:[{t:T('The hired blades run when the first one falls. Word of it travels for months.','头一个倒下，其余的刀客就跑了。这件事传了好几个月。'),c:'gold',fx:{fame:6,f:s=>{s.nem.beat++;heatAdd(s,15)}}}],
-   lose:[{t:T('You are beaten badly, and they take their time about it.','你被打得很惨，他们一点也不着急。'),c:'bad',fx:{hurt:[6,14],cause:T('a beating by hired blades','被刀客围殴'),f:s=>{s.nem.lost++;heatAdd(s,-6)}}}]},
-  {l:T('Bring your own friends','叫上自己的朋友'),if:s=>living(s,['sworn','friend','disciple']).length>=2,fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1,extra:[{name:T('Hired blade','刀客'),lv:Math.round(power(s)*.55)},{name:T('Hired blade','刀客'),lv:Math.round(power(s)*.5)}]},allies:living(s,['sworn','friend','disciple']).sort((a,b)=>b.lv-a.lv).slice(0,2).map(p=>({name:T(p.n.py,p.n.cn),lv:p.lv})),stakes:'injury',title:T('Friends at your side','有朋友并肩'),cause:T('a brawl between two gangs','两帮人的混战')}),
+   lose:[{t:T('You are beaten badly, and they take their time about it.','你被打得很惨，他们一点也不着急。'),c:'bad',fx:{happy:-6,f:s=>{s.nem.lost++;heatAdd(s,-6)}}}]},
+  {l:T('Bring your own friends','叫上自己的朋友'),if:s=>living(s,['sworn','friend','disciple']).length>=2,fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1,extra:[{name:T('Hired blade','刀客'),lv:Math.round(power(s)*.4)},{name:T('Hired blade','刀客'),lv:Math.round(power(s)*.35)}]},allies:living(s,['sworn','friend','disciple']).sort((a,b)=>b.lv-a.lv).slice(0,2).map(p=>({name:T(p.n.py,p.n.cn),lv:p.lv})),stakes:'injury',title:T('Friends at your side','有朋友并肩'),cause:T('a brawl between two gangs','两帮人的混战')}),
    win:[{t:T('Your friends at your back, the hired blades scatter. You buy everyone dinner.','有朋友在身后，刀客们一哄而散。你请大家吃了顿好的。'),c:'gold',fx:{fame:3,f:s=>{s.nem.beat++;heatAdd(s,8);living(s,['sworn','friend']).forEach(p=>addBond(p,3))}}}],
-   lose:[{t:T('Even together you lose. At least no one is left alone in the dust.','一起上也输了。好在没有谁是一个人倒在地上。'),c:'bad',fx:{hurt:[4,10],cause:T('a brawl between two gangs','两帮人的混战'),f:s=>s.nem.lost++}}]},
+   lose:[{t:T('Even together you lose. At least no one is left alone in the dust.','一起上也输了。好在没有谁是一个人倒在地上。'),c:'bad',fx:{happy:-4,f:s=>s.nem.lost++}}]},
   {l:T('Pay them off (150 taels)','花钱打发（一百五十两）'),cost:150,out:[{t:c=>T(`The hired blades take your money and leave ${c.npc.en} standing alone, furious.`,`刀客们收了你的钱，丢下${c.npc.zh}一个人气得发抖。`),c:'muted',fx:{f:s=>heatAdd(s,10)}}]}]});
 /* in trouble: the way out of a feud */
 NMI({id:'nm_peril',text:c=>T(`You come upon ${c.npc.en} by chance: wounded, cornered in a gully by men from some other quarrel. ${c.npc.He} sees you, and says nothing.`,`你偶然撞见了${c.npc.zh}：受了伤，被另一拨仇家堵在山沟里。${c.npc.ta}看见了你，一句话也没说。`),
@@ -85,10 +90,10 @@ NMI({id:'nm_peril',text:c=>T(`You come upon ${c.npc.en} by chance: wounded, corn
 /* the appointed duel */
 NMI({id:'nm_duel',ctx:s=>{const c=nmCtx(s);c.where=pick([T('on the peak at the next full moon','下个月圆之夜，山巅之上'),T('at the old ferry at dawn','黎明时分，旧渡口'),T('in the ruined temple outside town','镇外那座破庙'),T('on the frozen lake when the snow stops','雪停之后，结冰的湖面上')]);return c},
  text:c=>T(`A letter, in ${c.npc.en}’s hand: ${c.where.en}. Come alone. One of us walks away.`,`一封信，是${c.npc.zh}的笔迹：${c.where.zh}。一个人来。只有一个能走着回去。`),
- opts:[{l:T('Go, and fight to the end','赴约，一决生死'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:Math.round(c.p.lv*1.08),fixed:1},stakes:'death',title:T('The appointed duel','约战'),cause:T('a duel with a sworn rival','与宿敌的生死决斗')}),
+ opts:[{l:T('Go, and fight to the end','赴约，一决生死'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'death',title:T('The appointed duel','约战'),cause:T('a duel with a sworn rival','与宿敌的生死决斗')}),
    win:[{w:1,t:c=>T(`${c.npc.en} falls. You stay until the sun is up, then bury ${c.npc.him} yourself.`,`${c.npc.zh}倒下了。你一直守到天亮，亲手把${c.npc.ta}埋了。`),c:'gold',fx:{fame:10,deed:T('Ended a long feud in an appointed duel','约战了断一段宿怨'),f:(s,c)=>{const p=nmP(s);if(p){p.alive=false;p.diedAt=s.age;p.killed=1;p.cause=T('a duel with you','与你决斗')}nmEnd(s,'killed')}}}],
    lose:[{t:c=>T(`You lose. ${c.npc.en} stands over you a long moment, then sheathes the blade. “Live with it.”`,`你输了。${c.npc.zh}站在你面前看了很久，收刀入鞘。“带着这个活下去吧。”`),c:'bad',fx:{fame:-6,happy:-10,hurt:[10,22],cause:T('a duel with a sworn rival','与宿敌的生死决斗'),f:s=>{nmEnd(s,'lost')}}}]},
-  {l:T('Go, but fight only until one yields','赴约，点到为止'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:Math.round(c.p.lv*1.05),fixed:1},stakes:'injury',title:T('The appointed duel','约战'),cause:T('a duel with a sworn rival','与宿敌的决斗')}),
+  {l:T('Go, but fight only until one yields','赴约，点到为止'),fight:(s,c)=>({foe:{name:T(c.npc.en,c.npc.zh),lv:c.p.lv,fixed:1},stakes:'injury',title:T('The appointed duel','约战'),cause:T('a duel with a sworn rival','与宿敌的决斗')}),
    win:[{w:2,t:c=>T(`${c.npc.en} yields, and for the first time looks at you without hatred. “Again, in ten years?” It is almost friendly.`,`${c.npc.zh}认输了，头一回不带恨意地看着你。“十年后再比？”这话说得几乎像朋友。`),c:'gold',fx:{fame:6,f:s=>nmEnd(s,'respect')}},{w:1,t:c=>T(`${c.npc.en} yields, spits, and leaves. It is not over.`,`${c.npc.zh}认了输，啐了一口，走了。还没完。`),c:'muted',fx:{fame:4,f:s=>{s.nem.beat++;s.nem.heat=40;s.nem.stage=1}}}],
    lose:[{t:c=>T(`You yield. ${c.npc.en} has what ${c.npc.he} wanted, and the jianghu knows it.`,`你认输了。${c.npc.zh}得偿所愿，江湖上人人都知道了。`),c:'bad',fx:{fame:-5,f:s=>nmEnd(s,'lost')}}]},
   {l:T('Do not go','不去'),out:[{t:c=>T(`${c.npc.en} waits all night and tells everyone you were afraid. Maybe you were.`,`${c.npc.zh}等了一夜，然后逢人便说你怕了。也许你真的怕了。`),c:'bad',fx:{fame:-8,f:s=>heatAdd(s,15)}}]}]});
@@ -106,13 +111,14 @@ NMI({id:'nm_heir',ctx:s=>{const c=scene();const past=(s.nemPast||[]).filter(x=>x
   const m=NM(s);
   if(!m){if(s.age>70)return;if(s.flags.nemCD!=null&&s.age-s.flags.nemCD<6)return;
     if((s.nemPast||[]).some(x=>x.how==='killed'&&s.age-x.end>=12&&s.age-x.end<=30)&&!s.flags.nemHeir&&chance(.08)){s.flags.nemHeir=s.age;runIncident(s,INC_BY.nm_heir);return}
-    if(chance(.09+Math.min(.06,s.fame/1500)))nmStart(s);return}
+    if(chance(.035+Math.min(.025,s.fame/1500)))nmStart(s);return}
   const p=nmP(s);if(!p||!p.alive){nmEnd(s,p&&p.killed?'killed':'died');return}
+  if(p.rel!=='nemesis'){nmEnd(s,'peace');return}
   if(p.age>=74&&chance(.25)){runIncident(s,INC_BY.nm_gone,nmCtx(s));return}
   /* they get stronger, and angrier */
-  p.lv=Math.max(p.lv,Math.round(p.lv+Math.max(1,(power(s)*1.05-p.lv)*.12)));
-  heatAdd(s,rint(4,9)+(s.fame>=60?3:0));
-  if(s.age-m.last<1||!chance(.38+m.heat/300))return;
+  p.lv=Math.max(p.lv,Math.round(p.lv+Math.max(0,(power(s)*.85-p.lv)*.12)));
+  heatAdd(s,rint(3,7)+(s.fame>=60?2:0));
+  if(s.age-m.last<1||!chance(.26+m.heat/400))return;
   m.last=s.age;
   let id;
   if(m.heat<=8){nmEnd(s,'faded');say(s,`You realise you have not heard of ${p.n.py} in years. The feud has simply worn out.`,`你忽然发觉，已经好几年没听到${p.n.cn}的消息了。这段恩怨，就这么淡了。`,'muted');return}
@@ -123,5 +129,8 @@ NMI({id:'nm_heir',ctx:s=>{const c=scene();const past=(s.nemPast||[]).filter(x=>x
   m.stage++;const inc=INC_BY[id];const c=nmCtx(s);if(inc.ctx&&id!=='nm_heir')Object.assign(c,inc.ctx(s));runIncident(s,inc,c)}})();
 /* your nemesis is labelled as such */
 (()=>{const r0=relLabel;relLabel=function(s,p){if(p&&p.nem&&p.alive)return T('Nemesis','宿敌');return r0(s,p)}})();
+/* an apology to a nemesis cools the grudge rather than ending it at once; when it runs out, so does the feud */
+(()=>{const P=PACTS.find(a=>a.id==='reconcile');if(!P)return;const r0=P.run;P.run=function(s,p){if(!p.nem)return r0.call(this,s,p);const b0=p.bond;r0.call(this,s,p);
+  if(p.bond>b0){heatAdd(s,-25);if(s.nem&&s.nem.heat<=10){p.rel='rival';nmEnd(s,'peace');say(s,`It takes more than one cup, but the feud with ${p.n.py} is over.`,`不止一杯酒，可你和${p.n.cn}的这段仇，总算了了。`,'gold')}}}})();
 /* you cannot simply stop seeing someone who is hunting you */
 (()=>{const P=PACTS.find(a=>a.id==='cut');if(!P)return;const i0=P.if;P.if=(s,p)=>!p.nem&&(!i0||i0(s,p))})();

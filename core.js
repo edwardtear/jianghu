@@ -150,7 +150,8 @@ const SZ=id=>SECTS[id].cn;
 const region=s=>REGIONS.find(r=>r.id===s.region);
 const family=s=>FAMILIES.find(f=>f.id===s.family);
 const person=(s,id)=>s.people.find(p=>p.id===id);
-const living=(s,rel)=>s.people.filter(p=>p.alive&&(!rel||(Array.isArray(rel)?rel.includes(p.rel):p.rel===rel)));
+/* a nemesis (nemesis.js) has a story of its own, so the general enemy scenes leave them out */
+const living=(s,rel)=>s.people.filter(p=>p.alive&&(!rel||(Array.isArray(rel)?rel.includes(p.rel):p.rel===rel))&&!(p.nem&&rel&&(rel==='enemy'||(Array.isArray(rel)&&rel.includes('enemy')))));
 const spouseOf=s=>living(s,'spouse')[0];
 const masterOf=s=>s.people.find(p=>p.alive&&p.rel==='master');
 

@@ -101,6 +101,18 @@ People (`departed.js`): the People sheet has two tabs, 在世 and 故人; 故人
 
 前因后果 (`causes.js`, `endview.js`): when someone from a memory record comes back, what you chose that time is kept on the record; every choice inside a story series is kept on the story. The tombstone shows up to five such moments, built only from those records.
 
+## Arts, rivals, sects and great events (Oct 2026)
+
+Martial arts (`arts2.js`, `artsui.js`): every art has a mastery level, 一成 to 十成火候, raised by training and fights (faster with Bones and Insight, 30% faster for your own sect's arts, slower for higher tiers). You choose which arts to fight with in the 武学 sheet; slots grow with realm (2 to 6). Unchosen arts still count toward power.
+
+宿敌 (`nemesis.js`): one rival at a time, born from a real record (someone you beat or wronged, or an existing enemy), with its own relation type. Grudge (恨意) grows each year and escalates: a public vow, rumours, arson, threats at your door, slander to your sect, an ambush, hired blades, and an appointed duel (to the death, or until one yields). Ways out: an apology, a rescue when the rival is cornered, or the grudge fading. Kill them and their child may come for you years later.
+
+门派纷争 (`sectpol.js`): sect relations drift every life (feuds and alliances, each with a reason). Feuds can become wars of several years: the summons, a spy, a raid, the siege of the gate, peace talks for senior disciples. With no sect, both sides try to hire you; after a war, refugees may knock. A sect head's death opens a succession fight.
+
+江湖大事 (`bigevents.js`): three of six great events per life, one each in youth, middle age and later years: 魔教复出, 禁武令, 藏宝图, 大旱, 边关告急, 神兵出世. Each runs over several years: rumours, a decision, a climax, and an outcome announced afterwards.
+
+People: rivals, fellow disciples and acquaintances can become friends (结为好友). A man may court a woman up to forty years younger and marry up to three wives. Everyone has fixed looks, shown with their sect in the People sheet.
+
 ## Adding a batch
 
 1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st10.js`.

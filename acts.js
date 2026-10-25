@@ -254,6 +254,10 @@ function canAct(s,a){
   if(actCost(s,a)>s.ap)return T('No energy left this year','今年的行动力已用完');
   return true;
 }
+/* who can court whom by age: a man may court a woman up to forty years younger; otherwise the gap is at most 25.
+   A wide gap makes a yes less likely. */
+function ageOk(s,p){const d=s.age-p.age,olderMan=(s.gender==='m'&&p.sex==='f'&&d>0)||(s.gender==='f'&&p.sex==='m'&&d<0);return Math.abs(d)<(olderMan?40:25)}
+function gapMul(s,p){const g=Math.abs(s.age-p.age);return g<=12?1:Math.max(.35,1-(g-12)/45)}
 function doAct(s,id){
   const a=ACT_BY[id];const ok=canAct(s,a);if(ok!==true)return ok;
   s.ap-=actCost(s,a);
@@ -276,11 +280,13 @@ const PACTS=[
  {id:'money',n:T('Ask for money','讨要银子'),if:(s,p)=>['father','mother','spouse','sworn'].includes(p.rel)&&s.age>=6,run(s,p){
    const fam=family(s);const base=['father','mother'].includes(p.rel)?[2,8,30,80,200,900][fam.rich]:rint(5,50);
    if(chance(p.bond/120)){const g=Math.max(1,Math.round(base*(.5+R())));pay(s,g);addBond(p,-3);say(s,`${p.n.py} gives you ${g} taels.`,`${p.n.cn}给了你${g}两。`,'good')}else{addBond(p,-6);say(s,`${p.n.py} refuses and lectures you about thrift.`,`${p.n.cn}不给，还教训你要节俭。`,'muted')}}},
- {id:'confess',n:T('Confess your feelings','表白'),if:(s,p)=>s.age>=15&&p.age>=15&&['acq','friend','fellow','sworn','ex','rival'].includes(p.rel)&&!spouseOf(s)&&Math.abs(p.age-s.age)<25,run(s,p){
-   if(chance(p.bond/130+s.looks/400)){p.rel='lover';addBond(p,10);happy(s,8);say(s,`${p.n.py} blushes and says yes.`,`${p.n.cn}红着脸答应了。`,'good')}else{addBond(p,-10);happy(s,-8);say(s,`${p.n.py} turns you down gently.`,`${p.n.cn}婉拒了你。`,'bad')}}},
+ {id:'confess',n:T('Confess your feelings','表白'),if:(s,p)=>s.age>=15&&p.age>=15&&['acq','friend','fellow','sworn','ex','rival'].includes(p.rel)&&(!spouseOf(s)||(s.gender==='m'&&p.sex==='f'&&living(s,'spouse').length<3))&&ageOk(s,p),run(s,p){
+   if(chance((p.bond/130+s.looks/400)*gapMul(s,p))){p.rel='lover';addBond(p,10);happy(s,8);say(s,`${p.n.py} blushes and says yes.`,`${p.n.cn}红着脸答应了。`,'good')}else{addBond(p,-10);happy(s,-8);say(s,`${p.n.py} turns you down gently.`,`${p.n.cn}婉拒了你。`,'bad')}}},
  {id:'date',n:T('Go on a date','约会'),if:(s,p)=>['lover','spouse'].includes(p.rel),run(s,p){addBond(p,rint(4,10));happy(s,5);const l=pick([['You row a little boat out under the lotus leaves.','你们划着小船钻进荷叶深处。'],['You watch the lanterns float down the river.','你们看河灯顺水漂走。'],['You climb a hill to watch the stars.','你们爬上山坡看星星。']]);say(s,l[0],l[1],'good')}},
- {id:'propose',n:T('Propose marriage','求亲'),if:(s,p)=>p.rel==='lover'&&!spouseOf(s)&&s.age>=16,run(s,p){
-   if(p.bond>=65&&chance(.4+p.bond/200)){p.rel='spouse';happy(s,15);const cost=Math.min(s.money,rint(20,80));pay(s,-cost);say(s,`${p.n.py} says yes! The wedding costs ${cost} taels and is worth every coin.`,`${p.n.cn}答应了！婚礼花了${cost}两，值得。`,'gold');deed(s,`Married ${p.n.py}`,`与${p.n.cn}结为夫妻`)}
+ {id:'propose',n:T('Propose marriage','求亲'),if:(s,p)=>p.rel==='lover'&&s.age>=16&&(!spouseOf(s)||(s.gender==='m'&&p.sex==='f'&&living(s,'spouse').length<3)),run(s,p){
+   const wives=living(s,'spouse');
+   if(p.bond>=65&&chance((.4+p.bond/200)*(wives.length?.8:1))){p.rel='spouse';
+     if(wives.length){wives.forEach(w=>addBond(w,-15));say(s,`${wives.length===1?wives[0].n.py+' is':'Your wives are'} not pleased to share the house.`,`${wives.length===1?wives[0].n.cn:'家里的几位夫人'}对这门亲事很不高兴。`,'muted')}happy(s,15);const cost=Math.min(s.money,rint(20,80));pay(s,-cost);say(s,`${p.n.py} says yes! The wedding costs ${cost} taels and is worth every coin.`,`${p.n.cn}答应了！婚礼花了${cost}两，值得。`,'gold');deed(s,`Married ${p.n.py}`,`与${p.n.cn}结为夫妻`)}
    else{addBond(p,-12);happy(s,-8);say(s,`${p.n.py} says it is too soon.`,`${p.n.cn}说，还太早了。`,'bad')}}},
  {id:'baby',n:T('Try for a child','要个孩子'),if:(s,p)=>p.rel==='spouse'&&s.age>=17&&s.age<=(s.gender==='f'?45:65)&&p.age<=(p.sex==='f'?45:70),run(s,p){
    if(chance(.45)){const g=chance(.5)?'m':'f';const c=mkPerson(s,{rel:'child',sex:g,sur:s.gender==='m'?s.sur:p.n.sur,age:0,bond:rint(70,95),lv:1});s.people.push(c);happy(s,12);
@@ -297,11 +303,17 @@ const PACTS=[
    const r=fightLife(s,{name:pn(p),lv:p.lv},{stakes:'injury',title:T('Duel','决斗'),cause:T(`a duel with ${p.n.py}`,`与${p.n.cn}的决斗`)});
    if(r.win){s.fame+=Math.round(3+p.lv/20);addBond(p,p.rel==='rival'?8:-5);if(p.rel==='rival'&&p.bond>50)p.rel='friend';say(s,`You beat ${p.n.py} in front of witnesses.`,`你当众击败了${p.n.cn}。`,'good')}
    else say(s,`${p.n.py} beats you.`,`${p.n.cn}打败了你。`,'bad')}},
- {id:'kill',n:T('Kill','下杀手'),if:(s,p)=>s.age>=14&&['enemy','rival','acq','ex'].includes(p.rel)&&p.age>=14,run(s,p){
-   s.align-=p.rel==='enemy'?4:15;
+ {id:'kill',n:T('Kill','下杀手'),if:(s,p)=>s.age>=14&&['enemy','nemesis','rival','acq','ex'].includes(p.rel)&&p.age>=14,run(s,p){
+   const foe=p.rel==='enemy'||p.rel==='nemesis';s.align-=foe?4:15;
    const r=fightLife(s,{name:pn(p),lv:p.lv},{stakes:'death',title:T('To the death','生死相搏'),cause:T(`a fight to the death with ${p.n.py}`,`与${p.n.cn}的生死相搏`)});
-   if(r.win){p.alive=false;p.diedAt=s.age;p.killed=1;say(s,`${p.n.py} is dead by your hand.`,`${p.n.cn}死在你手里。`,'bad');if(p.rel!=='enemy'){s.wanted=Math.min(5,s.wanted+2)}else happy(s,5)}
-   else{p.rel='enemy';say(s,`${p.n.py} survives, and will not forget.`,`${p.n.cn}活了下来，这笔账记下了。`,'bad')}}},
+   if(r.win){p.alive=false;p.diedAt=s.age;p.killed=1;say(s,`${p.n.py} is dead by your hand.`,`${p.n.cn}死在你手里。`,'bad');if(!foe){s.wanted=Math.min(5,s.wanted+2)}else happy(s,5)}
+   else{if(p.rel!=='nemesis')p.rel='enemy';say(s,`${p.n.py} survives, and will not forget.`,`${p.n.cn}活了下来，这笔账记下了。`,'bad')}}},
+ {id:'befriend',n:T('Become friends','结为好友'),if:(s,p)=>s.age>=8&&p.age>=8&&['acq','fellow','rival'].includes(p.rel)&&p.bond>=(p.rel==='rival'?55:50),run(s,p){
+   const was=p.rel;if(chance(.35+p.bond/160)){p.rel='friend';addBond(p,8);happy(s,4);
+     if(was==='rival')say(s,`You have crossed swords with ${p.n.py} too often to stay strangers. Over wine you agree: friends, and still rivals.`,`你和${p.n.cn}交手太多回了，再也当不成外人。几杯酒下肚，两人说定了：是朋友，也照样是对手。`,'good');
+     else if(was==='fellow')say(s,`${p.n.py} is more than a fellow disciple now: a friend, inside the sect and out.`,`${p.n.cn}如今不只是同门，更是朋友，门里门外都是。`,'good');
+     else say(s,`${p.n.py} is a friend now.`,`${p.n.cn}如今是你的朋友了。`,'good')}
+   else{addBond(p,-3);say(s,`${p.n.py} is friendly enough, but keeps a little distance.`,`${p.n.cn}待你还算和气，却总隔着一层。`,'muted')}}},
  {id:'cut',n:T('Cut ties','断绝来往'),ap:0,if:(s,p)=>!['father','mother','child','spouse'].includes(p.rel),run(s,p){p.alive=false;p.gone=1;say(s,`You stop seeing ${p.n.py}.`,`你和${p.n.cn}从此不再来往。`,'muted')}},
  {id:'breakup',n:T('Break up','分手'),ap:0,if:(s,p)=>p.rel==='lover',run(s,p){p.rel='ex';addBond(p,-25);happy(s,-6);say(s,`You and ${p.n.py} part ways.`,`你和${p.n.cn}分开了。`,'bad')}},
  {id:'divorce',n:T('Divorce','和离'),if:(s,p)=>p.rel==='spouse',run(s,p){p.rel='ex';addBond(p,-30);happy(s,-10);const half=Math.round(s.money*.3);pay(s,-half);say(s,`You and ${p.n.py} sign the letter of divorce. It costs you ${half} taels.`,`你和${p.n.cn}签了和离书，花了${half}两。`,'bad')}}

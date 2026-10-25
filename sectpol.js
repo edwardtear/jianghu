@@ -22,7 +22,7 @@ const spScore=(s,n)=>{if(s.swar)s.swar.score=(s.swar.score||0)+n};
 
 /* ---------- your sect at war ---------- */
 SPI({id:'sp_summon',text:c=>T(`The bell on the mountain rings three times: ${c.M.en} is at war with ${c.F.en}. Every disciple is called back.`,`山上的钟连响三声：${c.M.zh}与${c.F.zh}开战了。所有弟子即刻回山。`),
- opts:[{l:T('Answer the call and fight','应召出战'),fight:(s,c)=>({foe:spFoe(c,s,.9),stakes:'injury',title:T('The first clash','初战'),cause:T('a clash between sects','门派之间的厮杀')}),
+ opts:[{l:T('Answer the call and fight','应召出战'),fight:(s,c)=>({foe:spFoe(c,s,.9),stakes:'light',ttitle:T('he first clash','初战'),cause:T('a clash between sects','门派之间的厮杀')}),
    win:[{t:c=>T(`You hold the river crossing. The elders note your name.`,`你守住了渡口。长老们记下了你的名字。`),c:'good',fx:{fame:3,f:(s,c)=>{spScore(s,2);sAdj(s,c.my,8,1);sAdj(s,c.foe,-8,1)}}}],
    lose:[{t:T('You are carried back from the crossing on a door.','你是被人用门板从渡口抬回来的。'),c:'bad',fx:{f:(s,c)=>{spScore(s,-1);sAdj(s,c.my,3,1)}}}]},
   {l:T('Make an excuse and stay away','找个借口不去'),out:[{t:T('Nobody says anything. Everybody notices.','没人说什么。人人都看在眼里。'),c:'bad',fx:{f:(s,c)=>sAdj(s,c.my,-12,1)}}]},
@@ -33,7 +33,7 @@ SPI({id:'sp_spy',ctx:s=>{const c=spCtx(s);const f=living(s,'fellow')[0];c.spy=f?
   {l:T('Confront them alone','私下找对方问个明白'),out:[{w:1,t:c=>T(`${c.spy.en} breaks down: the other side holds ${c.spy.en.split(' ')[0]}’s family. You help get them out, quietly.`,`${c.spy.zh}崩溃了：对方扣着${c.spy.zh}的家人。你悄悄帮着把人救了出来。`),c:'gold',fx:{align:5,f:(s,c)=>{spScore(s,1);const p=c.spyId&&person(s,c.spyId);if(p)addBond(p,25)}}},{w:1,t:c=>T(`${c.spy.en} draws a knife. You win, but the letter is gone.`,`${c.spy.zh}拔出了刀。你赢了，信却没了。`),c:'muted',fx:{hurt:[3,9],cause:T('a knife in the dark','暗处的一刀')}}]},
   {l:T('Say nothing','什么也不说'),out:[{t:T('In spring the enemy knows exactly where to strike.','开春时，敌人对哪里下手一清二楚。'),c:'bad',fx:{f:s=>spScore(s,-2)}}]}]});
 SPI({id:'sp_raid',text:c=>T(`${c.F.en} raiders hit the sect’s lower farm at night. The barns are burning and the junior disciples have nothing to fight with.`,`${c.F.zh}的人趁夜袭了山下的田庄。谷仓起了火，低辈弟子手里连兵器都没有。`),
- opts:[{l:T('Lead the juniors against them','带着师弟师妹迎上去'),fight:(s,c)=>({foe:spFoe(c,s,.85),allies:[{name:T('Junior disciple','师弟'),lv:Math.max(3,Math.round(power(s)*.4))}],stakes:'injury',title:T('The raid','夜袭'),cause:T('a night raid','一场夜袭')}),
+ opts:[{l:T('Lead the juniors against them','带着师弟师妹迎上去'),fight:(s,c)=>({foe:spFoe(c,s,.85),allies:[{name:T('Junior disciple','师弟'),lv:Math.max(3,Math.round(power(s)*.4))}],stakes:'light',ttitle:T('he raid','夜袭'),cause:T('a night raid','一场夜袭')}),
    win:[{t:T('The raiders flee into the dark. The juniors talk about it for years.','袭击者逃进了夜色。师弟师妹们为这件事念叨了好多年。'),c:'gold',fx:{fame:4,f:(s,c)=>{spScore(s,3);sAdj(s,c.my,10,1);living(s,'fellow').forEach(p=>addBond(p,4))}}}],
    lose:[{t:T('The farm burns. Everyone gets out alive, which is what matters.','田庄烧了。好在人都活着出来了。'),c:'bad',fx:{f:s=>spScore(s,-1)}}]},
   {l:T('Get the juniors out, let the barns go','先把人带走，谷仓不要了'),out:[{t:T('Not one life lost. The sect goes hungry that winter.','一个人都没丢。那年冬天，门里饿了肚子。'),c:'muted',fx:{align:3,f:(s,c)=>sAdj(s,c.my,3,1)}}]}]});
@@ -47,9 +47,9 @@ SPI({id:'sp_envoy',when:s=>s.rank>=3,text:c=>T(`The head of ${c.M.en} asks you t
   {l:T('Demand reparations','要对方赔偿'),out:[{w:1,t:T('You come back with silver and a promise. The war ends; the hatred does not.','你带回了银子和一纸承诺。仗打完了，恨还在。'),c:'good',fx:{money:[60,200],f:s=>{if(s.swar){s.swar.peace=1;s.swar.score=(s.swar.score||0)+2}}}},{w:1,t:T('Talks collapse. The fighting resumes the next week.','谈崩了。下个礼拜又打了起来。'),c:'bad',fx:{f:s=>spScore(s,-1)}}]}]});
 /* ---------- no sect: the warring sides want you ---------- */
 SPI({id:'sp_hire',text:c=>T(`${c.A.en} and ${c.B.en} are at war, and both have sent someone to the inn with silver, looking for blades.`,`${c.A.zh}和${c.B.zh}打起来了，两边都派人带着银子到客栈来招揽好手。`),
- opts:[{l:c=>T(`Fight for ${c.A.en} (80 taels)`,`替${c.A.zh}出手（八十两）`),fight:(s,c)=>({foe:{name:T(`${c.B.en} disciple`,`${c.B.zh}弟子`),lv:Math.round(power(s)*.9),fixed:1},stakes:'injury',title:T('A hired blade','受雇出战'),cause:T('fighting in a sect war','卷入门派战事')}),
+ opts:[{l:c=>T(`Fight for ${c.A.en} (80 taels)`,`替${c.A.zh}出手（八十两）`),fight:(s,c)=>({foe:{name:T(`${c.B.en} disciple`,`${c.B.zh}弟子`),lv:Math.round(power(s)*.9),fixed:1},stakes:'light',ttitle:T(' hired blade','受雇出战'),cause:T('fighting in a sect war','卷入门派战事')}),
    win:[{t:T('You earn your silver and a sect’s gratitude.','你挣到了银子，也得了一派的人情。'),c:'good',fx:{money:80,f:(s,c)=>{sAdj(s,c.w.a,10,1);sAdj(s,c.w.b,-10,1)}}}],lose:[{t:T('You are paid half, and the bruises are free.','你只拿到一半，伤是白挨的。'),c:'bad',fx:{money:40}}]},
-  {l:c=>T(`Fight for ${c.B.en} (80 taels)`,`替${c.B.zh}出手（八十两）`),fight:(s,c)=>({foe:{name:T(`${c.A.en} disciple`,`${c.A.zh}弟子`),lv:Math.round(power(s)*.9),fixed:1},stakes:'injury',title:T('A hired blade','受雇出战'),cause:T('fighting in a sect war','卷入门派战事')}),
+  {l:c=>T(`Fight for ${c.B.en} (80 taels)`,`替${c.B.zh}出手（八十两）`),fight:(s,c)=>({foe:{name:T(`${c.A.en} disciple`,`${c.A.zh}弟子`),lv:Math.round(power(s)*.9),fixed:1},stakes:'light',ttitle:T(' hired blade','受雇出战'),cause:T('fighting in a sect war','卷入门派战事')}),
    win:[{t:T('You earn your silver and a sect’s gratitude.','你挣到了银子，也得了一派的人情。'),c:'good',fx:{money:80,f:(s,c)=>{sAdj(s,c.w.b,10,1);sAdj(s,c.w.a,-10,1)}}}],lose:[{t:T('You are paid half, and the bruises are free.','你只拿到一半，伤是白挨的。'),c:'bad',fx:{money:40}}]},
   {l:T('Stay out of it','不蹚这浑水'),out:[{t:T('Wise, probably. Both sides remember that you said no.','大概是明智的。两边都记得你拒绝过。'),c:'muted',fx:{}}]}]});
 SPI({id:'sp_refugee',ctx:s=>{const c=scene();const l=s.swarPast&&s.swarPast[s.swarPast.length-1];c.L=l?spN(l.loser):T('a beaten sect','一个战败的门派');c.lk=l?l.loser:null;c.npc=npc(s,{age:rint(15,22)});return c},
@@ -78,12 +78,12 @@ function spRun(s,id){const inc=INC_BY[id];if(!inc)return;if(inc.when&&!inc.when(
 (()=>{const y=yearly;yearly=function(s){y(s);SP_S=s;if(!s.alive||s.age<12)return;const ks=spSects(s);if(ks.length<2&&!s.swar)return;
   /* relations drift */
   if(chance(.22)&&ks.length>=2){const a=pick(ks),b=pick(ks.filter(k=>k!==a));if(b){const v=sectRel(a,b),mine=s.sect===a||s.sect===b;
-    if(chance(v>=1?.35:.6)&&v>-2){srSet(s,a,b,v-1);const w=pick(FEUD_WHY);spNews(s,`${SECTS[a].en} and ${SECTS[b].en} have fallen out over ${w.en}.`,`${SECTS[a].cn}与${SECTS[b].cn}因为${w.zh}翻了脸。`,mine)}
+    if(chance(v>=1?.35:.5)&&v>-2){srSet(s,a,b,v-1);const w=pick(FEUD_WHY);spNews(s,`${SECTS[a].en} and ${SECTS[b].en} have fallen out over ${w.en}.`,`${SECTS[a].cn}与${SECTS[b].cn}因为${w.zh}翻了脸。`,mine)}
     else if(v<2){srSet(s,a,b,v+1);const w=pick(ALLY_WHY);spNews(s,`${SECTS[a].en} and ${SECTS[b].en} have drawn closer, through ${w.en}.`,`${SECTS[a].cn}与${SECTS[b].cn}因为${w.zh}走近了。`,mine)}}}
   /* a feud becomes a war */
   if(!s.swar&&s.age>=14){const pairs=[];ks.forEach(a=>ks.forEach(b=>{if(a<b&&sectRel(a,b)<=-2)pairs.push([a,b])}));
     const p=pairs.find(([a,b])=>s.sect===a||s.sect===b)||pick(pairs);
-    if(p&&chance(p.includes(s.sect)?.14:.07)){s.swar={a:p[0],b:p[1],at:s.age,stage:0,score:0};const mine=p.includes(s.sect);
+    if(p&&chance(p.includes(s.sect)?.08:.04)){s.swar={a:p[0],b:p[1],at:s.age,stage:0,score:0};const mine=p.includes(s.sect);
       spNews(s,`${SECTS[p[0]].en} and ${SECTS[p[1]].en} are at war.`,`${SECTS[p[0]].cn}与${SECTS[p[1]].cn}正式开战了。`,mine);if(s.queue.length<=1){if(mine)spRun(s,'sp_summon');else if(!s.sect&&s.age>=16)spRun(s,'sp_hire')}return}}
   /* the war goes on */
   const w=s.swar;if(w){if(!SECTS[w.a]||!SECTS[w.b]){s.swar=null;return}const mine=s.sect===w.a||s.sect===w.b;if(w.peace||s.age-w.at>=6){spEndWar(s);if(!mine&&s.queue.length<=1&&chance(.35))spRun(s,'sp_refugee');return}

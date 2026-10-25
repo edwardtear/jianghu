@@ -62,7 +62,7 @@ I({id:'l2_haystack',age:[6,12],once:1,text:()=>T('You and your friends roast swe
 
 I({id:'l2_beggarsong',age:[5,12],once:1,ctx:s=>{const c=scene();c.npc=npc(s,{occ:7,age:s.age+rint(0,3)});return c},text:c=>T(`A beggar child, ${c.npc.en}, teaches you a silly counting song with strange words in it.`,`一个叫${c.npc.zh}的小乞丐教你唱一首数数的歌谣，里面有些古怪的词。`),
  out:[{w:2,t:T('You sing it in the market. Three beggars stop dead, stare at you, and then bow. It was a Beggar Sect password.','你在集市上唱了起来。三个乞丐愣住了，盯着你看，然后躬身行礼。原来那是丐帮的暗号。'),c:'gold',fx:{fame:1,flag:'l2_beggarsong',meet:'friend',bond:65}},
-  {w:2,t:c=>T(`You sing it for weeks. ${c.npc.en} becomes your best friend until the beggars move on in spring.`,`你唱了好几个星期。${c.npc.zh}成了你最好的朋友，直到开春乞丐们走了。`),fx:{happy:5}},
+  {w:2,t:c=>T(`You sing it for weeks. ${c.npc.en} becomes your best friend until the beggars move on in spring.`,`你唱了好几个星期。${c.npc.zh}成了你最好的朋友，直到开春乞丐们走了。`),fx:{happy:5,meet:'friend',bond:72}},
   {w:1,t:T('Your mother hears it and washes your mouth out with soap. It was a rude song.','母亲听见了，用皂角给你洗了嘴。那是首骂人的歌。'),c:'muted',fx:{happy:-1}}]});
 
 I({id:'l2_marketduel',age:[5,12],cd:8,text:()=>T('Two swordsmen fight in the market square. You watch the whole thing from under a vegetable cart.','两个剑客在集市上动起手来。你趴在菜车底下看完了全程。'),

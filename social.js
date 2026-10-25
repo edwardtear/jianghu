@@ -11,7 +11,7 @@ const REL_GROUPS=[
  ['friends',T('Friends','朋友'),['sworn','friend']],
  ['acq',T('Acquaintances','相识'),['acq']],
  ['foes',T('Rivals & enemies','对头'),['rival','enemy']]];
-const hostile=p=>p.rel==='enemy';
+const hostile=p=>p.rel==='enemy'||p.rel==='nemesis';
 const cold=p=>p.bond<25;
 const family_=p=>['father','mother','sibling','spouse','child'].includes(p.rel);
 

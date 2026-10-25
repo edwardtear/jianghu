@@ -1,8 +1,8 @@
 /* 江湖一生 · battle: Namerena-style auto battles. A name decides your body; your level and arts decide the rest. */
 'use strict';
 const SK={
- jianqi:{n:T('Sword Qi','剑气纵横'),act:1},
- lianhuan:{n:T('Flurry','连环快剑'),act:1},
+ jianqi:{n:T('Qi Strike','气劲纵横'),act:1},
+ lianhuan:{n:T('Flurry','连环快招'),act:1},
  dianxue:{n:T('Pressure Point','点穴'),act:1},
  xixing:{n:T('Life Drain','噬元大法'),act:1},
  anqi:{n:T('Hidden Darts','暗器'),act:1},
