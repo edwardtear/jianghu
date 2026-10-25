@@ -34,3 +34,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t||
    <p style="margin:6px 0 0;font-size:14px">${Z?`起因：${w.zh}。${s.age>m.at?`${cnNum(m.at)}岁那年结下，至今${cnNum(s.age-m.at)}年。`:'今年结下的。'}`:`Why: ${w.en}. ${s.age>m.at?`It began when you were ${m.at}, ${s.age-m.at} years ago.`:'It began this year.'}`}</p>
    <p class="muted" style="margin:4px 0 0;font-size:13px">${Z?`交手：你赢${cnNum(m.beat)}次，输${cnNum(m.lost)}次。恨意越深，对方越会走极端；化解的机会也会出现。`:`Clashes: you won ${m.beat}, lost ${m.lost}. The deeper the grudge, the further they will go; chances to end it will come too.`}</p></div>`;
   const i=h.indexOf('<div class="rows" style="margin-top:12px">');return i<0?h+box:h.slice(0,i)+box+h.slice(i)}})();
+/* a sect war under way shows at the top of the People sheet */
+(()=>{const ph=peopleHTML;peopleHTML=function(){let h=ph();const s=S,w=s&&s.swar;if(!w||!SECTS[w.a]||!SECTS[w.b]||(SHEET&&SHEET.tab==='dead'))return h;const Z=zh(),mine=s.sect===w.a||s.sect===w.b,yrs=Math.max(1,s.age-w.at+1);
+  const b=`<p class="warnrow" style="margin:0 0 10px">⚔ ${Z?`${SECTS[w.a].cn}与${SECTS[w.b].cn}交战中，第${cnNum(yrs)}年${mine?'。你的门派正在打仗。':'。'}`:`${SECTS[w.a].en} and ${SECTS[w.b].en} are at war, year ${yrs}.${mine?' Your sect is fighting.':''}`}</p>`;
+  const m=h.match(/^<div class="tabs">[\s\S]*?<\/div>/);return m?m[0]+b+h.slice(m[0].length):b+h}})();
