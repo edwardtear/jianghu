@@ -103,7 +103,7 @@ People (`departed.js`): the People sheet has two tabs, 在世 and 故人; 故人
 
 ## Arts, rivals, sects and great events (Oct 2026)
 
-Martial arts (`arts2.js`, `artsui.js`): every art has a mastery level, 一成 to 十成火候, raised by training and fights (faster with Bones and Insight, 30% faster for your own sect's arts, slower for higher tiers). You choose which arts to fight with in the 武学 sheet; slots grow with realm (2 to 6). Unchosen arts still count toward power.
+Martial arts (`arts2.js`, `artsui.js`): every art has a mastery level, 一成 to 十成火候, raised by training and fights (faster with Bones and Insight, 30% faster for your own sect's arts, slower for higher tiers). Arts are of four kinds, 轻功, 内功, 外功 and 暗器 (243 arts sorted following the classic novels); you fight with one 轻功, one 内功, three 外功 and one 暗器, chosen in the 武学 sheet. An equipped 内功 adds inner force and qi, a 轻功 adds speed and dodging; practice trains outer arts most, meditation the inner art. Unchosen arts still count toward power.
 
 宿敌 (`nemesis.js`): one rival at a time, born from a real record (someone you beat or wronged, or an existing enemy), with its own relation type. Grudge (恨意) grows each year and escalates: a public vow, rumours, arson, threats at your door, slander to your sect, an ambush, hired blades, and an appointed duel (to the death, or until one yields). Ways out: an apology, a rescue when the rival is cornered, or the grudge fading. Kill them and their child may come for you years later.
 
