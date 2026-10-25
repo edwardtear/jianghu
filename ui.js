@@ -98,7 +98,7 @@ let sideHTML=function(s,full){
    <dt>${L.dt.fam}</dt><dd>${sp?L.married(zh()?sp.n.cn:sp.n.py):L.unmarried}${living(s,'child').length?L.kids(living(s,'child').length):''}</dd>
    ${s.wanted>0?`<dt>${L.dt.law}</dt><dd class="warnrow">${L.wanted(s.wanted)}</dd>`:''}
    ${s.ill?`<dt>${L.dt.ill}</dt><dd class="warnrow">${tr(ILLS[s.ill].cause)}</dd>`:''}
-   <dt>${L.dt.arts}</dt><dd><div class="arts">${s.arts.length?s.arts.map(a=>`<span class="art t${a.tier}${a.bad?' bad':''}">${artName(a)}</span>`).join(''):`<span class="muted">${L.noArts}</span>`}</div></dd>
+   <dt>${L.dt.arts}</dt><dd><div class="arts">${s.arts.length?s.arts.map(a=>`<span class="art t${a.tier}${a.bad?' bad':''}">${artName(a)}${typeof ART_LV!=='undefined'?` <small>${tr(ART_LV[artLv(a)])}</small>`:''}</span>`).join('')+(typeof artSlots!=='undefined'?`<button class="chip" data-artsheet style="margin-left:4px">${zh()?'管理':'Manage'}</button>`:''):`<span class="muted">${L.noArts}</span>`}</div></dd>
   </dl></details>`;
 }
 /* the folding sections remember whether you left them open; on a phone they start folded so the year's events stay in view */
@@ -253,7 +253,7 @@ function fightHTML(s){
   return`${powerBreak(s)}<div class="fightbox"><div class="fhead"><span class="lbl">${zh()?'战斗属性':'fighting stats'}</span><button class="info" data-guide>ⓘ ${zh()?'说明':'What these mean'}</button></div>
    ${fightBars(f)}
    <div class="ftech">${arts.length?arts.map(x=>skillChip(x)).join(''):`<span class="muted">${zh()?'未学武功，只会乱打一气。':'No arts yet. You just swing your fists.'}</span>`}${knack?`<span class="skc knack" title="${esc(tr(SKD[knack.id]))}">${zh()?'天赋':'Knack'}: ${esc(tr(SK[knack.id].n))}</span>`:''}</div>
-   ${f.skills.length?`<ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">Lv${x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul>`:''}</div>`;
+   ${f.skills.length?`<ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul>`:''}</div>`;
 }
 /* the four attributes, each measured against everyone else in the jianghu */
 function attrBlock(s){const A=attrsOf(s);return`<div class="attr4">${ATTR.map(k=>`<div title="${esc(tr(ATD[k]))}"><span>${tr(ATN[k])}</span><b>${A[k]}</b><small>${zh()?`胜过江湖中${attrPct(A[k])}%的人`:`better than ${attrPct(A[k])}% of the jianghu`}</small></div>`).join('')}</div>`}
@@ -354,7 +354,7 @@ function ownHTML(){
 function fighterCard(){
   const L=u(),f=youFighter(S);
   return`<div class="grp"><h4>${L.fstats}</h4>${bar(L.health,f.hp,f.maxHp,'f-hp',1)}${fightBars(f)}
-   <ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">Lv${x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul><p class="muted" style="font-size:14px;margin:6px 0 0">${L.fnote}</p></div>`;
+   <ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul><p class="muted" style="font-size:14px;margin:6px 0 0">${L.fnote}</p></div>`;
 }
 
 /* ---------- battles ---------- */
@@ -402,13 +402,13 @@ function closeBattle(){if(BT)clearTimeout(BT.timer);BT=null;const v=$('bveil');i
 /* ---------- stat cards ---------- */
 const STAT_KEYS=['hp','mp','atk','def','crit','dodge'];const PCTK=['crit','dodge','int'];
 function statLine(st){const L=u().stat;return`<span>${zh()?'功力':'Power'} <b>${st.lv}</b></span>`+STAT_KEYS.slice(1).map(k=>`<span>${L[k]} <b>${st[k]}${PCTK.includes(k)?'%':''}</b></span>`).join('')}
-function skillChip(x){const lb=x.label?tr(x.label):tr(x);const id=x.id;const base=id&&SK[id]?tr(SK[id].n):'';const lv=x.lv?` <b>${'Lv'+x.lv}</b>`:'';
+function skillChip(x){const lb=x.label?tr(x.label):tr(x);const id=x.id;const base=id&&SK[id]?tr(SK[id].n):'';const lv=x.alv&&typeof ART_LV!=='undefined'?` <b>${tr(ART_LV[x.alv])}</b>`:x.lv?` <b>${'Lv'+x.lv}</b>`:'';
   return`<span class="skc" title="${id&&SKD[id]?esc(tr(SKD[id])):''}">${esc(lb)}${base&&base!==lb?` <span class="muted">· ${esc(base)}</span>`:''}${lv}</span>`}
 function statCard(name,f,team,mx){
   const L=u(),st=fstats(f);
   return`<div class="scard"><div class="nm"><b class="f${team%5}">${esc(name)}</b><span class="muted">${zh()?'功力':'Power'} ${st.lv}</span></div>
    <div class="sgrid">${STAT_KEYS.map(k=>`<div class="srow"><span>${L.stat[k]}</span><span class="sbar"><i class="b${team%5}" style="width:${clamp(st[k]/(mx[k]||1)*100,4,100)}%"></i></span><b>${st[k]}${PCTK.includes(k)?'%':''}</b></div>`).join('')}</div>
-   <ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">Lv${x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul></div>`;
+   <ul class="sklist">${f.skills.map(x=>`<li><b>${esc(tr(x.label))}</b> <span class="lvl">${x.alv&&typeof ART_LV!=='undefined'?tr(ART_LV[x.alv]):'Lv'+x.lv}</span>${tr(x.label)!==tr(SK[x.id].n)?` <span class="muted">· ${tr(SK[x.id].n)}</span>`:''}<br><span class="muted">${tr(SKD[x.id])}</span></li>`).join('')}</ul></div>`;
 }
 
 /* ---------- name arena ---------- */

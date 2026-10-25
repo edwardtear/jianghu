@@ -116,7 +116,7 @@ function runBattle(teams,opts){
   const teamsAlive=()=>new Set(alive().map(f=>f.team)).size;
   const has=(f,id)=>f.skills.find(s=>s.id===id);
   const buff=(f,k)=>{let m=1;(f.st.buffs||[]).forEach(b=>{if(b.k===k)m*=b.m});return m};
-  const pot=sk=>1+.28*((sk&&sk.lv||1)-1);
+  const pot=sk=>sk&&sk.pw?sk.pw:1+.28*((sk&&sk.lv||1)-1);
   const rnd=()=>.85+R()*.3;
   const eff=(d,v)=>Math.max(1,Math.round(v/(d&&d.tough||1)));
   const Y={spar:.5,light:.4,injury:.3}[opts.stakes];

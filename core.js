@@ -137,7 +137,7 @@ function npc(s,o={}){
 function scene(){return{intro:P(pick(INTROS)),place:P(pick(PLACES)),obj:P(pick(OBJECTS))}}
 
 /* ---------- character ---------- */
-function power(s){return Math.round(s.skill+s.qi*.5+s.arts.reduce((t,a)=>t+TIERS[a.tier].b,0))}
+function power(s){return Math.round(s.skill+s.qi*.5+s.arts.reduce((t,a)=>t+TIERS[a.tier].b*(.85+.035*(a.lv??3)),0))}
 function mult(s){return s.arts.reduce((m,a)=>Math.max(m,TIERS[a.tier].m),1)}
 /* the realm shown to the player: someone who has learned an art is a novice, not untrained */
 function rname(s){return s.realm===0&&s.arts&&s.arts.length?[0,'初学乍练','Novice']:REALMS[s.realm]}
