@@ -113,6 +113,8 @@ Martial arts (`arts2.js`, `artsui.js`): every art has a mastery level, 一成 to
 
 People: rivals, fellow disciples and acquaintances can become friends (结为好友). A man may court a woman up to forty years younger and marry up to three wives. Everyone has fixed looks, shown with their sect in the People sheet.
 
+Looks (`looks.js`): clothes and ornaments in a new 衣饰 shop section (青布长衫, 描金折扇, 锦缎衣裳, 白玉发簪; 南珠串 rare) lift your looks while owned, each kind once. 祛疤膏 gives back part of what scars and pockmarks took. 打扮养颜 (15 taels) gives a small lift and, after 38, halves the year's decline. Other people's looks fade with age, and fighters can come home scarred (shown as 「…，带着疤」). Scenes: an admirer's note, a jealous spouse, gossip that you rose on your face, mockery for plain looks, a painter who wants you in a set of famous faces.
+
 ## Adding a batch
 
 1. Write the content in a new file (for example `b3.js`, `st7.js`) and add its `<script>` tag to `page.html` after `st10.js`.

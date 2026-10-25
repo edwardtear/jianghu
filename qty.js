@@ -53,10 +53,11 @@ if(typeof document!=='undefined')document.addEventListener('click',e=>{const t=e
   if(t.dataset.usen){const id=t.dataset.usen,n=SHEET.qty||1;act(()=>useN(S,id,n));return}});
 
 /* labels and numbers for the two new gear slots (gear.js) */
-['en','zh'].forEach(l=>{const c=U[l].cats,o={};const add={en:{boots:'Boots',bracer:'Bracers'},zh:{boots:'靴子',bracer:'护腕'}}[l];
+['en','zh'].forEach(l=>{const c=U[l].cats,o={};const add={en:{boots:'Boots',bracer:'Bracers',attire:'Clothes & ornaments'},zh:{boots:'靴子',bracer:'护腕',attire:'衣饰'}}[l];
   Object.keys(c).forEach(k=>{o[k]=c[k];if(k==='armor')Object.assign(o,add)});U[l].cats=o});
 (()=>{const f0=itemFacts;itemFacts=function(s,d){const f=f0(s,d),Z=zh(),at=f.findIndex(x=>/one of this kind|同类只能用一件/.test(x)),extra=[];
   if(d.dodge)extra.push(Z?`闪避+${Math.round(d.dodge*100)}%`:`+${Math.round(d.dodge*100)}% dodge`);if(d.crit)extra.push(Z?`会心+${Math.round(d.crit*100)}%`:`+${Math.round(d.crit*100)}% critical hits`);
   if(d.id==='poisonpearl'||d===ITEMS.poisonpearl)extra.push(Z?'打斗后六成的毒不会留在身上':'60% of poisonings after a fight do not take hold');
   if(d===ITEMS.coldjade)extra.push(Z?'抵御内劲+25%':'+25% resistance to inner force');
+  if(d.lk)extra.push(Z?`容貌+${d.lk}（同一种只算一次，卖掉就没了）`:`+${d.lk} looks (each kind counts once; gone if sold)`);
   if(at>=0)f.splice(at,0,...extra);else f.push(...extra);return f}})();

@@ -1,10 +1,6 @@
 /* 江湖一生 · 故人: everyone you have lost stays in the book. The People sheet gets two tabs, the living and the departed;
    the departed tab lists every person who died in this life (grouped like the living), plus the people you cut ties with. */
 'use strict';
-/* how good-looking someone is: fixed for each person (worked out once from who they are, then kept) */
-function looksOf(p){if(p.looks==null){let h=7;for(const ch of String((p.n&&p.n.cn)||'')+p.id)h=(h*31+ch.charCodeAt(0))>>>0;p.looks=Math.round(((h%100)+((h>>>8)%100))/2)}return p.looks}
-function looksLabel(p){const v=looksOf(p),f=p.sex==='f';
-  return v>=85?(f?T('Stunning','倾城之貌'):T('Strikingly handsome','俊美非凡')):v>=68?(f?T('Lovely','容貌秀丽'):T('Handsome','相貌英俊')):v>=40?T('Pleasant-looking','相貌端正'):v>=20?T('Plain','相貌平平'):T('Homely','其貌不扬')}
 (()=>{const ph=peopleHTML;peopleHTML=function(){const s=S,Z=zh(),L=u();
   const dead=s.people.filter(p=>!p.alive&&!p.gone),cut=s.people.filter(p=>!p.alive&&p.gone);
   const tab=SHEET&&SHEET.tab==='dead'?'dead':'live',nAl=s.people.filter(p=>p.alive).length;
