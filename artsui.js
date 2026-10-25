@@ -28,3 +28,9 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t||
 (()=>{const f0=fightHTML;fightHTML=function(s){const h=f0.apply(this,arguments);if(!h||!s.arts||!s.arts.length)return h;
   const i=h.indexOf('<div class="ftech">');const b=`<button class="chip artbtn" data-artsheet>${zh()?`⚔ 武学与出战（${combatArts(s).length}/${artSlots(s)}）`:`⚔ Arts & loadout (${combatArts(s).length}/${artSlots(s)})`}</button>`;
   return i<0?h+b:h.slice(0,i)+b+h.slice(i)}})();
+/* your nemesis: how deep the grudge runs, and why, on their page */
+(()=>{const ph=personHTML;personHTML=function(id){let h=ph(id);const s=S,p=person(s,id);if(!p||!p.nem||!s.nem||s.nem.pid!==p.id)return h;const m=s.nem,Z=zh(),w=WHY[m.why]||WHY.enemy;
+  const box=`<div class="grp nembox"><h4>${Z?'宿敌':'Nemesis'}</h4><div class="bar"><div class="row"><span>${Z?'恨意':'Grudge'}</span><b>${m.heat}/100</b></div><div class="track"><div class="fill f-hp" style="width:${m.heat}%"></div></div></div>
+   <p style="margin:6px 0 0;font-size:14px">${Z?`起因：${w.zh}。${s.age>m.at?`${cnNum(m.at)}岁那年结下，至今${cnNum(s.age-m.at)}年。`:'今年结下的。'}`:`Why: ${w.en}. ${s.age>m.at?`It began when you were ${m.at}, ${s.age-m.at} years ago.`:'It began this year.'}`}</p>
+   <p class="muted" style="margin:4px 0 0;font-size:13px">${Z?`交手：你赢${cnNum(m.beat)}次，输${cnNum(m.lost)}次。恨意越深，对方越会走极端；化解的机会也会出现。`:`Clashes: you won ${m.beat}, lost ${m.lost}. The deeper the grudge, the further they will go; chances to end it will come too.`}</p></div>`;
+  const i=h.indexOf('<div class="rows" style="margin-top:12px">');return i<0?h+box:h.slice(0,i)+box+h.slice(i)}})();
