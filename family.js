@@ -3,10 +3,11 @@
    a sworn oath with its ceremony and rank, the duties it brings, godchildren, a broken oath, and a sworn sibling to avenge */
 'use strict';
 
-REL.grandchild=T('Grandchild','孙辈');REL.godchild=T('Godchild','义子女');REL_GROUPS[0][2].push('grandchild','godchild');
+REL.grandchild=T('Grandchild','孙辈');REL.godchild=T('Godchild','义子女');REL.nephew=T('Nephew or niece','侄甥');REL_GROUPS[0][2].push('grandchild','godchild','nephew');
 (()=>{const r0=relLabel;relLabel=function(s,p){
   if(p.rel==='sworn'){const older=p.age>s.age||(p.age===s.age&&p.swOlder);return p.sex==='m'?(older?T('Sworn elder brother','义兄'):T('Sworn younger brother','义弟')):(older?T('Sworn elder sister','义姐'):T('Sworn younger sister','义妹'))}
   if(p.rel==='grandchild')return p.sex==='m'?T('Grandson','孙子'):T('Granddaughter','孙女');
+  if(p.rel==='nephew')return p.via==='f'?(p.sex==='m'?T('Nephew','外甥'):T('Niece','外甥女')):(p.sex==='m'?T('Nephew','侄子'):T('Niece','侄女'));
   if(p.rel==='godchild')return p.sex==='m'?T('Godson','义子'):T('Goddaughter','义女');
   return r0(s,p)}})();
 const kidsOf=s=>s.people.filter(p=>p.rel==='child'&&p.alive);
@@ -52,7 +53,7 @@ kidInc('fk_match',{text:c=>T(`${c.k.n.py} is of age. Three families have sent ma
   {l:T('A martial family','武林世家'),out:[{w:2,t:T('Your families become allies; both houses grow stronger.','两家结了亲，都更有底气了。'),c:'good',fx:{fame:3,f:(s,c)=>{c.k.married=1;c.k.lv+=3}}},{w:1,t:T('The in-laws have enemies, and now so do you.','亲家有仇人，如今也成了你的仇人。'),c:'muted',fx:{enemy:1,f:(s,c)=>{c.k.married=1}}}]},
   {l:T('Let them choose their own sweetheart','让孩子自己选心上人'),out:[{w:3,t:T('A small wedding, and a happy one.','婚礼不大，日子挺美。'),c:'good',fx:{f:(s,c)=>{c.k.married=1;addBond(c.k,12)}}},{w:1,t:T('The sweetheart is poorer than you hoped. You keep that to yourself.','心上人比你盼的穷些。你把这话咽了回去。'),c:'muted',fx:{f:(s,c)=>{c.k.married=1;addBond(c.k,8)}}}]}]});
 kidInc('fk_grandkid',{text:c=>T(`${c.k.n.py} has a child of ${kHe(c.k).his} own. You are a grandparent.`,`${c.k.n.cn}有孩子了。你当上了祖辈。`),
- opts:[{l:T('Hold the baby','抱抱孩子'),out:[{w:3,t:T('Smaller than you remembered babies being.','比你记忆里的婴儿还要小。'),c:'gold',fx:{happy:8,f:(s,c)=>{const g=mkPerson(s,{rel:'grandchild',sur:c.k.sex==='m'?c.k.n.sur:null,age:0,bond:rint(70,90),lv:1});s.people.push(g)}}},{w:1,t:T('It cries the moment you take it. Everyone laughs.','你一接过来它就哭。大家都笑了。'),c:'good',fx:{happy:5,f:(s,c)=>{const g=mkPerson(s,{rel:'grandchild',sur:c.k.sex==='m'?c.k.n.sur:null,age:0,bond:rint(60,85),lv:1});s.people.push(g)}}}]}]});
+ opts:[{l:T('Hold the baby','抱抱孩子'),out:[{w:3,t:T('Smaller than you remembered babies being.','比你记忆里的婴儿还要小。'),c:'gold',fx:{happy:8,f:(s,c)=>{const g=mkPerson(s,{rel:'grandchild',extra:{par:c.k.id},sur:c.k.sex==='m'?c.k.n.sur:null,age:0,bond:rint(70,90),lv:1});s.people.push(g)}}},{w:1,t:T('It cries the moment you take it. Everyone laughs.','你一接过来它就哭。大家都笑了。'),c:'good',fx:{happy:5,f:(s,c)=>{const g=mkPerson(s,{rel:'grandchild',extra:{par:c.k.id},sur:c.k.sex==='m'?c.k.n.sur:null,age:0,bond:rint(60,85),lv:1});s.people.push(g)}}}]}]});
 kidInc('fk_kidnap',{text:c=>T(`A note under your door: ${c.k.n.py} has been taken. ${c.foe.en} names a place and a price, and says to come alone.`,`门缝里塞进一张纸条：${c.k.n.cn}被人掳走了。${c.foe.zh}写明了地点和赎金，要你独自前去。`),
  cctx:(s,c)=>{const en=living(s,'enemy')[0];return{foe:en?T(en.n.py,en.n.cn):foeName(),lv:en?Math.max(en.lv,Math.round(power(s)*.95)):PW(1.05,6)(s)}},
  opts:[{l:T('Go alone, as told','照对方说的，独自前往'),fight:(s,c)=>({foe:{name:c.foe,lv:c.lv,fixed:1},stakes:'death',title:T('For your child','为了孩子'),cause:T('a kidnapper','绑匪')}),
@@ -141,6 +142,13 @@ function heirLife(prev,pid){const k=person(prev,pid);if(!k)return null;
   s.people=[];const par=mkPerson(s,{rel:prev.gender==='m'?'father':'mother',sex:prev.gender,name:{cn:prev.cn,py:prev.name,sur:prev.sur},age:prev.age,bond:Math.max(40,k.bond),lv:power(prev)});par.alive=false;par.diedAt=k.age;par.cause=prev.cause;s.people.push(par);
   const sp=prev.people.find(p=>p.rel==='spouse'&&p.alive);if(sp){const o=mkPerson(s,{rel:sp.sex==='m'?'father':'mother',sex:sp.sex,name:sp.n,age:sp.age,bond:70,lv:sp.lv});s.people.push(o)}
   prev.people.filter(p=>p.rel==='child'&&p.alive&&p.id!==k.id).forEach(o=>s.people.push(mkPerson(s,{rel:'sibling',sex:o.sex,name:o.n,age:o.age,bond:o.bond,lv:o.lv})));
+  /* the heir's own household: a spouse if they were married, and their children (your grandchildren) */
+  if(k.married){const sx=k.sex==='m'?'f':'m',sp0=k.sp;const o=mkPerson(s,{rel:'spouse',sex:sp0?sp0.sex:sx,name:sp0?sp0.n:null,age:sp0&&sp0.age!=null?sp0.age:clamp(k.age+rint(-4,3),16,99),bond:rint(60,80),lv:sp0&&sp0.lv?sp0.lv:Math.max(1,Math.round(k.lv*.6))});s.people.push(o)}
+  const gk=prev.people.filter(p=>p.rel==='grandchild'&&p.alive),married=prev.people.filter(p=>p.rel==='child'&&p.married);
+  /* older saves did not note whose child a grandchild was: if the heir is the only married child they are all theirs; otherwise go by surname */
+  const mine=gk.filter(g=>g.par!=null?g.par===k.id:(married.length===1&&married[0].id===k.id)||(married.length>1&&k.sex==='m'&&g.n&&g.n.sur&&k.n.sur&&g.n.sur[0]===k.n.sur[0]));
+  mine.forEach(g=>{const o=mkPerson(s,{rel:'child',sex:g.sex,name:g.n,age:g.age,bond:Math.max(60,g.bond||70),lv:g.lv||1});if(g.kid)o.kid=g.kid;s.people.push(o)});
+  gk.filter(g=>!mine.includes(g)).forEach(g=>{const via=g.par!=null&&person(prev,g.par);const o=mkPerson(s,{rel:'nephew',sex:g.sex,name:g.n,age:g.age,bond:Math.max(50,g.bond||60),lv:g.lv||1});o.via=via?via.sex:'m';s.people.push(o)});
   prev.people.filter(p=>['enemy'].includes(p.rel)&&p.alive).slice(0,2).forEach(e=>s.people.push(mkPerson(s,{rel:'enemy',sex:e.sex,name:e.n,age:e.age,bond:10,lv:e.lv})));
   const inh=Math.round(prev.money*.7);s.money=inh;s.fame=Math.round(prev.fame*.3+(k.lv>=60?10:0));s.align=clamp(Math.round(prev.align*.3),-100,100);
   s.items=prev.items.filter(it=>{const d=itemDef(it.id);return d&&['house','biz','weapon','armor','mount','charm','anqi','keep'].includes(d.cat)}).map(it=>Object.assign({},it,{eq:it.eq}));
