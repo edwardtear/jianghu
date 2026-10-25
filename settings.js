@@ -8,8 +8,8 @@ function setHTML(){const Z=zh(),c=typeof CLOUD!=='undefined'?CLOUD:null;
   let h=`<div class="setlang"><span>${Z?'语言':'Language'}</span><div class="seg"><button class="chip" data-setlang="en" aria-pressed="${LANG==='en'}">EN</button><button class="chip" data-setlang="zh" aria-pressed="${LANG==='zh'}">中文</button></div></div>`;
   h+=row('b-guide','？',Z?'说明':'Guide',Z?'怎么玩，各项数值是什么意思':'How to play and what the numbers mean');
   if($('b-slot'))h+=row('b-slot','💾',Z?'存档':'Save slots',Z?`当前：存档${SLOT+1}`:`Current: slot ${SLOT+1}`);
-  if($('b-snd'))h+=row('b-snd',snd?'🔊':'🔇',Z?'声音':'Sound',snd?(Z?'开着':'On'):(Z?'关着':'Off'));
   if(c&&c.on)h+=row('b-acct','☁',Z?'账号与云存档':'Account & cloud saves',c.user?(c.user.displayName||(c.user.email||'').split('@')[0]):(Z?'未登录':'Not signed in'));
+  if($('b-snd'))h+=row('b-snd',snd?'🔊':'🔇',Z?'声音':'Sound',snd?(Z?'开着':'On'):(Z?'关着':'Off'));
   if(window.FIREBASE_CONFIG)h+=row('b-fb','✉',Z?'反馈':'Feedback',Z?'告诉我们哪里不对、想要什么':'Tell us what is wrong or what you want');
   h+=`<button class="setrow danger" data-setnew><span class="si">↻</span><span class="st"><b>${Z?'重新投胎':'New life'}</b><small>${S&&S.alive?(Z?'放弃这一世，重新开始（要按两次）':'Give up this life and start over (tap twice)'):(Z?'开始新的一世':'Start a new life')}</small></span></button>`;
   return h}
