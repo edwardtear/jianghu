@@ -99,11 +99,13 @@ function relLabel(s,p){
 function storeNpc(s,c,rel,bond){
   const n=c.npc;if(!n)return null;
   /* meeting someone you already know never demotes them: your mother stays your mother, she just likes you more */
-  if(c.pid){const p=person(s,c.pid);if(p){const keep=['father','mother','sibling','spouse','child','lover','master','disciple'].includes(p.rel)&&['friend','acq','sworn','rival','fellow'].includes(rel);
+  if(c.pid){const p=person(s,c.pid);if(p){if(!p.sect){const sd=n.sect||c.sect||((rel==='fellow'||c.sib)&&s.sect);if(sd&&SECTS[sd])p.sect=sd}const keep=['father','mother','sibling','spouse','child','lover','master','disciple'].includes(p.rel)&&['friend','acq','sworn','rival','fellow'].includes(rel);
     if(keep){if(bond!=null)p.bond=Math.max(p.bond,bond);return p}p.rel=rel;if(bond!=null)p.bond=bond;return p}}
   /* someone known only by a nickname still gets a surname slot, taken from the name itself */
   const nn=Object.assign({},n.n||{cn:n.zh||'?',py:n.en||'?'});if(!nn.sur||!nn.sur[0])nn.sur=[(nn.cn||'?')[0],String(nn.py||'').split(' ')[0]||''];
   const p={id:++s.pid,n:nn,sex:n.sex,age:n.age,rel,bond:bond??60,alive:true,trait:n.trait,lv:n.lv,occ:n.occ,met:s.age,talked:-1};
+  /* their sect comes with them; a fellow disciple, or someone the scene calls your senior or junior, is of your own sect */
+  const sid=n.sect||c.sect||((rel==='fellow'||c.sib)&&s.sect)||null;if(sid&&SECTS[sid])p.sect=sid;
   s.people.push(p);c.pid=p.id;return p;
 }
 function addBond(p,n){if(p)p.bond=clamp(p.bond+n,0,100)}

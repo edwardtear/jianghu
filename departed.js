@@ -1,7 +1,7 @@
 /* 江湖一生 · 故人: everyone you have lost stays in the book. The People sheet gets two tabs, the living and the departed;
    the departed tab lists every person who died in this life (grouped like the living), plus the people you cut ties with. */
 'use strict';
-(()=>{const ph=peopleHTML;peopleHTML=function(){const s=S,Z=zh(),L=u();
+(()=>{const ph=peopleHTML;peopleHTML=function(){const s=S,Z=zh(),L=u();if(typeof fixSibSects==='function')fixSibSects(s);
   const dead=s.people.filter(p=>!p.alive&&!p.gone),cut=s.people.filter(p=>!p.alive&&p.gone);
   const tab=SHEET&&SHEET.tab==='dead'?'dead':'live',nAl=s.people.filter(p=>p.alive).length;
   const tabs=`<div class="tabs"><button class="chip${tab==='live'?' on':''}" data-tab="live">${Z?'在世':'Living'} (${nAl})</button><button class="chip${tab==='dead'?' on':''}" data-tab="dead">${Z?'故人':'The departed'} (${dead.length})</button></div>`;

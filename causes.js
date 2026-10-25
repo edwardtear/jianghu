@@ -15,3 +15,16 @@
   /* a step of a story series: keep the choice on the story's own record */
   const sid=inc.story||inc.sopen;if(sid&&s.story&&s.story[sid]){const sr=s.story[sid];if(sr.at<=s.age){sr.picks=sr.picks||[];if(sr.picks.length<12)sr.picks.push({at:s.age,stage:inc.stage||'open',chose:label,out})}}
   return r}})();
+/* a person the scene calls your senior or junior (师兄、师姐、师弟、师妹、同门) belongs to your sect. New meetings are read
+   from the scene itself; people already in an older save are read from your shared history once. */
+const SIB_RE=/(师兄|师姐|师弟|师妹|同门|师叔|师伯)/;
+function sibSect(s){return s.sect||s.flags.formerSect||s.leftSect||null}
+(()=>{const ci=chooseInc;chooseInc=function(s,q,k){const r=ci(s,q,k);const c=q.c,sid=sibSect(s);
+  if(c&&c.pid&&sid&&SECTS[sid]){const p=person(s,c.pid);const tx=q.text&&q.text.zh||'';if(p&&!p.sect&&p.n&&p.n.cn&&tx.includes(p.n.cn)&&new RegExp('(师兄|师姐|师弟|师妹|同门|师叔|师伯)'+p.n.cn).test(tx))p.sect=sid}
+  return r}})();
+function fixSibSects(s){if(!s||s.sibFixed)return;s.sibFixed=1;const sid=sibSect(s);if(!sid||!SECTS[sid])return;
+  (s.people||[]).forEach(p=>{if(p.sect||!p.n||!p.n.cn)return;
+    if(p.rel==='fellow'){p.sect=sid;return}
+    const hit=(s.mem||[]).some(r=>(r.pid===p.id||(r.who&&r.who.n&&r.who.n.cn===p.n.cn))&&r.what&&new RegExp('(师兄|师姐|师弟|师妹|同门|师叔|师伯)'+p.n.cn).test(r.what.zh||''));
+    if(hit)p.sect=sid})}
+(()=>{const y=yearly;yearly=function(s){fixSibSects(s);return y(s)}})();
