@@ -48,7 +48,7 @@ const ACTS=[
    if(r.win)say(s,'You win, and notice a flaw in your own footwork too.','你赢了，也看出了自己步法里的破绽。','good');else say(s,'You lose, and learn more from it than from any win.','你输了，却比赢一场学到的还多。')}},
  {id:'meditate',cat:'train',n:T('Meditate','打坐'),d:T('Builds inner energy and calms the mind.','增长内力，平心静气。'),ok:s=>needAge(s,8),run(s){
    s.qi+=(qiGain(s,.7)+.6)*fatigue(s,'meditate');happy(s,3);flv(s,'meditate','You sit cross-legged until your qi runs warm through every meridian.','你盘膝而坐，直到真气在经脉中运转温热。')}},
- {id:'seclusion',cat:'train',n:T('Closed-door cultivation','闭关'),d:T('Uses the whole year’s energy. Big gains or qi deviation.','耗尽一年行动力。要么突飞猛进，要么走火入魔。'),ap:'all',ok:s=>s.age<18?needAge(s,18):s.ap<s.apMax?T('Needs a full year of energy','需要整年的行动力'):true,run(s){
+ {id:'seclusion',cat:'train',n:T('Closed-door cultivation','闭关'),d:T('Uses the whole year’s energy: start it in spring. Big gains or qi deviation.','耗尽一年行动力，须在开春时闭关。要么突飞猛进，要么走火入魔。'),ap:'all',ok:s=>s.age<18?needAge(s,18):Array.isArray(s.apSeas)?((s.season|0)!==0||s.ap<s.apSeas[0]||s.apDebt?T('Only at the start of spring, with the whole year ahead','须在开春、全年行动力未动时'):true):s.ap<s.apMax?T('Needs a full year of energy','需要整年的行动力'):true,run(s){
    const r=R()+s.t.heart*.01;
    if(r>.45){s.skill+=6+s.t.wit;s.qi+=10;say(s,'After a year in darkness, the wall cracks. You walk out lighter than you went in.','在黑暗中苦修一年后，那堵墙裂开了。你出关时，身轻如燕。','good')}
    else if(r>.15){s.skill+=5;say(s,'A year of silence brings small, solid progress.','一年的静修，带来了虽小却扎实的进步。')}
@@ -245,13 +245,17 @@ function rollOpps(s){
 }
 const ACT_BY=Object.fromEntries(ACTS.map(a=>[a.id,a]));
 const ACT_CATS=[['opp',T('This year’s opportunities','今年的机缘')],['train',T('Training','修炼')],['jh',T('The jianghu','江湖')],['sect',T('Sect','门派')],['work',T('Work','营生')],['fun',T('Leisure','消遣')],['casino',T('Gambling den','赌坊')],['crime',T('Crime','黑道')],['jail',T('Prison','牢狱')],['health',T('Health','医馆')],['life',T('Life','人生')]];
-function actCost(s,a){return a.ap==='all'?s.apMax:(a.ap??1)}
+function actCost(s,a){return a.ap==='all'?(Array.isArray(s.apSeas)?s.ap:s.apMax):(a.ap??1)}
+/* a year has four seasons, each with its own share of energy. An activity that costs more than this season has left
+   may borrow the rest from next season; winter cannot borrow from the new year. */
+function apAvail(s){if(!Array.isArray(s.apSeas)||s.ap<=0)return s.ap;const k=s.season|0;return s.ap+(k<3?Math.max(0,s.apSeas[k+1]-(s.apDebt||0)):0)}
+function apSpend(s,n){s.ap-=n;if(s.ap<0){s.apDebt=(s.apDebt||0)-s.ap;s.ap=0}}
 function canAct(s,a){
   if(!s.alive||s.queue.length)return T('Decide first','先做决定');
   if(a.if&&!a.if(s))return false;
   if(s.jail>0&&!['jail','train'].includes(a.cat)&&a.id!=='doctor')return T('Not while in prison','身在牢中');
   const ok=actOk(s,a);if(ok!==true)return ok;
-  if(actCost(s,a)>s.ap)return T('No energy left this year','今年的行动力已用完');
+  if(actCost(s,a)>apAvail(s))return Array.isArray(s.apSeas)?T('No energy left this season','这一季的行动力已用完'):T('No energy left this year','今年的行动力已用完');
   return true;
 }
 /* who can court whom by age: a man may court a woman up to forty years younger; otherwise the gap is at most 25.
@@ -260,7 +264,7 @@ function ageOk(s,p){const d=s.age-p.age,olderMan=(s.gender==='m'&&p.sex==='f'&&d
 function gapMul(s,p){const g=Math.abs(s.age-p.age);return g<=12?1:Math.max(.35,1-(g-12)/45)}
 function doAct(s,id){
   const a=ACT_BY[id];const ok=canAct(s,a);if(ok!==true)return ok;
-  s.ap-=actCost(s,a);
+  if(a.ap==='all'&&Array.isArray(s.apSeas)){s.ap=0;s.seclAt=s.age;s.apDebt=s.apSeas.slice((s.season|0)+1).reduce((x,y)=>x+y,0)}else apSpend(s,actCost(s,a));
   say(s,'▸ '+a.n.en,'▸ '+a.n.zh,'act');
   const before=snap(s);a.run(s);if(!s.queue.length)report(s,before);after(s);return true;
 }
@@ -324,11 +328,11 @@ function canPact(s,p,a){
   if(!p.alive)return false;if(a.if&&!a.if(s,p))return false;
   if(s.jail>0&&!['chat'].includes(a.id))return T('Not while in prison','身在牢中');
   const ok=a.ok?a.ok(s,p):true;if(ok!==true)return ok;
-  if((a.ap??1)>s.ap)return T('No energy left this year','今年的行动力已用完');
+  if((a.ap??1)>apAvail(s))return Array.isArray(s.apSeas)?T('No energy left this season','这一季的行动力已用完'):T('No energy left this year','今年的行动力已用完');
   return true;
 }
 function doPact(s,pid,id){const p=person(s,pid),a=PACT_BY[id];const ok=canPact(s,p,a);if(ok!==true)return ok;
-  s.ap-=(a.ap??1);say(s,`▸ ${a.n.en}: ${p.n.py}`,`▸ ${a.n.zh}：${p.n.cn}`,'act');const before=snap(s);a.run(s,p);report(s,before);after(s);return true}
+  apSpend(s,a.ap??1);say(s,`▸ ${a.n.en}: ${p.n.py}`,`▸ ${a.n.zh}：${p.n.cn}`,'act');const before=snap(s);a.run(s,p);report(s,before);after(s);return true}
 
 /* ---------- shop ---------- */
 function buy(s,id){const d=itemDef(id);if(!d)return false;const price=Math.round(d.price*(['house','biz'].includes(d.cat)?s.stock.mkt:1));

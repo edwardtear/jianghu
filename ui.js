@@ -26,7 +26,7 @@ const U={
   idle:'Free',jobAs:j=>j,sectAs:(s,r)=>`${s}, ${r}`,
   choose:'the road divides · choose',you:'Your power',foe:'Opponent',
   here:'here lies',years:'years',fameL:'fame',wealth:'silver',deeds:'deeds remembered',none:'No deeds were remembered. Most lives are like this, and they are still lives.',again:'Live another life',past:'Past lives',
-  apLeft:(a,m)=>`${a}/${m} energy left this year`,noAp:'Out of energy. Age up to continue.',
+  apLeft:(a,m)=>S&&typeof seasonOn==='function'&&seasonOn(S)?`${SEASON_N[S.season|0].en}: ${a}/${m} energy left`:`${a}/${m} energy left this year`,noAp:'Out of energy. Move on to continue.',
   watch:'Watch',fightsOn:'Auto-play fights',skip:'Skip to end',speed:'Speed',close:'Close',
   cats:{weapon:'Weapons',anqi:'Hidden weapons',armor:'Armour',charm:'Charms',tool:'Gear',mount:'Mounts',house:'Property',biz:'Businesses',pill:'Medicine',pet:'Pets',book:'Manuals',keep:'Keepsakes'},
   shop:'Market',inv:'Your belongings',buy:'Buy',sell:n=>`Sell · ${n}`,use:'Use',equipped:'in use',empty:'You own nothing yet.',networth:'Net worth',stockNote:'The market sells everyday goods. Rare weapons, armour, elixirs, manuals and pets never sit on a stall: they come through encounters, masters and secret sellers.',
@@ -47,7 +47,7 @@ const U={
   idle:'闲散',jobAs:j=>j,sectAs:(s,r)=>`${s}${r}`,
   choose:'岔路口 · 请抉择',you:'你的功力',foe:'对手',
   here:'此处长眠',years:'享年',fameL:'名望',wealth:'银两',deeds:'生平事迹',none:'一生无事可记。世上大多数人都是这样过的，那也是一生。',again:'再入轮回',past:'前世',
-  apLeft:(a,m)=>`今年行动力 ${a}/${m}`,noAp:'行动力用完了，过一年再说。',
+  apLeft:(a,m)=>S&&typeof seasonOn==='function'&&seasonOn(S)?`${SEASON_N[S.season|0].zh}季行动力 ${a}/${m}`:`今年行动力 ${a}/${m}`,noAp:'行动力用完了，往下过吧。',
   watch:'观战',fightsOn:'自动播放战斗',skip:'跳到结局',speed:'速度',close:'关闭',
   cats:{weapon:'兵器',anqi:'暗器',armor:'护甲',charm:'饰物',tool:'杂物',mount:'坐骑',house:'房产',biz:'产业',pill:'丹药',pet:'宠物',book:'秘籍',keep:'纪念'},
   shop:'集市',inv:'随身家当',buy:'买',sell:n=>`卖 · ${n}`,use:'服用',equipped:'在用',empty:'你还什么都没有。',networth:'身家',stockNote:'集市只卖寻常货物。神兵宝甲、灵丹秘籍、珍禽异兽从不摆在摊上，只能靠奇遇、师父和神秘卖家。',
@@ -148,6 +148,8 @@ function renderDock(){
   $('t-me').textContent=L.me;$('t-act').textContent=L.act;$('t-ppl').textContent=L.ppl;$('t-own').textContent=L.own;$('t-age').textContent=s.alive?(zh()?'':L.age):L.dead;
   $('d-ap').textContent=s.alive&&s.apMax?'●'.repeat(s.ap)+'○'.repeat(Math.max(0,s.apMax-s.ap)):'';
   $('d-age').disabled=!s.alive||s.queue.length>0;
+  const lb=$('d-age').querySelector('b');if(lb){const k=s.season|0,on=typeof seasonOn==='function'&&seasonOn(s)&&k<3;
+    lb.textContent=on?['','入夏','入秋','入冬'][k+1]:'过一年';if(s.alive&&!zh())$('t-age').textContent=on?['','To summer','To autumn','To winter'][k+1]:L.age}
 }
 function update(scroll){
   if(!S.alive&&!S.recorded){S.recorded=1;const t=titleOf(S);const h=store.get('jh4_hall',[]);h.unshift({name:S.name,cn:S.cn,title:T(t[1].en,t[0].zh),age:S.age,realm:rname(S)});store.set('jh4_hall',h.slice(0,10))}
@@ -172,7 +174,8 @@ const GUIDE={
    ['Smarts','Learning. Opens jobs, the imperial exam and better odds when studying manuals.'],
    ['Looks','How others see you. Helps with love, the matchmaker and some jobs.'],
    ['Silver','Money, in taels. Earned from jobs, businesses, fights and deeds; spent at the market, the doctor and the gambling den.'],
-   ['Energy (●)','How many things you can do this year. Usually eight for adults, three for children, six for teenagers, seven after 60 and five after 75. Being hurt, ill or miserable costs you some; high spirits or a lucky year add one. Activities cost 1–3, and seclusion takes the whole year.'],
+   ['Energy (●)','How many things you can do. Each year has a total (usually eight for adults, three for children, six for teenagers, seven after 60 and five after 75), shared out across spring, summer, autumn and winter: an adult gets two a season. Being hurt, ill or miserable costs you some; high spirits or a lucky year add one. Unused energy does not carry into the next season. An activity that costs more than you have left borrows from next season. Seclusion takes the whole year and must start in spring.'],
+   ['The four seasons','From the age of six, each year passes in four seasons. Spring opens the year with its accounts and happenings; summer, autumn and winter can each bring something of their own, and each season has one thing to do that only it offers (under “This season” in Activities). Press the big button to move to the next season; after winter comes the new year.'],
    ['Healing','Every year you recover 8 + your Bones by yourself. Rest (free, one energy) heals 10 + Bones. A doctor (20 taels) heals 25 and may cure illness; a famous physician (300 taels) heals 80 and cures it. Wound salve and other medicine can be used from Assets. Hot springs and the "Enjoy life" focus help too.'],
    ['Opportunities','Each year a few chances are going around the jianghu: a sword tomb, a secret auction, a ship to a strange island. You hear about them while roaming and decide whether to go; tips picked up in teahouses come back to you on the road.']]],
   tal:['Talents (born with, 1–10)',[
@@ -212,7 +215,8 @@ const GUIDE={
    ['学识','读书识字的程度。决定能做哪些差事、能否科举，以及研读秘籍的成功率。'],
    ['容貌','旁人眼中的你。影响恋爱、说亲和某些差事。'],
    ['银两','钱财，以两计。靠差事、产业、比武和际遇挣来；花在集市、医馆和赌坊。'],
-   ['行动力（●）','今年还能做几件事。成年人通常八点，孩童三点，少年六点，六十岁后七点，七十五岁后五点。受伤、生病、心情差会减少；意气风发或运气好的年份多一点。各项活动耗一到三点，闭关耗尽全年。'],
+   ['行动力（●）','还能做几件事。每年有一个总数（成年人通常八点，孩童三点，少年六点，六十岁后七点，七十五岁后五点），分到春夏秋冬四季：成年人每季两点。受伤、生病、心情差会减少；意气风发或运气好的年份多一点。没用完的行动力不会留到下一季。所需点数超过本季剩余时，会预支下一季的。闭关耗尽全年，须在开春时开始。'],
+   ['四季','六岁起，每年分春夏秋冬四季来过。开春结算这一年的收支和大事；夏、秋、冬各季也会有自己的事情发生，每季还有一件只在这一季能做的事（在「活动」的「时令」里）。按下大按钮进入下一季，冬天过完就是新的一年。'],
    ['疗伤','每年自然恢复8＋根骨。休养（不花钱，耗一点行动力）恢复10＋根骨。看大夫（二十两）恢复25，或能治病；求访神医（三百两）恢复80并治好病。金疮药等丹药可在家当里服用。泡温泉、"逍遥"重心也有帮助。'],
    ['机缘','每年总有两三件机会在江湖上流传：剑冢、秘密拍卖、远航海岛……闯荡江湖时会听人说起，由你决定去不去；在茶馆里打听到的消息也会在路上应验。']]],
   tal:['天赋（生来注定，1–10）',[
@@ -459,7 +463,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(e.target.id==='ar-txt'){SHEET.text=e.target.value}});
 $('veil').addEventListener('click',e=>{if(e.target.id==='veil')closeSheet()});
-$('d-age').onclick=()=>{if(!S.alive||S.queue.length)return;ageUp(S);update(true)};
+$('d-age').onclick=()=>{if(!S.alive||S.queue.length)return;nextSeason(S);update(true)};
 $('d-me').onclick=()=>openSheet('status');$('d-act').onclick=()=>openSheet('act');$('d-ppl').onclick=()=>openSheet('ppl');$('d-own').onclick=()=>openSheet('own');
 
 $('b-new').onclick=()=>{const b=$('b-new');if(!S.alive||b.dataset.sure){delete b.dataset.sure;reborn();return}b.dataset.sure=1;b.textContent=u().sure;setTimeout(()=>{delete b.dataset.sure;b.textContent=u().nw},3000)};
@@ -500,12 +504,12 @@ function start(data){
 /* ===================== 1in8B layer: birth draw, flowing time, focus, life record ===================== */
 const U2={
  en:{draw:'Heaven draws your lot…',bornIn:'Born in',births:n=>`1 in ${n} births`,famOdds:n=>`1 in ${n} families`,talents:'Talents',overall:n=>`Altogether: one in ${n}.`,
-  paceQ:'How should time pass?',pace:{manual:['Turn by turn','You press “next year” yourself.'],30:['A 30-minute life','Years flow on their own, about 26 seconds each.'],60:['A 60-minute life','About 51 seconds a year.'],90:['A 90-minute life','About 77 seconds a year. Slow and thoughtful.']},
+  paceQ:'How should time pass?',pace:{manual:['Turn by turn','You move on yourself, season by season.'],30:['A 30-minute life','Years flow on their own, about 26 seconds each.'],60:['A 60-minute life','About 51 seconds a year.'],90:['A 90-minute life','About 77 seconds a year. Slow and thoughtful.']},
   focus:"this year's focus",noFocus:'No particular focus',play:'Resume',pause:'Pause',auto:'Auto',autoTip:'Let fate decide every choice',fate:'Let fate decide',
   rec:'Life record',curve:'The curve of a life',surv:'Those born the same year',survLine:p=>`You outlived ${p}% of the children born the same year as you.`,trail:'Footsteps',table:'Show the numbers',share:'Copy life summary',copied:'Copied. Paste it anywhere.',
   ser:{h:'Health %',j:'Happiness',p:'Martial power',m:'Silver (taels)'},alive:'still alive',ageL:'age',yearOf:'year'},
  zh:{draw:'天意抽签……',bornIn:'生于',births:n=>`每 ${n} 个婴儿中的一个`,famOdds:n=>`每 ${n} 户人家中的一户`,talents:'天赋',overall:n=>`合起来，是 ${n} 分之一。`,
-  paceQ:'光阴怎么过？',pace:{manual:['逐年推进','由你亲手按下"过一年"。'],30:['三十分钟一生','岁月自己流淌，约二十六秒一年。'],60:['六十分钟一生','约五十一秒一年。'],90:['九十分钟一生','约七十七秒一年，慢慢体会。']},
+  paceQ:'光阴怎么过？',pace:{manual:['逐季推进','由你亲手一季一季往下过。'],30:['三十分钟一生','岁月自己流淌，约二十六秒一年。'],60:['六十分钟一生','约五十一秒一年。'],90:['九十分钟一生','约七十七秒一年，慢慢体会。']},
   focus:'本年重心',noFocus:'随遇而安',play:'继续',pause:'暂停',auto:'自动',autoTip:'所有抉择都交给天意',fate:'听天由命',
   rec:'人生记录',curve:'人生曲线',surv:'同年出生的人',survLine:p=>`你活过了同年出生者中的 ${p}%。`,trail:'足迹',table:'查看数据',share:'复制人生小结',copied:'已复制，可以粘贴分享了。',
   ser:{h:'气血 %',j:'心情',p:'功力',m:'银两'},alive:'仍在世',ageL:'岁',yearOf:'年'}
@@ -514,6 +518,8 @@ const u2=()=>U2[LANG];
 let AUTO=store.get('jh4_auto',false);
 const CLOCK={on:true,acc:0,speed:store.get('jh4_tspeed',1),last:0,fate:0};
 const yearMs=()=>S&&typeof S.pace==='number'?S.pace*60000/70:0;
+/* a timed life moves one season at a time from the age of six, so a year still takes the same time */
+const stepMs=()=>yearMs()/(typeof seasonOn==='function'&&seasonOn(S)?4:1);
 
 /* birth draw */
 function birthHTML(){
@@ -536,7 +542,7 @@ function beginLife(pace){S.pace=pace==='manual'?'manual':+pace;CLOCK.acc=0;CLOCK
 function clockBlocked(){return!S||!S.alive||S.age<0||!!SHEET||!!BT||S.queue.length>0}
 function renderClock(){
   const tb=$('timebar');if(!tb)return;const timed=!!yearMs()&&S&&S.alive&&S.age>=0;tb.hidden=!timed;if(!timed)return;
-  $('tb-fill').style.width=clamp(CLOCK.acc/yearMs()*100,0,100)+'%';
+  $('tb-fill').style.width=clamp(CLOCK.acc/stepMs()*100,0,100)+'%';
   $('tb-play').textContent=CLOCK.on?'⏸ '+u2().pause:'▶ '+u2().play;$('tb-speed').textContent='×'+CLOCK.speed;
   $('tb-auto').textContent=u2().auto;$('tb-auto').classList.toggle('on',AUTO);$('tb-auto').setAttribute('aria-pressed',AUTO);$('tb-auto').title=u2().autoTip;
 }
@@ -545,7 +551,7 @@ setInterval(()=>{
   const now=performance.now(),dt=Math.min(500,now-(CLOCK.last||now));CLOCK.last=now;
   if(!S||!yearMs()){renderClock();return}
   if(AUTO&&CLOCK.on&&S.alive&&S.queue.length&&!SHEET&&!BT){CLOCK.fate+=dt;if(CLOCK.fate>1400){CLOCK.fate=0;letFate()}}
-  if(CLOCK.on&&!clockBlocked()){CLOCK.acc+=dt*CLOCK.speed;if(CLOCK.acc>=yearMs()){CLOCK.acc=0;ageUp(S);update(true)}}
+  if(CLOCK.on&&!clockBlocked()){CLOCK.acc+=dt*CLOCK.speed;if(CLOCK.acc>=stepMs()){CLOCK.acc=0;nextSeason(S);update(true)}}
   renderClock();
 },100);
 

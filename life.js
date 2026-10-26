@@ -346,7 +346,7 @@ function ageUp(s){
   const forced=INC.filter(i=>i.force&&(s.seen[i.id]==null||i.repeat)&&(!i.age||(s.age>=i.age[0]&&s.age<=i.age[1]))&&(!i.when||i.when(s)));
   forced.forEach(i=>runIncident(s,i));
   if(!forced.length||chance(.3)){
-    const n=s.age<5?(chance(.8)?1:0):1+(chance(.35)?1:0);
+    const n=s.age<5?(chance(.8)?1:0):1+(chance(s.age>=6?0:.35)?1:0);/* from six, the second happening of the year comes in a later season (seasons.js) */
     for(let k=0;k<n&&s.health>0;k++){const inc=pickIncident(s);if(inc)runIncident(s,inc);else if(k===0)quietYear(s)}
   }
   if(s.focus==='roam'&&s.age>=13&&s.jail<=0&&chance(.55)){const i=pickIncident(s,'wander');if(i)runIncident(s,i)}
