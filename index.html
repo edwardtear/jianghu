@@ -174,6 +174,16 @@ body.zh .yl p{max-width:42em}
 @media (max-width:520px){.yr{grid-template-columns:minmax(0,1fr);gap:2px}.yh{display:flex;gap:10px;align-items:baseline}.yh small{margin:0}}
 .choices{display:grid;gap:8px;margin:6px 0 10px;padding:14px;border:1.5px solid var(--seal);border-radius:6px;background:var(--paper-2)}
 .choices .lbl{color:var(--seal)}
+.choices.card{gap:8px}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qtag{color:var(--seal);border:1px solid var(--seal);border-radius:999px;padding:1px 10px;font-size:13px;letter-spacing:.06em}
+.k-season .qtag{color:var(--jade);border-color:var(--jade)}.k-ppl .qtag,.k-home .qtag{color:var(--gold);border-color:var(--gold)}.k-road .qtag,.k-town .qtag,.k-inc .qtag,.k-dec .qtag,.k-act .qtag{color:var(--ink-2);border-color:var(--ink-2)}
+.qwhen{color:var(--ink-2);font-size:13px;white-space:nowrap}
+.qpic{border-radius:6px;overflow:hidden;line-height:0;border:1px solid var(--line);margin:0 0 4px}.qpic svg{width:100%;height:auto;aspect-ratio:12/5;display:block}
+.choices.card .choice:not(.cfm):not(.cont)>b::before{content:'';display:inline-block;width:11px;height:11px;border:1.5px solid var(--ink-2);border-radius:50%;margin-right:9px;vertical-align:-1px}
+.choices.card .choice.sel{border-color:var(--seal);box-shadow:inset 3px 0 0 var(--seal)}
+.choices.card .choice.sel>b::before{background:var(--seal);border-color:var(--seal);box-shadow:inset 0 0 0 2px var(--paper)}
+.choices.card .choice.cfm{background:var(--ink);color:var(--paper);border-color:var(--ink);text-align:center}
 .qtext{margin:0 0 4px;font-weight:500;max-width:68ch}
 .choice{display:block;width:100%;text-align:left;cursor:pointer;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:9px 12px}
 .choice:hover{border-color:var(--ink)}
@@ -541,4 +551,5 @@ table.ladder tr.me td{color:var(--seal);font-weight:600}
 <script src="endview.js?v=754760d0"></script>
 <script src="artsui.js?v=29a5c0c5"></script>
 <script src="seasonsui.js?v=1575f6ea"></script>
-<script>window.JH_VER="2026.10.26 22:31";(()=>{const g=guideHTML;guideHTML=function(){return g.apply(this,arguments)+`<p class="muted" style="margin-top:18px;font-size:12px;text-align:center">${zh()?"版本":"Version"} ${window.JH_VER}</p>`}})();</script>
+<script src="cards.js?v=db2366a4"></script>
+<script>window.JH_VER="2026.10.26 22:36";(()=>{const g=guideHTML;guideHTML=function(){return g.apply(this,arguments)+`<p class="muted" style="margin-top:18px;font-size:12px;text-align:center">${zh()?"版本":"Version"} ${window.JH_VER}</p>`}})();</script>
