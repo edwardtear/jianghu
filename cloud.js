@@ -56,8 +56,11 @@ async function cloudPull(){const u=CLOUD.user;if(!u)return;CLOUD.ready=false;let
     let rs=null;try{rs=x&&x.save?JSON.parse(x.save):null}catch(e){rs=null}if(!okSave(rs))rs=null;
     const loc=localSave(i);
     if(foreign){if(rs){if(loc&&lifeId(loc)!==lifeId(rs)&&loc.age>=1)setAside(loc);if(takeRemote(i,x))reload=true}else if(loc){setAside(loc);if(SL&&i!==SLOT)localStorage.removeItem(slotKey(i));else fresh=true}continue}
-    if(mine){/* this device was already synced with this account: the newer side wins, as before */
-      if(rs&&(x.updated||0)>localStamp(i)){if(takeRemote(i,x))reload=true}else if(loc)push.push(i);continue}
+    if(mine){/* this device was already synced with this account: the newer side wins. A slot with no life in it here
+        (empty, or a birth screen never finished) always takes the cloud's life, however recently it was touched; and
+        when the two sides hold different lives, the one that loses is set aside, never thrown away. */
+      if(rs&&(!loc||(x.updated||0)>localStamp(i))){if(loc&&lifeId(loc)!==lifeId(rs)&&loc.age>=1)setAside(loc);if(takeRemote(i,x))reload=true}
+      else if(loc){if(rs&&lifeId(loc)!==lifeId(rs)&&rs.age>=1)setAside(rs);push.push(i)}continue}
     /* progress made on this device while signed out */
     if(rs){if(loc&&lifeId(loc)===lifeId(rs)&&localStamp(i)>(x.updated||0)){push.push(i);continue}
       if(loc&&lifeId(loc)!==lifeId(rs)&&loc.age>=1)guests.push(loc);
@@ -85,7 +88,13 @@ function cloudPush(now,slot,sharedOnly){if(!CLOUD.user||!CLOUD.db||!CLOUD.ready)
     w.then(()=>{CLOUD.status='saved'}).catch(()=>{if(i)CLOUD.slotErr=1;else CLOUD.status='err'})};
   if(now)go();else{clearTimeout(CLOUD.timer);CLOUD.timer=setTimeout(go,4000)}}
 function cloudClearSlot(i){if(CLOUD.user&&CLOUD.db)cloudPush(true,i)}
-(()=>{const u0=update;update=function(){const r=u0.apply(this,arguments);try{localStorage.setItem(SL?slotStampKey():'jh4_upd',String(Date.now()))}catch(e){}cloudPush(false);return r}})();
+(()=>{const u0=update;update=function(){const r=u0.apply(this,arguments);if(S&&S.age>=0){try{localStorage.setItem(SL?slotStampKey():'jh4_upd',String(Date.now()))}catch(e){}cloudPush(false)}return r}})();
+/* coming back to the game (another tab, another app, waking the phone) checks the cloud again, so a life played on
+   another device shows up here without reloading the page */
+let CLOUD_LASTPULL=0;
+(()=>{const p0=cloudPull;cloudPull=async function(){CLOUD_LASTPULL=Date.now();return p0.apply(this,arguments)}})();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||!CLOUD.user||!CLOUD.ready||Date.now()-CLOUD_LASTPULL<60000)return;
+  if(S&&S.queue&&S.queue.length)return;clearTimeout(CLOUD.timer);cloudPull()});
 
 /* ---------- the account sheet ---------- */
 function acctHTML(){const Z=cz(),u=CLOUD.user;
