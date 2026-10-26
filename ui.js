@@ -15,7 +15,7 @@ const SLOT_N=3;let SLOT=(()=>{try{const v=+localStorage.getItem('jh4_slot');retu
 const slotKey=i=>{i=i??SLOT;return i?'jh4_save'+i:'jh4_save'};
 const slotStampKey=i=>{i=i??SLOT;return i?'jh4_upd'+i:'jh4_upd'};
 const U={
- en:{tag:'one life in the jianghu',intro:'Heaven picks where you are born. Train, fight, love, gamble and scheme one year at a time; the chronicle records what became of you.',
+ en:{tag:'one life in the jianghu',intro:'Heaven picks where you are born. Train, fight, love, gamble and scheme, season by season; the chronicle records what became of you.',
   me:'Status',act:'Activities',ppl:'People',own:'Assets',age:'Next year',arena:'Name Arena',nw:'New life',sure:'Start over?',
   odds:n=>`Of every <b>${n}</b> children born under heaven that year, one began life exactly as you did.`,dead:'deceased',
   health:'Health',joy:'Happiness',smarts:'Smarts',looks:'Looks',power:'Martial power',silver:'Silver',taels:'taels',
@@ -36,7 +36,7 @@ const U={
   arenaTitle:'Name Arena 名字论剑',arenaHelp:'Type names, one per line. Every name gets its own fixed body and techniques. Separate teams with a blank line; with no blank lines it is every fighter for themselves.',
   fight:'Fight!',addMe:'Add me',rand:'Random names',preview:'Fighters',stakes:{spar:'friendly bout',light:'not lethal',injury:'dangerous',death:'to the death'},
   confirmDeath:'Close'},
- zh:{tag:'人生只有一回',intro:'生在何处，由天不由你。练功、比武、恋爱、赌钱、闯荡，一年一年地活，史书会记下你的一生。',
+ zh:{tag:'人生只有一回',intro:'生在何处，由天不由你。练功、比武、恋爱、赌钱、闯荡，春夏秋冬一季季地活，史书会记下你的一生。',
   me:'状态',act:'活动',ppl:'人脉',own:'家当',age:'过一年',arena:'名字论剑',nw:'重新投胎',sure:'确定重来？',
   odds:n=>`普天之下，那一年每 <b>${n}</b> 个新生儿中，只有一个与你同样开局。`,dead:'已辞世',
   health:'气血',joy:'心情',smarts:'学识',looks:'容貌',power:'功力',silver:'银两',taels:'两',
