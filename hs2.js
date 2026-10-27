@@ -1,0 +1,67 @@
+/* 江湖一生 · 相处 scenes: your spouse and your lover */
+'use strict';
+const SPO='spouse',LOV='lover';
+/* spouse, through the seasons */
+hs(SPO,SP,'You and {n} walk the river bank in the spring rain under one umbrella, which is too small, on purpose.','春雨里，你和{n}共撑一把伞沿河走。伞太小，是故意的。',null,{b:[5,9],happy:4});
+hs(SPO,SP,'{n} wants to plant a tree in the yard, one that will outlive you both. You argue about which kind for an hour.','{n}想在院里种棵树，要比你们俩都活得久。种什么树，你们争了一个时辰。',null,{happy:3});
+hs(SPO,SP,'Spring cleaning. {n} finds the letters you wrote {him} years ago and reads them aloud, mercilessly.','开春大扫除，{n}翻出你当年写给{ta}的信，一封封大声念了出来，毫不留情。',null,{happy:4});
+hs(SPO,SU,'A hot night. You and {n} drag the bed out into the yard and sleep under the stars like bandits.','热得睡不着。你和{n}把床拖到院里，像山贼一样睡在星空底下。',null,{b:[5,9],happy:4});
+hs(SPO,SU,'{n} teaches you to swim properly at last. You have been pretending for years.','{n}终于把你教会了游水。你装会了好些年。',['A great hero, sinking like a stone.','堂堂大侠，沉得跟块石头似的。'],{happy:3});
+hs(SPO,SU,'Lotus season. {n} rows you out among the leaves and refuses to row back until you sing.','荷花开了。{n}划船载你进了荷叶深处，非要你唱支歌才肯往回划。',null,{happy:4});
+hs(SPO,AU,'You and {n} make osmanthus wine together and bury it under the tree for some future year.','你和{n}一起酿了桂花酒，埋在树下，留给将来的哪一年。',null,{b:[5,9]});
+hs(SPO,AU,'Mid-Autumn. You and {n} sit on the roof with mooncakes and do not talk about the people who are missing.','中秋，你和{n}坐在屋顶上吃月饼，谁都没提不在的人。',null,{b:[5,9]});
+hs(SPO,AU,'{n} cuts your hair in the yard and leaves it uneven on one side. On purpose, {he} claims.','{n}在院里给你剪头发，一边剪短了。{ta}说是故意的。',null,{happy:3});
+hs(SPO,WI,'The first snow. {n} throws a snowball at you and you retaliate with qinggong. It is not a fair fight.','头场雪。{n}朝你扔了个雪球，你使出轻功还击。这仗打得不公平。',null,{happy:5});
+hs(SPO,WI,'You and {n} stay up on New Year’s Eve, keeping the lamp lit, talking about the year that is ending.','除夕守岁。你和{n}守着灯，说着这一年的事。',null,{b:[5,10],happy:3});
+hs(SPO,WI,'{n} warms {his} cold feet on you without asking. This has been going on for years.','{n}不打招呼就把冰凉的脚贴到你身上。这事已经好些年了。',null,{happy:3});
+/* spouse, and how your life stands */
+hs(SPO,HURT,'{n} changes your bandages and says nothing at all. That is how you know how angry {he} is.','{n}给你换药，一句话都不说。你就知道{ta}有多生气了。',['Next time, come home first. Then go and die.','下回先回家，再去拼命。'],{heal:[6,12],b:[4,8]});
+hs(SPO,HURT,'{n} sits up all night watching you breathe. In the morning {he} pretends {he} slept.','{n}守了你一夜，盯着你喘气。天亮了，{ta}装作睡过。',null,{heal:[3,6],b:[6,10]});
+hs(SPO,WNT,'{n} has learned to tell the constables’ footsteps from the neighbours’. {He} tells you this calmly, which frightens you.','{n}已经能从脚步声里分出是捕快还是邻居了。{ta}平静地告诉你，你反倒害怕了。',null,{b:[3,7],happy:-2});
+hs(SPO,WNT,'{n} wants to talk about leaving: another province, other names, a small house somewhere.','{n}想跟你商量走：换个省，换个名字，找个小地方住下来。',['I married you, not the name.','我嫁的是你，又不是你那个名字。'],{b:[5,9]});
+hs(SPO,FAM,'Someone recognises you in the street and asks for your autograph. {n} asks for one too, to be insufferable.','街上有人认出你，要你题字留念。{n}也凑上来要一张，就为了气你。',null,{happy:4});
+hs(SPO,FAM,'{n} is tired of sharing you with the jianghu. {He} says so, and then forgives you, in that order.','{n}受够了跟整个江湖分你。{ta}先说了出来，然后原谅了你，顺序就是这样。',null,{b:[3,8]});
+hs(SPO,ALI,'{n} calls you “{a}” in a deep, dramatic voice whenever you leave your boots in the doorway.','你一把靴子扔在门口，{n}就粗着嗓子拖长了调喊你「{a}」。',null,{happy:4});
+hs(SPO,RICH,'You buy {n} a jade hairpin. {He} says it is too much and wears it every day.','你给{n}买了支玉簪。{ta}说太破费了，后来天天都戴着。',null,{money:-40,b:[6,10]});
+hs(SPO,RICH,'{n} has been quietly managing your silver for years and has doubled it. You find out by accident.','{n}这些年一直在悄悄替你打理银子，已经翻了一番。你是偶然才知道的。',null,{money:[50,150],happy:3});
+hs(SPO,POOR,'There is no money, so you and {n} spend the day doing things that cost nothing. It is the best day in months.','手头没钱，你和{n}就挑不花钱的事做了一整天。这是几个月来最好的一天。',null,{b:[5,9],happy:5});
+hs(SPO,POOR,'{n} sells something of {his} own to cover the rent and tells you only afterwards.','{n}把自己的东西卖了，凑上了房租，事后才告诉你。',null,{money:[20,50],b:[4,8],happy:-1});
+hs(SPO,OFF,'{n} reads your case files in the evening and spots the lie in a witness’s statement that you missed.','{n}晚上翻你的案卷，挑出了证词里你漏掉的一处破绽。',null,{smarts:1,happy:2});
+hs(SPO,ORG,'{n} runs the kitchen of your house like a general and your people adore {him} more than you.','{n}把你门户的伙房管得井井有条，大家喜欢{ta}比喜欢你还多。',null,{happy:3});
+hs(SPO,KIDS,'The children are asleep at last. You and {n} sit in the quiet and feel like conspirators.','孩子们总算睡了。你和{n}坐在一片安静里，像两个同谋。',null,{b:[5,9],happy:4});
+hs(SPO,KIDS,'You and {n} argue about how to raise the children. You are both right, which makes it worse.','你和{n}为怎么带孩子争了起来。两人都有理，所以更难办。',null,{b:[1,4]});
+hs(SPO,OLDME,'You and {n} count each other’s grey hairs and lose count.','你和{n}数对方的白头发，数着数着就数不清了。',null,{b:[6,10],happy:3});
+hs(SPO,OLDME,'{n} wants to know where you will both be buried. Together, you say. {He} says that was the right answer.','{n}问你们将来葬在哪儿。你说，葬在一起。{ta}说，这就对了。',null,{b:[6,10]});
+hs(SPO,EVIL,'{n} washes the blood out of your clothes and does not ask whose it is. Not this time.','{n}把你衣服上的血洗干净了，没问是谁的。这一回没问。',null,{b:[0,4],happy:-2});
+hs(SPO,GOOD,'{n} is proud of you and too stubborn to say it, so {he} cooks your favourite meal three days running.','{n}心里为你骄傲，嘴上偏不说，就连着三天做你最爱吃的菜。',null,{happy:4});
+hs(SPO,STRONG,'{n} asks you to teach {him} to defend {himself}. {He} learns fast and practises on you.','{n}要你教{ta}几招防身。{ta}学得很快，专拿你练手。',null,{happy:3});
+/* spouse, ordinary days */
+hs(SPO,null,'You and {n} go to the market and argue over the price of a fish like an old couple, which you are.','你和{n}上集，为一条鱼的价钱跟人磨了半天，活像一对老夫妻。本来也是。',null,{happy:3});
+hs(SPO,null,'{n} reads aloud to you from a romance novel and does all the voices.','{n}给你念话本，每个角色都换着嗓子念。',null,{happy:4});
+hs(SPO,null,'You fix the creaking door {n} has been asking about for a year. {He} misses the creak.','你把{n}念叨了一年的那扇吱呀响的门修好了。{ta}倒怀念起那声响来。',null,{happy:2});
+hs(SPO,null,'{n} has a bad day and you let {him} talk until it is out of {him}.','{n}今天过得不顺。你由着{ta}说，说到心里的气都出完。',null,{b:[5,9]});
+hs(SPO,null,'You and {n} play weiqi. {He} wins, and keeps the board set up so you can study your mistakes.','你和{n}下围棋。{ta}赢了，还把棋盘留着，好让你琢磨自己哪步错了。',null,{smarts:1});
+hs(SPO,null,'{n} catches you staring and asks what you are thinking. You tell the truth for once.','{n}发现你在出神，问你想什么。你难得说了实话。',null,{b:[5,10]});
+hs(SPO,null,'The two of you have a pointless argument about whether it will rain. It rains. {n} is unbearable.','你们为会不会下雨争了半天。后来下了。{n}得意得没法看。',null,{happy:3});
+hs(SPO,CLOSE,'Late at night {n} says that marrying you was the bravest thing {he} ever did. You are not sure it was a compliment.','夜深了，{n}说嫁给你是{ta}这辈子做过最大胆的事。你没听明白这是不是在夸你。',null,{b:[6,10],happy:3});
+hs(SPO,COOL,'{n} has been distant for weeks. Today you finally ask why, and the answer is not about you, and it is.','{n}这几个星期都很冷淡。今天你终于问了为什么。答案跟你无关，又跟你有关。',null,{b:[5,10]});
+hs(SPO,COOL,'You eat together in silence. Halfway through, {n} reaches over and takes the fish bones out of your bowl, like always.','你们闷声吃饭。吃到一半，{n}照旧伸手把你碗里的鱼刺挑了出去。',null,{b:[5,9]});
+/* lover */
+hs(LOV,SP,'You meet {n} at the temple fair and pretend it is a coincidence, in front of three aunties who know it is not.','你在庙会上“碰巧”遇见了{n}，当着三位心知肚明的大娘的面。',null,{happy:4});
+hs(LOV,SP,'{n} pins a peach blossom in your hair and dares you to take it out.','{n}往你头上插了一朵桃花，看你敢不敢摘下来。',null,{happy:4});
+hs(LOV,SU,'You and {n} swim in the river at night and lose track of time and of your clothes.','你和{n}夜里到河里游水，忘了时辰，也忘了衣裳放在哪儿。',null,{happy:5});
+hs(LOV,SU,'{n} catches fireflies in a paper lantern and gives it to you, embarrassed by {his} own idea.','{n}拿纸灯笼装了一灯萤火虫送给你，自己倒先不好意思了。',null,{b:[6,10],happy:4});
+hs(LOV,AU,'You and {n} watch the geese leave from the hill and promise not to be like them.','你和{n}在山上看大雁南飞，说好了不学它们。',null,{b:[5,9]});
+hs(LOV,AU,'{n} carves both your names into a tree, then worries someone will read them.','{n}把你们俩的名字刻在树上，刻完又怕被人看见。',null,{happy:4});
+hs(LOV,WI,'You sneak into {n}’s house through the window in the snow. {His} dog knows you by now.','雪夜里，你翻窗进了{n}家。{ta}家的狗都认得你了。',null,{happy:4});
+hs(LOV,WI,'{n} knits you a scarf that is lopsided. You wear it into a fight, and win.','{n}给你织了条围巾，一头宽一头窄。你戴着它去打了一架，还赢了。',null,{b:[6,9]});
+hs(LOV,null,'{n} asks what you are to each other. You do not have a good answer yet.','{n}问你们俩到底算什么。你还没想好怎么回答。',['Think about it. Not too long.','你想想。别想太久。'],{b:[2,6]});
+hs(LOV,null,'You and {n} share a bowl of noodles at a stall and argue about who loves whom more, quietly, so the cook will not hear.','你和{n}在面摊合吃一碗面，小声争着谁更喜欢谁，生怕被厨子听见。',null,{happy:4});
+hs(LOV,null,'{n} wants to know about the dangerous things you do. You tell {him} half and {he} knows it is half.','{n}想知道你在外头做的那些险事。你只说了一半，{ta}也知道你只说了一半。',null,{b:[2,6]});
+hs(LOV,null,'You teach {n} a single move of your art. {He} practises it everywhere, including on you.','你教了{n}一招。{ta}走到哪儿练到哪儿，包括拿你练。',null,{happy:3});
+hs(LOV,FAM,'{n} hears a ballad about you in the market and buys the songbook, and makes you sing it to {him}.','{n}在集上听到一首唱你的小曲，买了曲本回来，非要你唱给{ta}听。',null,{happy:4});
+hs(LOV,WNT,'You meet {n} in secret because you are wanted. {He} says it is the most romantic thing that has ever happened to {him}, and the most stupid.','你被通缉，只能偷偷跟{n}见面。{ta}说这是{ta}遇过最浪漫的事，也是最蠢的。',null,{happy:3});
+hs(LOV,HURT,'{n} finds out you were hurt from someone else, and is angrier about that than about the wound.','{n}是从别人嘴里知道你受了伤的。比起伤，{ta}更气这个。',null,{heal:[3,6],b:[2,6]});
+hs(LOV,RICH,'You take {n} to the best restaurant in the city. {He} enjoys it, then insists on noodles at the stall afterwards.','你带{n}去城里最好的酒楼。{ta}吃得高兴，出来还非要去面摊再吃一碗。',null,{money:-30,happy:4});
+hs(LOV,MAR,'{n} asks, again, whether you will ever leave your spouse. You have no answer you are proud of.','{n}又问你，会不会离开家里那位。你给不出一个自己说得出口的回答。',null,{b:[0,4],happy:-3});
+hs(LOV,CLOSE,'{n} falls asleep on your shoulder by the river. You do not move until your arm is dead.','{n}在河边靠着你的肩睡着了。你一动不动，直到胳膊都麻了。',null,{b:[6,10],happy:4});
