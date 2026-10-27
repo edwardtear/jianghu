@@ -1,5 +1,5 @@
-/* 江湖一生 · 相处 costs no energy and comes in two kinds: sit and talk (you pick the topic) or spend the day together
-   (the day picks the scene). Either one, once per person per season. Conversations open, are offered and close in many
+/* 江湖一生 · 相处 costs no energy and can be done once per person per season. The day decides what it becomes, and a
+   sit-down talk (where you pick the topic) is one of the things it can turn into. Conversations open, are offered and close in many
    different words, so no two chats read the same. */
 'use strict';
 const SEASON_LBL=[T('spring','春'),T('summer','夏'),T('autumn','秋'),T('winter','冬')];
@@ -7,9 +7,8 @@ const hangDone=(s,p)=>p.hangT===tIdx(s);
 const HANG_DONE=T('Already spent time together this season','这一季已经陪过了');
 (()=>{const h=PACT_BY.hang;if(!h)return;h.ap=0;const ok0=h.ok;h.ok=(s,p)=>hangDone(s,p)?HANG_DONE:ok0?ok0(s,p):true;
   const c=PACT_BY.chat;if(!c)return;c.ap=0;c.ok=(s,p)=>hangDone(s,p)?HANG_DONE:true;const r0=c.run;c.run=function(s,p){p.hangT=tIdx(s);return r0.apply(this,arguments)};
-  /* talking is chosen on purpose now, not drawn as one of the day's scenes */
-  const t=HANG.find(x=>x.id==='talk');if(t)t.w=()=>0})();
-PACT_MINOR.delete('chat');
+  /* one button: a sit-down talk is one of the things a day together can turn into */
+  c.if=()=>false;const t=HANG.find(x=>x.id==='talk');if(t)t.w=(s,p)=>p.age>=3&&s.age>=3?3:0})();
 /* ---------- how a conversation opens ---------- */
 const TK_OPEN=[
  [s=>true,(n,se)=>T(`You sit down with ${n.en}. What do you talk about?`,`你和${n.zh}坐下来说话。聊点什么？`)],

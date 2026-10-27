@@ -6,10 +6,8 @@
   const inner=h.slice(i+mk.length,j),btns=inner.match(/<button[\s\S]*?<\/button>/g)||[];
   const idOf=b=>(b.match(/data-pa="([^"]+)"/)||[])[1];const main=btns.filter(b=>!PACT_MINOR.has(idOf(b))),minor=btns.filter(b=>PACT_MINOR.has(idOf(b)));
   const sub=(b,zhL,enL,zhS,enS)=>b.replace('class="rowb"','class="rowb hangbtn"').replace(/<b>([^<]*)<\/b>/,()=>`<b>${zh()?zhL:enL}</b><span class="muted" style="font-size:12.5px;display:block">${zh()?zhS:enS}</span>`);
-  const talkB=main.filter(b=>idOf(b)==='chat').map(b=>sub(b,'坐下来聊聊','Sit and talk','聊什么你来定','You choose what to talk about'));
-  const dayB=main.filter(b=>idOf(b)==='hang').map(b=>sub(b,'一起过一天','Spend the day together','发生什么由不得你','See what the day brings'));
-  const hang=talkB.length||dayB.length?[`<div class="hangpair"><span class="hp-h">${zh()?'相处 · 不耗行动力，每季一次':'Time together · free, once a season'}</span>${talkB.join('')}${dayB.join('')}</div>`]:[];
-  const rest=main.filter(b=>!['hang','chat'].includes(idOf(b)));
+  const hang=main.filter(b=>idOf(b)==='hang').map(b=>sub(b,'相处','Spend time together','聊聊天，或一起过一天，由不得你 · 不耗行动力，每季一次','A talk, or a day together: you will see · free, once a season'));
+  const rest=main.filter(b=>idOf(b)!=='hang');
   const more=minor.length?`<details class="moreacts"${SHEET&&SHEET.moreOpen?' open':''}><summary>${zh()?`更多（${cnNum(minor.length)}）`:`More (${minor.length})`}</summary><div class="rows">${minor.join('')}</div></details>`:'';
   return h.slice(0,i)+mk+hang.join('')+rest.join('')+'</div>'+more+h.slice(j+6)}})();
 document.addEventListener('toggle',e=>{if(e.target&&e.target.classList&&e.target.classList.contains('moreacts')&&SHEET)SHEET.moreOpen=e.target.open},true);
