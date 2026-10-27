@@ -70,6 +70,10 @@ function statusText(s){
   const parts=[];if(s.job){const J=JOBS[s.job];parts.push(tr(J.n[s.jobLv])+(zh()?`（年俸${J.pay[s.jobLv]}两）`:` (${J.pay[s.jobLv]} taels/yr)`))}
   if(s.retired)parts.push(zh()?'已金盆洗手':'Retired');
   return parts.join(' · ')||L.idle}
+/* the sect a person belongs to; your own disciples belong to your house, or to the sect you are in */
+function pSectName(s,p){if(p.sect&&SECTS[p.sect])return T(SECTS[p.sect].en,SECTS[p.sect].cn);
+  if(p.rel==='disciple'){const o=[s.org,s.org2].find(o=>o&&o.type==='sect');if(o)return o.name;if(s.sect&&SECTS[s.sect])return T(SECTS[s.sect].en,SECTS[s.sect].cn);if(s.org)return s.org.name}
+  if(p.org)return p.org;return null}
 function sectText(s){const L=u();if(!s.sect)return s.flags.formerSect?`${zh()?SZ(s.flags.formerSect):SECTS[s.flags.formerSect].en} (${L.former})`:L.noSect;
   const ev=isEvil(s.sect)?(zh()?' <span class="warnrow">邪派</span>':' <span class="warnrow">dark faction</span>'):'';const m=zh()?` · 贡献${s.merit||0}`:` · merit ${s.merit||0}`;
   return zh()?`${SZ(s.sect)} · ${rankName(s).zh}${m}${ev}`:`${SECTS[s.sect].en} <span class="cn">${SECTS[s.sect].cn}</span> · ${rankName(s).en}${m}${ev}`}
@@ -337,7 +341,7 @@ function personHTML(id){
   const s=S,L=u(),p=person(s,id);if(!p)return'';
   const acts=PACTS.filter(a=>!a.if||a.if(s,p));
   return`<button class="chip" data-back>← ${L.ppl}</button>
-   <div class="who" style="margin-top:12px"><span class="av sx-${p.sex}" style="width:52px;height:52px;font-size:26px">${avChar(p)}</span><div><h2>${zh()?p.n.cn:esc(p.n.py)+` <span class="cn muted" style="font-size:17px">${p.n.cn}</span>`}${typeof sxMark==='function'?sxMark(p):''}</h2><p>${tr(relLabel(s,p))} · ${p.sex==='f'?(zh()?'女':'female'):(zh()?'男':'male')} · ${L.age2} ${p.age} · ${L.traitL}: ${tr(P(TRAITS[p.trait]))} · ${L.lvl} ${p.lv}${p.alive?'':' · †'}</p>${typeof looksLabel==='function'?`<p class="muted" style="font-size:13.5px;margin-top:2px">${zh()?'相貌':'Looks'}：${tr(looksLabel(p))}${p.sect&&SECTS[p.sect]?` · ${zh()?'门派':'Sect'}：${zh()?SECTS[p.sect].cn:SECTS[p.sect].en}`:` · ${zh()?'无门无派':'no sect'}`}</p>`:''}</div></div>
+   <div class="who" style="margin-top:12px"><span class="av sx-${p.sex}" style="width:52px;height:52px;font-size:26px">${avChar(p)}</span><div><h2>${zh()?p.n.cn:esc(p.n.py)+` <span class="cn muted" style="font-size:17px">${p.n.cn}</span>`}${typeof sxMark==='function'?sxMark(p):''}</h2><p>${tr(relLabel(s,p))} · ${p.sex==='f'?(zh()?'女':'female'):(zh()?'男':'male')} · ${L.age2} ${p.age} · ${L.traitL}: ${tr(P(TRAITS[p.trait]))} · ${L.lvl} ${p.lv}${p.alive?'':' · †'}</p>${typeof looksLabel==='function'?`<p class="muted" style="font-size:13.5px;margin-top:2px">${zh()?'相貌':'Looks'}：${tr(looksLabel(p))}${(()=>{const n=pSectName(S,p);return n?` · ${zh()?'门派':'Sect'}：${tr(n)}`:` · ${zh()?'无门无派':'no sect'}`})()}</p>`:''}</div></div>
    ${p.alive?`<div class="bar" style="margin:10px 0 4px"><div class="row"><span>${L.bond}</span><b>${p.bond}</b></div><div class="track"><div class="fill f-pw" style="width:${p.bond}%"></div></div></div>
    <div class="rows" style="margin-top:12px">${acts.map(a=>{const ok=canPact(s,p,a);return`<button class="rowb" data-pa="${a.id}" data-pid="${p.id}"${ok===true?'':' disabled'}><span class="main"><b>${tr(a.n)}</b></span><span class="side">${ok===true||ok===false?((a.ap??1)?'●':(zh()?'不耗行动':'free')):tr(ok)}</span></button>`}).join('')}</div>`:''}`;
 }
