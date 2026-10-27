@@ -27,5 +27,12 @@ function cloneO2(id){const a=ACT_BY[id];if(!a)return;const nid=id+'2';
 /* the second house on the character sheet */
 if(typeof addEventListener==='function')addEventListener('load',()=>{if(typeof sideHTML!=='function')return;const h0=sideHTML;sideHTML=function(s){const h=h0.apply(this,arguments);if(!s.org2)return h;
   const o=s.org;s.org=s.org2;let h2;try{h2=h0.apply(this,arguments)}finally{s.org=o}
-  const m=h2.match(/<div class="orgbox">[\s\S]*?<\/div><\/div>(?:<div class="orgst">[\s\S]*?<\/div>)?<\/div>/);const i=h.indexOf('<div class="orgbox">');if(!m||i<0)return h;
-  const m1=h.slice(i).match(/<div class="orgbox">[\s\S]*?<\/div><\/div>(?:<div class="orgst">[\s\S]*?<\/div>)?<\/div>/);if(!m1)return h;const end=i+m1[0].length;return h.slice(0,end)+m[0]+h.slice(end)};try{update(false)}catch(e){}});
+  const box=x=>{const a=x.indexOf('<div class="orgbox">');if(a<0)return null;let d=0,k=a;const re=/<div\b|<\/div>/g;re.lastIndex=a;let m;
+    while((m=re.exec(x))){d+=m[0]==='</div>'?-1:1;if(d===0){k=m.index+6;break}}return d===0?[a,k]:null};
+  const b1=box(h),b2=box(h2);if(!b1||!b2)return h;return h.slice(0,b1[1])+h2.slice(b2[0],b2[1])+h.slice(b1[1])};
+  /* the numbers you need when you run your house, at the top of its actions */
+  if(typeof actsHTML==='function'){const a0=actsHTML;actsHTML=function(){const h=a0.apply(this,arguments),s=S,Z=zh();if(!s.org)return h;const lab=`<h4>${tr(ACT_CATS.find(c=>c[0]==='org')[1])}</h4>`;const i=h.indexOf(lab);if(i<0)return h;
+    const one=o=>{const cap=o.lv*15,full=o.members>=cap;return`<div class="orgsum"><b>${tr(o.name)}</b> <span class="muted">${o.type==='sect'?(Z?'门派':'sect'):(Z?'镖局':'agency')}</span><br>${Z?'人手':'people'} <b${full?' class="warnrow"':''}>${o.members}/${cap}</b>${full?(Z?'（满了，先扩建）':' (full: expand first)'):''} · ${Z?'声望':'reputation'} <b>${Math.round(o.rep)}</b> · ${Z?'规模':'size'} <b>${o.lv}/5</b>${o.lv<5?` <span class="muted">(${Z?`扩建需${300*o.lv}两`:`expanding costs ${300*o.lv}`})</span>`:''}</div>`};
+    const box=`<div class="orgsums">${one(s.org)}${s.org2?one(s.org2):''}<div class="muted" style="font-size:12.5px">${Z?`手头银两 ${num(s.money)}两`:`Silver on hand: ${num(s.money)}`}</div></div>`;
+    return h.slice(0,i+lab.length)+box+h.slice(i+lab.length)}}
+  try{update(false)}catch(e){}});
