@@ -58,7 +58,9 @@ const BRK_BASE={4:.12,5:.22,6:.45,7:.5,8:.25,9:.12};
 /* how far your talent is likely to carry you: ordinary talent tops out around First-rate */
 const potential=s=>3+(s.t.root+s.t.wit+s.t.heart-15)/4;
 function brkChance(s,k){const a=s.age;const ageM=a<20?.8:a<=50?1:a<=65?.7:.4;const over=Math.max(0,k-potential(s));
-  const top=s.arts.some(x=>x.tier>=3)?1.25:1;return clamp((BRK_BASE[k]||.02)*Math.pow(.35,over)*ageM*top*(1+Math.min(.5,(s.brkTry||0)*.08)),.003,.9)}
+  const top=s.arts.some(x=>x.tier>=3)?1.25:1;return clamp((BRK_BASE[k]||.02)*Math.pow(.5,over)*ageM*top*(1+Math.min(3,(s.brkTry||0)*.2)),.005,.9)}
+/* insight from failed attempts: enough of it, and the next win breaks the wall for certain */
+const BRK_SURE=10;
 function breakThrough(s){const k=s.brk+1;s.brkCd=0;s.brk=k;s.brkTry=0;const w=attrW(s);ATTR.forEach(x=>w[x]+=1);
   say(s,`The wall gives way. You have broken through into the realm of ${REALM9[k][2]} (${REALM9[k][1]}).`,`瓶颈豁然冲开，你踏入了「${REALM9[k][1]}」之境！`,'gold');
   if(k>=7)s.fame+=k*2}
@@ -66,9 +68,9 @@ I({id:'rz_bottle',only:1,noThread:1,ctx:s=>({k:s.brk+1}),
  text:c=>T(`Your training has hit a wall. To go from ${REALM9[c.k-1][2]} to ${REALM9[c.k][2]} takes more than practice: something has to break.`,`你的修为卡住了。从「${REALM9[c.k-1][1]}」到「${REALM9[c.k][1]}」，光靠苦练已经不够，得有什么东西被打破。`),
  opts:[{l:T('Go into seclusion and force it','闭关冲关'),sub:(c,s)=>T(`About ${Math.round(brkChance(s,c.k)*100)}% if it goes well; failure can injure you.`,`顺利的话约有${Math.round(brkChance(s,c.k)*100)}%的把握；失败可能受伤。`),
    out:[{t:T('You shut the door behind you.','你关上了门。'),c:'muted',sure:1,fx:{f:(s,c)=>{if(chance(brkChance(s,c.k)))breakThrough(s);else{s.brkTry=(s.brkTry||0)+1;if(chance(.4)){const w=wound(s,6,14,T('qi deviation in seclusion','闭关时走火入魔'));s.health=Math.max(s.health,Math.round(s.maxHealth*.2));s.skill=Math.max(0,s.skill-3);say(s,`Your qi turns on you (${w.en}). You come out weaker than you went in.`,`真气反噬（${w.zh}），你出关时反倒弱了些。`,'bad')}else say(s,'Months in the dark, and the wall holds. Next time you will know it better.','黑暗中枯坐数月，那堵墙纹丝不动。下一回，你会更了解它。','muted')}}}}]},
-  {l:T('Seek out a stronger opponent','寻一位强敌生死一搏'),sub:T('Win, and the fight may break the wall for you.','打赢了，这一战或许能替你破开瓶颈。'),
+  {l:T('Seek out a stronger opponent','寻一位强敌生死一搏'),sub:(c,s)=>(s.brkTry||0)>=BRK_SURE?T('Your insight is full: win, and you break through.','感悟已满：打赢这一战，必能破境。'):T(`Win, and about ${Math.round(Math.min(.95,brkChance(s,c.k)*1.8)*100)}% to break through. Insight ${s.brkTry||0}/${BRK_SURE}.`,`打赢了约有${Math.round(Math.min(.95,brkChance(s,c.k)*1.8)*100)}%能破境。感悟${cnNum(s.brkTry||0)}/${cnNum(BRK_SURE)}。`),
    fight:(s,c)=>({foe:{name:foeName(),lv:REALM9[c.k][0]+rint(0,15),fixed:1},stakes:'injury',title:T('A fight at the edge','生死边缘'),cause:T('a fight to break a barrier','以战破境')}),
-   win:[{t:T('In the last exchange you see what you could not see before.','最后一招交错之际，你看见了以前看不见的东西。'),c:'good',sure:1,fx:{f:(s,c)=>{if(chance(Math.min(.95,brkChance(s,c.k)*1.8)))breakThrough(s);else{s.brkTry=(s.brkTry||0)+2;say(s,'Close. Very close.','差一点。就差一点。','muted')}}}}],
+   win:[{t:T('In the last exchange you see what you could not see before.','最后一招交错之际，你看见了以前看不见的东西。'),c:'good',sure:1,fx:{f:(s,c)=>{if((s.brkTry||0)>=BRK_SURE||chance(Math.min(.95,brkChance(s,c.k)*1.8)))breakThrough(s);else{s.brkTry=(s.brkTry||0)+2;say(s,`Close. Very close. (Insight ${s.brkTry}/${BRK_SURE}: the next attempt is likelier.)`,`差一点。就差一点。（感悟${cnNum(Math.min(s.brkTry,BRK_SURE))}/${cnNum(BRK_SURE)}，下次把握更大。）`,'muted')}}}}],
    lose:[{t:T('You are beaten, and the wall is still there.','你败了，那堵墙还在。'),c:'bad',sure:1,fx:{f:s=>{s.brkTry=(s.brkTry||0)+1}}}]},
   {l:T('Ask someone who has crossed it','请教过来人'),if:s=>!!masterOf(s)||s.money>=150,sub:T('Safer and slower. Your master, or 150 taels for a teacher.','稳妥但慢。找师父，或花一百五十两请人指点。'),
    out:[{t:T('You listen more than you talk.','你听得多，说得少。'),c:'muted',sure:1,fx:{f:(s,c)=>{if(!masterOf(s))pay(s,-150);if(chance(brkChance(s,c.k)*.8))breakThrough(s);else{s.brkTry=(s.brkTry||0)+2;say(s,'You understand the road better, but have not walked it yet.','路看得更清了，可还没走过去。','muted')}}}}]},

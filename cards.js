@@ -58,7 +58,7 @@ function cardSVG(scn,season,night,seed){let x=seed>>>0||1;const r=()=>(x=(x*1664
   if(season===0&&scn!=='prison'){let d=`M${W} 0Q${W-50} 14 ${W-96} 30`;o+=`<path d="${d}M${W-60} 18Q${W-70} 34 ${W-84} 44" style="stroke:${ink};stroke-opacity:.6;stroke-width:2;fill:none"/>`;for(let i=0;i<16;i++)o+=`<circle cx="${W-20-r()*80}" cy="${4+r()*40}" r="${1.8+r()*1.8}" style="fill:${seal};fill-opacity:.45"/>`}
   if(season===2&&scn!=='prison')for(let i=0;i<12;i++){const ex=r()*W,ey=r()*gy;o+=`<ellipse cx="${ex}" cy="${ey}" rx="2.4" ry="1.2" transform="rotate(${r()*180} ${ex} ${ey})" style="fill:var(--gold);fill-opacity:.55"/>`}
   return`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">${o}</svg>`}
-function hashStr(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function cardHash(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 /* ---------- the card around the decision ---------- */
 (()=>{const rc=renderChron;renderChron=function(){rc.apply(this,arguments);const s=S,q=s&&s.alive&&s.queue[0];if(!q)return;
   const box=$('chron').querySelector(':scope>.choices:not(.outcome)');if(!box||box.classList.contains('card'))return;
@@ -67,7 +67,10 @@ function hashStr(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt
   const when=Z?`${cnNum(s.age)}岁${sea>=0?' · '+SEASON_N[sea].zh:''}`:`Age ${s.age}${sea>=0?' · '+SEASON_N[sea].en:''}`;
   const n=s.queue.length>1?` · 1/${s.queue.length}`:'';
   box.classList.add('card','k-'+kind);const lbl=box.querySelector(':scope>.lbl');if(lbl)lbl.remove();
-  box.insertAdjacentHTML('afterbegin',`<div class="qhead"><span class="qtag">${tr(CARD_TAG[kind])}</span><span class="qwhen">${when}${n}</span></div><div class="qpic">${cardSVG(scn,sea>=0?sea:1,night,hashStr((q.id||'')+s.age))}</div>`)}})();
+  /* someone asking to be your disciple: their potential, before you decide */
+  {const inc=q.src==='inc'&&INC_BY[q.id];const dis=inc&&(inc.opts||[]).some(o=>[].concat(o.out||[],o.win||[]).some(x=>x&&x.fx&&typeof x.fx==='object'&&x.fx.meet==='disciple'));
+   if(dis&&q.c&&q.c.npc&&typeof potHTML==='function'){const qt=box.querySelector('.qtext');if(qt)qt.insertAdjacentHTML('afterend',potHTML(q.c.npc))}}
+  box.insertAdjacentHTML('afterbegin',`<div class="qhead"><span class="qtag">${tr(CARD_TAG[kind])}</span><span class="qwhen">${when}${n}</span></div><div class="qpic">${cardSVG(scn,sea>=0?sea:1,night,cardHash((q.id||'')+s.age))}</div>`)}})();
 /* choose, then confirm */
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('.choices.card .choice');if(!t||t.classList.contains('cont'))return;
   if(t.classList.contains('cfm'))return;
