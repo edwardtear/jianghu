@@ -128,8 +128,8 @@ function orgNameOpts(s,type){
 }
 const orgName=s=>s.org?s.org.name:null;
 addAct({id:'foundsect',ap:2,cat:'jh',n:T('Found your own sect','自立门派'),d:T('Raise your own banner. 800 taels to buy land and build halls.','开宗立派。买地建屋需八百两。'),
- if:s=>!s.org&&s.age>=20,
- ok:s=>s.age<25?needAge(s,25):power(s)<85?T('Needs power 85+ (first-rate)','需功力85以上（一流高手）'):s.fame<25?T('Needs fame 25+','需名望25以上'):s.money<800?T('Needs 800 taels','需八百两'):s.jail>0?notJail(s):true,
+ if:s=>!(s.org&&s.org.type==='sect')&&s.age>=20,
+ ok:s=>s.org?T(`You already run ${s.org.name.en}; you can only lead one house at a time.`,`你已经有了「${s.org.name.zh}」，一人只能执掌一家。`):s.age<25?needAge(s,25):power(s)<85?T('Needs power 85+ (first-rate)','需功力85以上（一流高手）'):s.fame<25?T('Needs fame 25+','需名望25以上'):s.money<800?T('Needs 800 taels','需八百两'):s.jail>0?notJail(s):true,
  run(s){const c={names:orgNameOpts(s,'sect')};ask(s,'foundsect',c,c.names.map((n,i)=>({k:'n'+i,l:n,sub:s.sect?T(`You will leave ${SE(s.sect)}.`,`你将脱离${SZ(s.sect)}。`):null})).concat([{k:'leave',l:T('Not yet','时候未到')}]))},
  choose(s,k,c){if(k==='leave')return;const name=c.names[+k.slice(1)];
    if(s.sect){const m=masterOf(s);if(m)addBond(m,-30);say(s,`You bow to ${SE(s.sect)} one last time.`,`你最后一次向${SZ(s.sect)}行礼。`);leaveSect(s)}
@@ -137,8 +137,8 @@ addAct({id:'foundsect',ap:2,cat:'jh',n:T('Found your own sect','自立门派'),d
    say(s,`You raise the banner of ${name.en} (${name.zh}). ${s.org.members} disciples kneel before you.`,`你竖起了「${name.zh}」的大旗，${cnNum(s.org.members)}名弟子跪拜行礼。`,'gold');
    deed(s,`Founded ${name.en} (${name.zh})`,`开宗立派，创立${name.zh}`);s.fame+=8}});
 addAct({id:'foundescort',ap:2,cat:'work',n:T('Open your own escort agency','自开镖局'),d:T('Hire escorts and guard silver on the roads. 600 taels, or free if you own an agency.','招镖师、走镖路。需六百两；已有镖局则免。'),
- if:s=>!s.org&&s.age>=18,
- ok:s=>s.age<20?needAge(s,20):power(s)<40?T('Needs power 40+','需功力40以上'):s.money<600&&!owned(s,'escortco').length?T('Needs 600 taels','需六百两'):s.jail>0?notJail(s):true,
+ if:s=>!(s.org&&s.org.type==='escort')&&s.age>=18,
+ ok:s=>s.org?T(`You already lead ${s.org.name.en}; you can only lead one house at a time.`,`你已经执掌「${s.org.name.zh}」，一人只能执掌一家。`):s.age<20?needAge(s,20):power(s)<40?T('Needs power 40+','需功力40以上'):s.money<600&&!owned(s,'escortco').length?T('Needs 600 taels','需六百两'):s.jail>0?notJail(s):true,
  run(s){const c={names:orgNameOpts(s,'escort')};ask(s,'foundescort',c,c.names.map((n,i)=>({k:'n'+i,l:n})).concat([{k:'leave',l:T('Not yet','时候未到')}]))},
  choose(s,k,c){if(k==='leave')return;const name=c.names[+k.slice(1)];
    const it=s.items.findIndex(i=>i.id==='escortco');if(it>=0)s.items.splice(it,1);else pay(s,-600);
