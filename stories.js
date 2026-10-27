@@ -11,8 +11,8 @@ const stRec=(s,id)=>(s.story||{})[id];
 const stF=(s,id)=>(stRec(s,id)||{}).facts||{};
 const stLive=s=>Object.keys(s.story||{}).filter(k=>s.story[k].st==='on');
 const dly=d=>Array.isArray(d)?rint(d[0],d[1]):(d??1);
-/* a new story may start if this life has not had it and is not already juggling three */
-function stCan(s,id){return!stRec(s,id)&&stLive(s).length<3&&s.jail<=0}
+/* a new story may start if this life has not had it and is not already juggling four */
+function stCan(s,id){return!stRec(s,id)&&stLive(s).length<4&&s.jail<=0}
 function stBegin(s,id,c,stage,facts,delay){s.story=s.story||{};
   const n=c&&c.npc,r={st:'on',stage,at:s.age,adv:s.age,next:s.age+dly(delay),reg:s.region,facts:Object.assign({},facts||{}),path:[]};
   if(n&&n.n)r.who={n:n.n,sex:n.sex,occ:n.occ,age:n.age,lv:n.lv};if(c&&c.pid)r.pid=c.pid;
