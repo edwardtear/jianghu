@@ -179,6 +179,9 @@ function runBattle(teams,opts){
     dmg=eff(d,dmg);
     line(`${nm(a)} hits ${nm(d)} for <i>${dmg}</i>.${crit?' Critical!':''}`,`${nm(a)}击中${nm(d)}，造成<i>${dmg}</i>点伤害。${crit?'会心一击！':''}`,crit?'crit':'');
     hurt(a,d,dmg,true);
+    /* what the weapon in hand does on a hit (equip.js) */
+    if(a.wfx&&!over){const w=a.wfx;if(w.steal&&a.hp>0)a.hp=Math.min(a.maxHp,a.hp+Math.max(1,Math.round(dmg*w.steal)));
+      if(d.hp>0&&!d.out){if(w.bleed&&R()<w.bleed)inflict(d,'bleed',1);if(w.brk&&R()<w.brk)inflict(d,'brk',1);if(w.poison&&!d.st.poison&&R()<w.poison&&!(d.pas&&d.pas.baidu&&R()<d.pas.baidu)){d.st.poison={d:eff(d,a.atk*.08+2),t:3};line(`${nm(d)} is poisoned by the blade.`,`${nm(d)}被淬毒的兵刃所伤，中了毒。`,'bad')}}}
   }
   const neiRaw=(a,d,m)=>a.nei*m*(a.pas&&a.pas.zhenqi?1+a.pas.zhenqi:1)*rnd()*60/(60+d.res);
   const neiDmg=(a,d,m)=>eff(d,neiRaw(a,d,m));

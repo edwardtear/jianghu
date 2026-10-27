@@ -36,7 +36,7 @@ function useN(s,id,n){n=Math.max(1,n|0);const E=s.log[s.log.length-1],i0=E?E.lin
 invHTML=function(){const s=S,L=u(),Z=zh(),pk=SHEET.ipick;if(!s.items.length)return`<p class="muted">${L.empty}</p>`;
   Object.keys(SLOTS).forEach(k=>eqItem(s,k));const worth=s.money+s.items.reduce((t,it)=>t+sellPrice(s,it),0);
   let h=`<p class="muted" style="margin:0 0 8px">${L.networth}: <b style="color:var(--ink)">${num(worth)}</b> ${L.taels}<br><span style="font-size:12.5px">${Z?'每一类装备各只能用一件，其余放着。同样的丹药会叠在一起。点一下看详情。':'You can use one item of each kind of gear at a time; the rest stay in storage. Identical medicines stack. Tap an item for details.'}</span></p>`;
-  const by={},seen={};s.items.forEach((it,i)=>{const d=itemDef(it.id);if(!d)return;const st=stackable(d)&&d.cat!=='anqi';
+  const by={},seen={};s.items.forEach((it,i)=>{const d=typeof instDef==='function'?instDef(it):itemDef(it.id);if(!d)return;const st=stackable(d)&&d.cat!=='anqi';
     if(st&&seen[it.id]){seen[it.id].n++;return}const g={it,i,d,n:1};if(st)seen[it.id]=g;(by[d.cat]=by[d.cat]||[]).push(g)});
   Object.keys(L.cats).filter(c=>by[c]).concat(Object.keys(by).filter(c=>!L.cats[c])).forEach(cat=>{const cnt=by[cat].reduce((t,g)=>t+g.n,0);
     h+=`<div class="grp"><h4>${L.cats[cat]||cat} <span class="muted">(${cnt})</span></h4><div class="rows">${by[cat].map(({it,i,d,n})=>{const eq=!!(SLOTS[d.cat]&&it.eq),on=pk===i,ff=itemFacts(s,d);
