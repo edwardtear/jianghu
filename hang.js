@@ -40,7 +40,7 @@ const HANG=[
  {id:'romance',w:(s,p)=>['lover','spouse'].includes(p.rel)?3:0,f:(s,p)=>{const k=HSEA(s);const sc=pick([[T('under the plum blossom','在梅花底下'),T('in the willow rain','在杨柳细雨里')],[T('on a boat under the lotus leaves','在荷叶下的小船上'),T('watching fireflies','一起看萤火虫')],[T('on a hill under the full moon','在满月下的山坡上'),T('among the falling leaves','在满地落叶里')],[T('by the stove while snow falls','下雪天守着炉子'),T('walking home through the lantern-lit streets','提着灯笼走回家')]][k]);
    const q=tkPick(s,p,'hr',[[`Stay. Just a little longer.`,`别走。再待一会儿。`],[`I thought about you every day. Every single one.`,`我每天都在想你。每一天。`],[`If you laugh at me, I will push you in the river.`,`你要是笑我，我就把你推下河。`],[`I am glad it is you.`,`幸好是你。`]]);
    return{l:[T(`You spend an evening with ${p.n.py} ${sc.en}.`,`你和${p.n.cn}${sc.zh}度过了一个晚上。`),HV(p,q[0],q[1])],bond:rint(5,10),happy:5}}},
- {id:'quarrel',w:(s,p)=>(p.bond<35?2:.5)+(['arrogant','cold','scheming','bold'].includes(tkTrait(p))?.6:0),f:(s,p)=>{const q=tkPick(s,p,'hq',[[`You only come when you want something.`,`你只有用得着我的时候才来。`],[`Do not tell me what I should have done.`,`别跟我说我该怎么做。`],[`You have changed, and not for the better.`,`你变了，没变好。`],[`I am tired. Can we not do this today?`,`我累了。今天能不吵吗？`]]);
+ {id:'quarrel',w:(s,p)=>{const hard=['arrogant','cold','scheming','bold'].includes(tkTrait(p));return p.bond<20?1.5:(p.bond<40&&hard)?1.2:0},f:(s,p)=>{const q=tkPick(s,p,'hq',[[`You only come when you want something.`,`你只有用得着我的时候才来。`],[`Do not tell me what I should have done.`,`别跟我说我该怎么做。`],[`You have changed, and not for the better.`,`你变了，没变好。`],[`I am tired. Can we not do this today?`,`我累了。今天能不吵吗？`]]);
    const mend=chance(.4);return{l:[T(`A small thing turns into an argument with ${p.n.py}.`,`一件小事，和${p.n.cn}吵了起来。`),HV(p,q[0],q[1]),mend?T(`By evening, you have both apologised, more or less.`,`到了晚上，两人都算是赔了个不是。`):T(`You leave without finishing your tea.`,`你茶没喝完就走了。`)],bond:mend?rint(0,2):-rint(3,7),happy:mend?0:-2,c:mend?'muted':'bad'}}},
  {id:'favour',w:(s,p)=>isAdult(p)&&p.bond>=30?1.2:0,f:(s,p)=>{const amt=rint(5,30);const can=s.money>=amt;const q=tkPick(s,p,'hv',[[`I hate to ask. I am asking anyway.`,`我实在不想开口，可还是得开口。`],[`It is only until the harvest. Probably.`,`就借到秋收。大概吧。`]]);
    return{l:[HV(p,q[0],q[1]),can?T(`You lend ${p.n.py} ${amt} taels.`,`你借给${p.n.cn}${amt}两。`):T(`You cannot spare it, and say so. ${p.n.py} understands, mostly.`,`你手头也紧，就直说了。${p.n.cn}大体上能体谅。`)],bond:can?rint(5,9):-1,fx:can?{money:-amt}:{}}}},
@@ -57,4 +57,6 @@ PACT_BY.hang=PACTS[0];
 /* the older of the two 'become friends' actions goes: one is enough */
 {const i=PACTS.findIndex(a=>a.id==='befriend'&&a.n&&a.n.zh==='交个朋友');if(i>=0)PACTS.splice(i,1)}
 /* which actions are everyday ones, kept under 更多 on a person's page */
-const PACT_MINOR=new Set(['chat','gift','spar','teach','money','date','argue','ask','spy','avoid']);
+const PACT_MINOR=new Set(['chat','gift','spar','teach','money','date','ask','spy','avoid']);
+/* no picking a quarrel on purpose: arguments only happen in 相处, and only when the bond is poor (or the temperament difficult and the bond middling) */
+{const i=PACTS.findIndex(a=>a.id==='argue');if(i>=0)PACTS.splice(i,1)}
