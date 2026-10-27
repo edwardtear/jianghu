@@ -141,8 +141,9 @@ const _homeHappyC=homeHappy;homeHappy=function(s){const c=best(s,'charm');return
 
 /* ---------- for the interface ---------- */
 const STS={poison:[T('Poisoned','中毒'),'bad'],stun:[T('Locked','被点穴'),'bad'],conf:[T('Confused','神志不清'),'bad'],dodge:[T('Evasive','身法飘忽'),'good'],shield:[T('Qi shield','护体真气'),'good'],
- atkUp:[T('Frenzied','狂暴'),'good'],atkDown:[T('Weakened','力竭'),'bad'],defUp:[T('Guarded','守势'),'good'],defDown:[T('Guard broken','破防'),'bad'],spdUp:[T('Quickened','加速'),'good'],spdDown:[T('Slowed','迟缓'),'bad'],noqi:[T('Out of qi','真气不济'),'bad']};
+ atkUp:[T('Frenzied','狂暴'),'good'],atkDown:[T('Weakened','力竭'),'bad'],defUp:[T('Guarded','守势'),'good'],defDown:[T('Guard broken','破防'),'bad'],spdUp:[T('Quickened','加速'),'good'],spdDown:[T('Slowed','迟缓'),'bad'],noqi:[T('Out of qi','真气不济'),'bad'],bleed:[T('Bleeding','流血'),'bad']};
 Object.keys(CONDS).forEach(k=>STS['c_'+k]=[CONDS[k].n,'scar']);
-function stChips(tags){return(tags||[]).map(k=>STS[k]?`<span class="stc ${STS[k][1]}">${tr(STS[k][0])}</span>`:'').join('')}
+const STK_LBL={bleed:[T('Bleeding','流血'),'bad'],burn:[T('Burning','灼烧'),'bad'],frost:[T('Chilled','寒气'),'bad'],weak:[T('Weakened','力竭'),'bad'],brk:[T('Armour broken','破甲'),'bad'],wound:[T('Grave wound','重创'),'bad'],charge:[T('Force','蓄势'),'good'],guard:[T('Braced','铁壁'),'good'],deft:[T('Nimble','灵动'),'good'],focus:[T('Focused','凝神'),'good'],intent:[T('Sword intent','剑意'),'good']};
+function stChips(tags){return(tags||[]).map(k=>{if(/^k_/.test(k)){const[x,n]=k.slice(2).split(':'),L=STK_LBL[x];return L?`<span class="stc ${L[1]}">${tr(L[0])}×${n}</span>`:''}return STS[k]?`<span class="stc ${STS[k][1]}">${tr(STS[k][0])}</span>`:''}).join('')}
 function condBox(s){const ks=condKeys(s);if(!ks.length||!s.alive)return'';
   return`<div class="quests condbox"><span class="lbl">${zh()?'伤病':'Injuries'}</span><ul>${ks.map(k=>`<li title="${esc(tr(CONDS[k].cure))}"><b>${tr(CONDS[k].n)}</b>（${tr(SEVN[s.conds[k]])}）<span class="muted"> ${tr(CONDS[k].d)} ${zh()?'医治：':'Treatment: '}${tr(CONDS[k].cure)}</span></li>`).join('')}</ul></div>`}
