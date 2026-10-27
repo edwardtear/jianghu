@@ -5,12 +5,26 @@
 function withO2(s,f){const o=s.org;s.org=s.org2;try{return f()}finally{s.org2=s.org||null;s.org=o;normOrg(s)}}
 function normOrg(s){if(!s.org&&s.org2){s.org=s.org2;s.org2=null}}
 /* the agency's copies of the house actions */
-function cloneO2(id){const a=ACT_BY[id];if(!a)return;const nid=id+'2';
+function cloneO2(id){const a=ACT_BY[id];if(!a)return;const nid=id+'2',if0=a.if,ok0=a.ok,run0=a.run,ch0=a.choose;
   addAct(Object.assign({},a,{id:nid,n:T(`Agency: ${a.n.en}`,`镖局·${a.n.zh}`),
-    if:s=>!!s.org2&&withO2(s,()=>!a.if||!!a.if(s)),ok:a.ok?s=>withO2(s,()=>a.ok(s)):undefined,
-    run(s){const q0=s.queue.length;withO2(s,()=>a.run(s));s.queue.slice(q0).forEach(q=>{if(q.src==='act'&&q.id===id)q.id=nid})},
-    choose:a.choose?function(s,k,c){return withO2(s,()=>a.choose(s,k,c))}:undefined}))}
+    if:s=>!!s.org2&&withO2(s,()=>!if0||!!if0(s)),ok:ok0?s=>withO2(s,()=>ok0(s)):undefined,
+    run(s){const q0=s.queue.length;withO2(s,()=>run0.call(a,s));s.queue.slice(q0).forEach(q=>{if(q.src==='act'&&q.id===id)q.id=nid})},
+    choose:ch0?function(s,k,c){return withO2(s,()=>ch0.call(a,s,k,c))}:undefined}))}
 ['org_recruit','org_build','org_venture','org_contract','org_bandits','org_close'].forEach(cloneO2);
+/* one card per action: with two houses that both can, you are asked which; agency-only actions keep their plain names */
+['org_contract','org_bandits'].forEach(id=>{const c=ACT_BY[id+'2'];if(c)c.n=ACT_BY[id].n});
+const O2_SHARED=['org_recruit','org_build','org_venture','org_close'],O2_RUN={};
+const o2can=(s,id,second)=>{const a=second?ACT_BY[id+'2']:O2_RUN[id];if(!a)return false;if(second&&!s.org2)return false;if(!second&&!s.org)return false;
+  const f=second?(()=>(!a.if||a.if(s))&&(!a.ok||a.ok(s)===true)):(()=>(!a.if0||a.if0(s))&&(!a.ok0||a.ok0(s)===true));return f()};
+O2_SHARED.forEach(id=>{const a=ACT_BY[id],c=ACT_BY[id+'2'];if(!a||!c)return;O2_RUN[id]={if0:a.if,ok0:a.ok,run0:a.run};c.cat='org_x';
+  a.if=s=>(!O2_RUN[id].if0||O2_RUN[id].if0(s))||(!!s.org2&&c.if(s));
+  a.ok=s=>{if(o2can(s,id,false)||o2can(s,id,true))return true;const r=O2_RUN[id].ok0?O2_RUN[id].ok0(s):true;return r===true&&s.org2&&c.ok?c.ok(s):r};
+  a.run=function(s){const m=o2can(s,id,false),n=o2can(s,id,true);
+    if(m&&n){const lab=o=>T(`${o.name.en} (people ${o.members}/${o.lv*15}, size ${o.lv}/5)`,`${o.name.zh}（人手${o.members}/${o.lv*15} · 规模${o.lv}/5）`);
+      ask(s,'org_pick',{id},[{k:'1',l:lab(s.org)},{k:'2',l:lab(s.org2)}]);return}
+    if(n)return c.run(s);return O2_RUN[id].run0.call(a,s)}});
+addAct({id:'org_pick',cat:'org_x',n:T('Which house?','哪一家？'),d:'',if:()=>false,run(){},
+  choose(s,k,c){const id=c&&c.id;if(!id||!O2_RUN[id])return;if(k==='2')ACT_BY[id+'2'].run(s);else O2_RUN[id].run0.call(ACT_BY[id],s)}});
 /* founding the other kind of house no longer means giving up the one you have */
 (()=>{const f=ACT_BY.foundsect;f.if=s=>!(s.org&&s.org.type==='sect')&&s.age>=20;const ok0=f.ok;f.ok=s=>{if(s.org&&s.org.type==='escort'){const o=s.org;s.org=null;try{return ok0(s)}finally{s.org=o}}return ok0(s)};
   const c0=f.choose;f.choose=function(s,k,c){if(k==='leave'||!(s.org&&s.org.type==='escort'))return c0.apply(this,arguments);s.org2=s.org;s.org=null;const r=c0.apply(this,arguments);normOrg(s);return r}})();
