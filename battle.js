@@ -1,5 +1,6 @@
 /* 江湖一生 · battle: Namerena-style auto battles. A name decides your body; your level and arts decide the rest. */
 'use strict';
+const BT_DMG=.5;
 const SK={
  jianqi:{n:T('Qi Strike','气劲纵横'),act:1},
  lianhuan:{n:T('Flurry','连环快招'),act:1},
@@ -154,10 +155,12 @@ function runBattle(teams,opts){
   function hurt(a,d,amt,phys){
     if(over||d.hp<=0)return 0;
     if(d.out)return 0;
+    /* every blow lands softer than it once did, so a fight lasts several exchanges instead of two */
+    amt=Math.max(1,Math.round(amt*BT_DMG));
     if(a&&d.st&&d.st.stk&&d.st.stk.wound)amt=Math.round(amt*(1+.06*d.st.stk.wound));
     if(phys&&d.pas&&d.pas.huti)amt=Math.max(1,Math.round(amt*(1-d.pas.huti)));
     if(d.st.shield>0){const ab=Math.min(d.st.shield,amt);d.st.shield-=ab;amt-=ab;if(ab>0&&amt<=0){line(`${nm(d)}’s qi shield absorbs the blow.`,`${nm(d)}的护体真气挡下了这一击。`);return 0}}
-    d.hp-=amt;if(a&&amt>0){if(phys){if(amt>d.maxHp*.16)d.bigHits=(d.bigHits||0)+1}else d.qiTaken=(d.qiTaken||0)+amt}
+    d.hp-=amt;if(a&&amt>0){if(phys){if(amt>d.maxHp*.16*BT_DMG)d.bigHits=(d.bigHits||0)+1}else d.qiTaken=(d.qiTaken||0)+amt/BT_DMG}
     if(phys&&a&&a.hp>0&&!a.out){const fz=has(d,'fanzhen');if(fz&&d.hp>0){const back=eff(a,amt*(d.tough||1)*.12*pot(fz));a.hp-=back;line(`【${lbl(fz).en}】 throws <i>${back}</i> back at ${nm(a)}.`,`【${lbl(fz).zh}】反震，${nm(a)}受到<i>${back}</i>点伤害。`);down(a)}}
     down(d);
     return amt;

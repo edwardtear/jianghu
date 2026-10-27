@@ -405,7 +405,7 @@ function stepBattle(silent){
   const log=$('bt-log');const p=document.createElement('p');p.className=fr.c||'';p.innerHTML=fmtLine(r,fr.t);log.appendChild(p);
   if(!silent){log.scrollTop=log.scrollHeight;drawTeams()}else log.scrollTop=log.scrollHeight;
 }
-function tick(){if(!BT)return;if(BT.i>=BT.r.frames.length){drawTeams();$('bt-end').hidden=false;$('bt-cont').focus();return}stepBattle(false);BT.timer=setTimeout(tick,Math.round((matchMedia('(prefers-reduced-motion: reduce)').matches?160:520)/BT.speed))}
+function tick(){if(!BT)return;if(BT.i>=BT.r.frames.length){drawTeams();$('bt-end').hidden=false;$('bt-cont').focus();return}stepBattle(false);BT.timer=setTimeout(tick,Math.round((matchMedia('(prefers-reduced-motion: reduce)').matches?160:650)/BT.speed))}
 function closeBattle(){if(BT)clearTimeout(BT.timer);BT=null;const v=$('bveil');if(v)v.remove();
   setTimeout(()=>{if(SHOW.length&&WATCH){playShows();return}SHOW.length=0;if(DEFER.on){const sc=DEFER.scroll;DEFER.on=false;DEFER.scroll=false;update(sc)}},60)}
 
