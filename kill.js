@@ -8,16 +8,29 @@ const klVillain=(foe,o)=>{if(!o||['spar','light'].includes(o.stakes))return fals
   const t=[o.cause,o.title,foe&&foe.name].map(x=>x?(x.zh||String(x)):'').join(' ');return KL_RE.test(t)};
 /* the fight is won: hand the choice to the player */
 (()=>{const f0=fightLife;fightLife=function(s,foe,o){const r=f0.apply(this,arguments);
-  if(r&&r.win&&s.alive&&!s.klBusy&&s.queue.length<5&&klVillain(foe,o)&&chance(.9)){const vn=foe.name&&foe.name.zh?foe.name:T(String(foe.name||'the man'),String(foe.name||'那人'));
+  if(r&&r.win&&s.alive&&!s.klBusy&&s.queue.length<5&&klVillain(foe,o)){const vn=foe.name&&foe.name.zh?foe.name:T(String(foe.name||'the man'),String(foe.name||'那人'));
     runIncident(s,INC_BY.kl_mercy,Object.assign(scene(),{vn,lv:foe.lv||power(s),why:o.cause||null}))}
   return r}})();
 const klRec=(s,c,kind)=>{(s.kl=s.kl||[]).push({n:c.vn,lv:c.lv,at:s.age,kind,st:0,reg:s.region});if(s.kl.length>12)s.kl.shift()};
 const VN=c=>c.vn;
+/* what is on him: always some silver, often his weapon (as rolled as any shop piece), sometimes darts, pills, a charm,
+   and once in a while the manual he learned from */
+function klLoot(s,c){const lv=Math.max(5,c.lv||power(s)),got=[];const money=Math.round(rint(10,40)+lv*(.8+R()*1.6));pay(s,money);got.push(T(`${money} taels`,`${money}两银子`));
+  const add=(id,extra)=>{const d=ITEMS[id];if(!d)return;let it=Object.assign({id,age:s.age},extra||{});if(typeof rollItem==='function')it=rollItem(s,it);
+    if(d.cat==='anqi'&&d.cnt0){const n=extra&&extra.cnt||rint(3,d.cnt0);const old=s.items.find(x=>x.id===id);if(old){old.cnt=(old.cnt??d.cnt0)+n;got.push(T(`${d.n.en} ×${n}`,`${d.n.zh}×${n}`));return}it.cnt=n}
+    s.items.push(it);const dd=typeof instDef==='function'?instDef(it):d;got.push(it.cnt?T(`${dd.n.en} ×${it.cnt}`,`${dd.n.zh}×${it.cnt}`):T(dd.n.en,dd.n.zh))};
+  const pool=(cat,cap,rare)=>Object.keys(ITEMS).filter(k=>{const d=ITEMS[k];return d.cat===cat&&d.price<=cap&&(rare?true:!d.rare)&&d.price>=(cat==='weapon'?20:0)});
+  if(chance(.5)){const w=pool('weapon',Math.max(60,lv*8)).concat(chance(.1)?pool('weapon',lv*20,1):[]);if(w.length)add(pick(w))}
+  if(chance(.3)){const a=pool('anqi',lv*4+60);if(a.length)add(pick(a))}
+  if(chance(.35)){const p=['salve','bonepaste','antidote','hushin','incense'].concat(lv>=60?['jadedew']:[]).filter(k=>ITEMS[k]);add(pick(p))}
+  if(chance(.1)){const ch=pool('charm',lv*10,lv>=90);if(ch.length)add(pick(ch))}
+  if(chance(.08)&&typeof lnPick==='function'){const k=(chance(.5)&&lnPick(s,'anqi',2))||lnPick(s,null,2);if(k){s.items.push({id:'book:'+k,age:s.age});got.push(T(`a manual: ${ARTS[k].n}`,`秘籍《${ARTS[k].cn}》`))}}
+  say(s,`You search the body: ${got.map(x=>x.en).join(', ')}.`,`你从尸身上搜出：${got.map(x=>x.zh).join('、')}。`,'good')}
 I({id:'kl_mercy',sys:1,noThread:1,
  text:c=>T(`${c.vn.en} is on the ground, out of breath, your blade at the throat. ${pick(['Nobody else is watching.','The road is empty.','The onlookers have fled.'])} It is up to you.`,`${c.vn.zh}倒在地上，喘着粗气，你的刀就抵在${pick(['他','那人'])}喉咙上。${pick(['四下无人。','路上空荡荡的。','看热闹的早跑光了。'])}怎么处置，全凭你一句话。`),
  opts:[
-  {l:T('Finish it','结果了他'),sub:T('One less of his kind in the world. Not everyone will see it that way.','世上少一个祸害。不是人人都这么看。'),
-   out:[{t:c=>T(`It is quick. ${c.vn.en} will not trouble anyone again.`,`干脆利落。${c.vn.zh}再也祸害不了谁了。`),c:'bad',fx:(s,c)=>({align:s.align>=40?-1:-3,fame:2,happy:s.align>=40?-2:0,f:s=>{klRec(s,c,'killed');deed(s,`Killed ${c.vn.en}`,`手刃${c.vn.zh}`)}})}]},
+  {l:T('Finish it','结果了他'),sub:T('One less of his kind in the world, and whatever he carried is yours. Not everyone will see it that way.','世上少一个祸害，他身上的东西也归你。不是人人都这么看。'),
+   out:[{t:c=>T(`It is quick. ${c.vn.en} will not trouble anyone again.`,`干脆利落。${c.vn.zh}再也祸害不了谁了。`),c:'bad',fx:(s,c)=>({align:s.align>=40?-1:-3,fame:2,happy:s.align>=40?-2:0,f:s=>{klRec(s,c,'killed');deed(s,`Killed ${c.vn.en}`,`手刃${c.vn.zh}`);klLoot(s,c)}})}]},
   {l:T('Let him go','放他一条生路'),sub:T('Maybe he will change. Maybe he will come back.','也许他会改。也许他会回来。'),
    out:[{t:c=>T(`You step back. ${c.vn.en} stares at you, then runs, and does not look back.`,`你收了刀。${c.vn.zh}愣愣地看了你一眼，扭头就跑，没敢回头。`),c:'muted',fx:(s,c)=>({align:2,f:s=>klRec(s,c,'spared')})}]},
   {l:T('Cripple his martial arts','废了他的武功'),sub:T('He lives, but he will never hurt anyone with his fists again.','留他一命，可他这辈子再也伤不了人。'),
